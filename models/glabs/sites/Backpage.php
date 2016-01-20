@@ -11,7 +11,7 @@ namespace app\models\glabs\sites;
  */
 class Backpage
 {
-    public function __construct($categories, $count)
+    public function __construct($count)
     {
 
     }
