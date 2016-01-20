@@ -22,6 +22,13 @@ abstract class BaseSite
     protected $categories = [];
 
     /**
+     * Income categories.
+     *
+     * @var array
+     */
+    protected $inCategories = [];
+
+    /**
      * Progress bar.
      *
      * @var string
@@ -41,9 +48,11 @@ abstract class BaseSite
     /**
      * Init.
      *
-     * @param integer $count Count object per category.
+     * @param array   $categories Categories.
+     * @param integer $count      Count object per category.
      */
-    public function __construct($count) {
+    public function __construct($categories, $count) {
+        $this->inCategories = $categories;
         $this->getCategoriesLinks($count);
     }
 

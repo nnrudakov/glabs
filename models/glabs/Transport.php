@@ -18,7 +18,7 @@ class Transport
      *
      * @var string
      */
-    private static $url = 'http://gis-iss.nr/index.php';//'http://211.233.159.68/bear1030/api/addproduct';
+    private static $url = 'http://211.233.159.68/bear1030/api/addproduct';
 
     /**
      * Login.
@@ -60,11 +60,6 @@ class Transport
      */
     public function send()
     {
-        $params = array_merge(
-            ['loginemail' => self::$loginemail, 'password' => self::$password],
-            $this->object->toArray()
-        );
-
         $ch = curl_init(self::$url);
 
         if (!ini_get('open_basedir')) {
@@ -72,9 +67,10 @@ class Transport
         }
 
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->prepareParams());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_SAFE_UPLOAD, true);
 
         $content = curl_exec($ch);
         if ($content === false) {
@@ -83,6 +79,36 @@ class Transport
             throw new TransportException('Error retrieving ' . $error);
         }
 
+        echo $content;
+        /*$content = json_decode($content, true);
+
+        if (!$content['success']) {
+            throw new TransportException('Error retrieving ' . $content['msg']);
+        }*/
+
         return true;
+    }
+
+    /**
+     * Prepare params.
+     *
+     * @return array $params
+     */
+    private function prepareParams()
+    {
+        $params = array_merge(
+            ['loginemail' => self::$loginemail, 'password' => self::$password],
+            $this->object->toArray(),
+            [
+                'thumbnail";filename="' . $this->object->getThumbnail()->getFilename() => $this->object->getThumbnail()->getData()
+            ]
+        );
+        if ($this->object->getSubimage()) {
+            foreach ($this->object->getSubimage() as $image) {
+                $params['thumbnail1[]";filename="' . $image->getFilename()] = $image->getData();
+            }
+        }
+
+        return $params;
     }
 }

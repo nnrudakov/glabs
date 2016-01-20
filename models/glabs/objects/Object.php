@@ -40,6 +40,13 @@ class Object
     private $title;
 
     /**
+     * Category.
+     *
+     * @var integer
+     */
+    private $category = 0;
+
+    /**
      * Description.
      *
      * @var string
@@ -70,13 +77,15 @@ class Object
     /**
      * Category constructor.
      *
-     * @param string $url   Link.
-     * @param string $title Name.
+     * @param string  $url        Link.
+     * @param string  $title      Title.
+     * @param integer $categoryId Category ID.
      */
-    public function __construct($url, $title)
+    public function __construct($url, $title, $categoryId)
     {
-        $this->url   = $url;
-        $this->title = $title;
+        $this->url      = $url;
+        $this->title    = $title;
+        $this->category = $categoryId;
         self::$dom = new Dom();
     }
 
@@ -86,6 +95,7 @@ class Object
     public function toArray()
     {
         return [
+            'category'          => $this->getCategory(),
             'title'             => $this->getTitle(),
             'description'       => $this->getDescription(),
             'product_sell_type' => $this->getProductSellType()
@@ -123,6 +133,16 @@ class Object
     public function getTitle()
     {
         return $this->title;
+    }
+
+    /**
+     * Return category.
+     *
+     * @return integer
+     */
+    public function getCategory()
+    {
+        return $this->category;
     }
 
     /**

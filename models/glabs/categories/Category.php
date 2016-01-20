@@ -21,9 +21,9 @@ class Category
     /**
      * URL.
      *
-     * @var string
+     * @var array
      */
-    private $url;
+    private $url = [];
 
     /**
      * Title.
@@ -31,6 +31,13 @@ class Category
      * @var string
      */
     private $title;
+
+    /**
+     * Category ID.
+     *
+     * @var integer
+     */
+    private $categoryId;
 
     /**
      * Count objects.
@@ -49,15 +56,17 @@ class Category
     /**
      * Category constructor.
      *
-     * @param string  $url   Link.
-     * @param string  $title Name.
-     * @param integer $count Count objects;
+     * @param array   $url        Link.
+     * @param string  $title      Title.
+     * @param integer $categoryId Category ID.
+     * @param integer $count      Count objects;
      */
-    public function __construct($url, $title, $count)
+    public function __construct($url, $title, $categoryId, $count)
     {
-        $this->url   = $url;
-        $this->title = $title;
-        $this->count = $count;
+        $this->url        = $url;
+        $this->title      = $title;
+        $this->categoryId = $categoryId;
+        $this->count      = $count;
         $this->getObjectsLinks($count);
     }
 
@@ -69,19 +78,23 @@ class Category
     protected function getObjectsLinks($count)
     {
         $dom = new Dom();
-        $dom->loadFromUrl($this->url, [], new ProxyCurl());
+        foreach ($this->url as $url) {
+            $dom->loadFromUrl($url, [], new ProxyCurl());
 
-        /* @var \PHPHtmlParser\Dom\AbstractNode $link */
-        foreach ($dom->find('.pl > a') as $link) {
-            if ($count && count($this->objects) >= $count) {
-                break;
+            /* @var \PHPHtmlParser\Dom\AbstractNode $link */
+            foreach ($dom->find('.pl > a') as $link) {
+                if ($count && count($this->objects) >= $count) {
+                    break;
+                }
+                $object = new Object(
+                    'http://' . parse_url($url, PHP_URL_HOST) . $link->getAttribute('href'),
+                    $link->text(),
+                    $this->categoryId
+                );
+                $this->objects[] =  $object;
+                BaseSite::$doneObjects++;
+                BaseSite::progress();
             }
-            $this->objects[] = new Object(
-                'http://' . parse_url($this->url, PHP_URL_HOST) . $link->getAttribute('href'),
-                $link->text()
-            );
-            BaseSite::$doneObjects++;
-            BaseSite::progress();
         }
 
         GlabsController::showMessage('');
@@ -98,6 +111,10 @@ class Category
             $object = $this->objects[$i];
             GlabsController::showMessage("\t" . ($i + 1) . ') Parsing object "' . $object->getTitle() . '"');
             $object->parse();
+            if (!$object->getThumbnail()) {
+                GlabsController::showMessage("\t\t" . 'Object skipped because it has not files.');
+                continue;
+            }
             GlabsController::showMessage("\t\t" . 'Sending object... ', false);
             try {
                 $object->send();
