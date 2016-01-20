@@ -6,6 +6,7 @@ use app\commands\GlabsController;
 use app\models\glabs\ProxyCurl;
 use app\models\glabs\objects\Object;
 use app\models\glabs\sites\BaseSite;
+use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
 
 /**
@@ -72,13 +73,15 @@ class Category
 
         /* @var \PHPHtmlParser\Dom\AbstractNode $link */
         foreach ($dom->find('.pl > a') as $link) {
+            if ($count && count($this->objects) >= $count) {
+                break;
+            }
             $this->objects[] = new Object(
                 'http://' . parse_url($this->url, PHP_URL_HOST) . $link->getAttribute('href'),
                 $link->text()
             );
             BaseSite::$doneObjects++;
             BaseSite::progress();
-            break;
         }
 
         GlabsController::showMessage('');
@@ -95,6 +98,13 @@ class Category
             $object = $this->objects[$i];
             GlabsController::showMessage("\t" . ($i + 1) . ') Parsing object "' . $object->getTitle() . '"');
             $object->parse();
+            GlabsController::showMessage("\t\t" . 'Sending object... ', false);
+            try {
+                $object->send();
+                GlabsController::showMessage('Success.');
+            } catch (TransportException $e) {
+                GlabsController::showMessage('Fail with message: "' . $e->getMessage() . '"');
+            }
         }
     }
 }

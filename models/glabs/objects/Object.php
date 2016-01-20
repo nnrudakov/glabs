@@ -4,6 +4,8 @@ namespace app\models\glabs\objects;
 
 use app\commands\GlabsController;
 use app\models\glabs\ProxyCurl;
+use app\models\glabs\Transport;
+use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
 
@@ -42,14 +44,28 @@ class Object
      *
      * @var string
      */
-    private $descr;
+    private $description;
+
+    /**
+     * Main image.
+     *
+     * @var Image
+     */
+    private $thumbnail;
+
+    /**
+     * Type.
+     *
+     * @var string
+     */
+    private $productSellType = 'Sell';
 
     /**
      * Images.
      *
-     * @var array
+     * @var Image[]
      */
-    private $images = [];
+    private $subimage = [];
 
     /**
      * Category constructor.
@@ -65,6 +81,18 @@ class Object
     }
 
     /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'title'             => $this->getTitle(),
+            'description'       => $this->getDescription(),
+            'product_sell_type' => $this->getProductSellType()
+        ];
+    }
+
+    /**
      * Parse object page.
      */
     public function parse()
@@ -72,7 +100,19 @@ class Object
         self::$dom->loadFromUrl($this->url, [], new ProxyCurl());
         $this->setDescription();
         $this->setImages();
-        //print_r($this); die;
+        //print_r($this); //die;
+    }
+
+    /**
+     * Send object to Zohney.com
+     *
+     * @return bool
+     *
+     * @throws TransportException
+     */
+    public function send()
+    {
+        return (new Transport($this))->send();
     }
 
     /**
@@ -92,7 +132,7 @@ class Object
      */
     public function getDescription()
     {
-        return $this->descr;
+        return $this->description;
     }
 
     /**
@@ -110,27 +150,42 @@ class Object
         // "click" to show contact
         if ($contact = $postingbody->find('.showcontact')[0]) {
             try {
-                $this->descr = (new ProxyCurl())->get(
+                $this->description = (new ProxyCurl())->get(
                     'http://' . parse_url($this->url, PHP_URL_HOST) . $contact->getAttribute('href')
                 );
             } catch (CurlException $e) {
                 GlabsController::showMessage("\t\t" . 'Object missed because od error: ' . $e->getMessage());
             }
         } else {
-            $this->descr = $postingbody->innerHtml();
+            $this->description = $postingbody->innerHtml();
         }
 
         return true;
     }
 
     /**
-     * Return images.
+     * Return main image.
      *
-     * @return array
+     * @return Image
      */
-    public function getImages()
+    public function getThumbnail()
     {
-        return $this->images;
+        return $this->thumbnail;
+    }
+
+    /**
+     * Other images.
+     *
+     * @return Image[]
+     */
+    public function getSubimage()
+    {
+        return $this->subimage;
+    }
+
+    public function getProductSellType()
+    {
+        return $this->productSellType;
     }
 
     /**
@@ -151,10 +206,19 @@ class Object
         if ($is_multiimage) {
             /* @var \PHPHtmlParser\Dom\AbstractNode $link */
             foreach ($figure->find('a') as $link) {
-                $this->images[] = $link->getAttribute('href');
+                if (count($this->subimage) >= 4) {
+                    break;
+                }
+
+                $href = $link->getAttribute('href');
+                if (!$this->thumbnail) {
+                    $this->thumbnail = new Image(['url' => $href]);
+                } else {
+                    $this->subimage[] = new Image(['url' => $href]);
+                }
             }
         } else {
-            $this->images[] = $figure->find('img')[0]->getAttribute('src');
+            $this->thumbnail = new Image(['url' => $figure->find('img')[0]->getAttribute('src')]);
         }
 
         return true;
