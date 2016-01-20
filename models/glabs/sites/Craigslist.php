@@ -30,14 +30,16 @@ class Craigslist extends BaseSite
 
         /* @var \PHPHtmlParser\Dom\AbstractNode $link */
         foreach ($links as $link) {
+            if ($count && count($this->categories) >= $count) {
+                break;
+            }
             $href = $link->getAttribute('href');
             if ('/forums' === $href || false !== strpos($href, 'https://forums.')) {
                 continue;
             }
             parent::$doneCategories++;
             parent::progress();
-            //$this->categories[] = new Category($this->url . $href, $link->find('span')->text(), $count);
-            //break;
+            $this->categories[] = new Category($this->url . $href, $link->find('span')->text(), $count);
         }
 
         parent::getCategoriesLinks($count);
