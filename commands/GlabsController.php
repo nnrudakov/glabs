@@ -42,18 +42,17 @@ class GlabsController extends Controller
     /**
      * Entry point in parser.
      *
-     * @param string  $site       Site to parse. Possible values:
-     *                            <ul>
-     *                              <li><code>craigslist</code> will parse http://losangeles.craigslist.org/ </li>
-     *                              <li><code>backpage</code> will parse http://la.backpage.com/ </li>
-     *                            </ul>
-     * @param string  $categories Comma separeted categories list. To define nested categories use a double slash "//".
-     * @param integer $count      Count objects to parse.
-     * @param bool    $quiet      No messages.
+     * @param string  $site  Site to parse. Possible values:
+     *                       <ul>
+     *                          <li><code>craigslist</code> will parse http://losangeles.craigslist.org/ </li>
+     *                          <li><code>backpage</code> will parse http://la.backpage.com/ </li>
+     *                       </ul>
+     * @param integer $count Count objects to parse.
+     * @param bool    $quiet No messages.
      *
      * @throws \InvalidArgumentException
      */
-    public function actionIndex($site, $categories = '', $count = 0, $quiet = false)
+    public function actionIndex($site, $count = 0, $quiet = false)
     {
         if (!in_array($site, ['craigslist', 'backpage'], true)) {
             throw new \InvalidArgumentException('Wrong site "' . $site . '".');
@@ -62,8 +61,7 @@ class GlabsController extends Controller
         self::$quiet = $quiet;
         self::showMessage('Starting parse "' . $site . '"');
         /** @noinspection CallableParameterUseCaseInTypeContextInspection */
-        $categories = array_filter(explode(',', $categories));
-        $site_model = 'craigslist' === $site ? new Craigslist($categories, $count) : new Backpage($categories, $count);
+        $site_model = 'craigslist' === $site ? new Craigslist($count) : new Backpage($count);
         $site_model->parse();
     }
 

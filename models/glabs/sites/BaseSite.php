@@ -41,10 +41,9 @@ abstract class BaseSite
     /**
      * Init.
      *
-     * @param array   $categories Categories.
-     * @param integer $count      Count object per category.
+     * @param integer $count Count object per category.
      */
-    public function __construct($categories, $count) {
+    public function __construct($count) {
         $this->getCategoriesLinks($count);
     }
 
