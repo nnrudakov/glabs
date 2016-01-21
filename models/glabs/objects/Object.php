@@ -108,7 +108,10 @@ class Object
             'title'             => $this->getTitle(),
             'description'       => $this->getDescription(),
             'product_sell_type' => $this->getProductSellType(),
-            'mrp'               => $this->getPrice()
+            'mrp'               => $this->getPrice(),
+            'short_description' => 'New',
+            'delivery_time'     => 'pickup',
+            'no_of_items'       => 1
         ];
     }
 
@@ -124,7 +127,7 @@ class Object
     }
 
     /**
-     * Send object to Zohney.com
+     * Send object to Zoheny.com
      *
      * @return bool
      *
@@ -133,6 +136,16 @@ class Object
     public function send()
     {
         return (new Transport($this))->send();
+    }
+
+    /**
+     * Return URL.
+     *
+     * @return string
+     */
+    public function getUrl()
+    {
+        return $this->url;
     }
 
     /**

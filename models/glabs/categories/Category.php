@@ -132,10 +132,11 @@ class Category
         for ($i = 0, $count = count($this->objects); $i < $count; $i++) {
             /* @var \app\models\glabs\objects\Object $object */
             $object = $this->objects[$i];
-            GlabsController::showMessage("\t" . ($i + 1) . ') Parsing object "' . $object->getTitle() . '"');
+            GlabsController::showMessage("\t" . ($i + 1) . ') Parsing object "' . $object->getTitle() .
+                '" (' . $object->getUrl() . ')');
             $object->parse();
             if (!$object->getThumbnail()) {
-                GlabsController::showMessage("\t\t" . 'Object skipped because it has not files.');
+                GlabsController::showMessage("\t\t" . 'Object skipped because it has no files.');
                 continue;
             }
             GlabsController::showMessage("\t\t" . 'Sending object... ', false);
