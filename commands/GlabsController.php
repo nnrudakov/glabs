@@ -53,7 +53,7 @@ class GlabsController extends Controller
      *
      * @throws \InvalidArgumentException
      */
-    public function actionIndex($site, array $category = ['cars+trucks'], $count = 1, $quiet = false)
+    public function actionIndex($site, array $category = ['cars+trucks'], $count = 50, $quiet = false)
     {
         if (!in_array($site, ['craigslist'], true)) {
             throw new \InvalidArgumentException('Wrong site "' . $site . '".');
@@ -65,8 +65,6 @@ class GlabsController extends Controller
         /** @noinspection CallableParameterUseCaseInTypeContextInspection */
         $site_model = 'craigslist' === $site ? new Craigslist($category, $count) : new Backpage($count);
         $site_model->parse();
-        /*$o = new \app\models\glabs\objects\Object('url', 'title');
-        $o->send();*/
     }
 
     public function beforeAction($action)
@@ -79,7 +77,7 @@ class GlabsController extends Controller
 
     public function afterAction($action, $result)
     {
-        file_put_contents(\Yii::getAlias('@runtime/logs/last_ip'),  self::$ip. "\n");
+        //file_put_contents(\Yii::getAlias('@runtime/logs/last_ip'),  self::$ip. "\n");
         $this->showTime();
 
         return parent::afterAction($action, $result);

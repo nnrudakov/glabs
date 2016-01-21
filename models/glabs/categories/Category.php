@@ -107,7 +107,7 @@ class Category
                         continue;
                     }
 
-                    $object          = new Object(
+                    $object = new Object(
                         'http://' . parse_url($url, PHP_URL_HOST) . $link->getAttribute('href'),
                         $title,
                         $this->categoryId,
@@ -141,7 +141,7 @@ class Category
             }
             GlabsController::showMessage("\t\t" . 'Sending object... ', false);
             try {
-                $object->send();
+                $object->send(true);
                 GlabsController::showMessage('Success.');
             } catch (TransportException $e) {
                 GlabsController::showMessage('Fail with message: "' . $e->getMessage() . '"');

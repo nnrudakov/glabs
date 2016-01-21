@@ -77,7 +77,7 @@ class TorCurl implements CurlInterface
         curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
 
-        sleep(2);
+        sleep(mt_rand(1,3));
         $content = curl_exec($ch);
         if ($content === false) {
             // there was a problem
