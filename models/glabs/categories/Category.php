@@ -81,19 +81,42 @@ class Category
         foreach ($this->url as $url) {
             $dom->loadFromUrl($url, [], new ProxyCurl());
 
-            /* @var \PHPHtmlParser\Dom\AbstractNode $link */
-            foreach ($dom->find('.pl > a') as $link) {
+            /* @var \PHPHtmlParser\Dom\AbstractNode $span */
+            foreach ($dom->find('.txt') as $span) {
                 if ($count && count($this->objects) >= $count) {
                     break;
                 }
-                $object = new Object(
-                    'http://' . parse_url($url, PHP_URL_HOST) . $link->getAttribute('href'),
-                    $link->text(),
-                    $this->categoryId
-                );
-                $this->objects[] =  $object;
-                BaseSite::$doneObjects++;
-                BaseSite::progress();
+
+                /* @var \PHPHtmlParser\Dom\AbstractNode $link */
+                if ($link = $span->find('a')[0]) {
+                    $title = $link->text();
+                    /* @var \PHPHtmlParser\Dom\AbstractNode $price */
+                    if ($price = $span->find('.price')[0]) {
+                        $price = $price->text();
+                    } else {
+                        $price = 0;
+
+                        if (preg_match('/\$(\d+)/', $title, $matches)) {
+                            $price = $matches[1];
+                        } else if (preg_match('/(\d+)\$/', $title, $matches)) {
+                            $price = $matches[1];
+                        }
+                    }
+
+                    if (!$price) {
+                        continue;
+                    }
+
+                    $object          = new Object(
+                        'http://' . parse_url($url, PHP_URL_HOST) . $link->getAttribute('href'),
+                        $title,
+                        $this->categoryId,
+                        $price
+                    );
+                    $this->objects[] = $object;
+                    BaseSite::$doneObjects++;
+                    BaseSite::progress();
+                }
             }
         }
 

@@ -68,6 +68,7 @@ class Transport
 
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->prepareParams());
+        curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($ch, CURLOPT_SAFE_UPLOAD, true);
@@ -79,12 +80,12 @@ class Transport
             throw new TransportException('Error retrieving ' . $error);
         }
 
-        echo $content;
-        /*$content = json_decode($content, true);
+        //echo $content;
+        $content = json_decode($content, true);
 
         if (!$content['success']) {
             throw new TransportException('Error retrieving ' . $content['msg']);
-        }*/
+        }
 
         return true;
     }
@@ -110,5 +111,42 @@ class Transport
         }
 
         return $params;
+    }
+
+    /**
+     * @return string
+     */
+    private function userAgent()
+    {
+        //list of browsers
+        $browser = [
+            'Firefox',
+            'Safari',
+            'Opera',
+            'Flock',
+            'Internet Explorer',
+            'Seamonkey',
+            'Konqueror',
+            'GoogleBot'
+        ];
+        //list of operating systems
+        $os = [
+            'Windows 3.1',
+            'Windows 95',
+            'Windows 98',
+            'Windows 2000',
+            'Windows NT',
+            'Windows XP',
+            'Windows Vista',
+            'Redhat Linux',
+            'Ubuntu',
+            'Fedora',
+            'AmigaOS',
+            'OS 10.5'
+        ];
+
+        // randomly generate UserAgent
+        return $browser[mt_rand(0, 7)] . '/' . mt_rand(1, 8) . '.' . mt_rand(0, 9) . ' (' .
+            $os[mt_rand(0, 11)] . ' ' . mt_rand(1, 7) . '.' . mt_rand(0, 9) . '; en-US;)';
     }
 }

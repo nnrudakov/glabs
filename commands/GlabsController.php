@@ -47,13 +47,13 @@ class GlabsController extends Controller
      *                              <li><code>craigslist</code> will parse http://losangeles.craigslist.org/ </li>
      *                              <li><code>backpage</code> will parse http://la.backpage.com/ </li>
      *                          </ul>
-     * @param string  $category Categories comma separated.
+     * @param array   $category Categories comma separated.
      * @param integer $count    Count objects to parse.
      * @param bool    $quiet    No messages.
      *
      * @throws \InvalidArgumentException
      */
-    public function actionIndex($site, $category = 'cars+trucks', $count = 1, $quiet = false)
+    public function actionIndex($site, array $category = ['cars+trucks'], $count = 1, $quiet = false)
     {
         if (!in_array($site, ['craigslist'], true)) {
             throw new \InvalidArgumentException('Wrong site "' . $site . '".');
@@ -62,9 +62,8 @@ class GlabsController extends Controller
         self::$quiet = $quiet;
         self::showMessage('Starting parse "' . $site . '"');
 
-        $categories = array_filter(explode(',', $category));
         /** @noinspection CallableParameterUseCaseInTypeContextInspection */
-        $site_model = 'craigslist' === $site ? new Craigslist($categories, $count) : new Backpage($count);
+        $site_model = 'craigslist' === $site ? new Craigslist($category, $count) : new Backpage($count);
         $site_model->parse();
         /*$o = new \app\models\glabs\objects\Object('url', 'title');
         $o->send();*/

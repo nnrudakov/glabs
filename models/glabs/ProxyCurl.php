@@ -29,6 +29,7 @@ class ProxyCurl implements CurlInterface
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         }
 
+        curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
 
@@ -41,5 +42,42 @@ class ProxyCurl implements CurlInterface
         }
 
         return $content;
+    }
+
+    /**
+     * @return string
+     */
+    private function userAgent()
+    {
+        //list of browsers
+        $browser = [
+            'Firefox',
+            'Safari',
+            'Opera',
+            'Flock',
+            'Internet Explorer',
+            'Seamonkey',
+            'Konqueror',
+            'GoogleBot'
+        ];
+        //list of operating systems
+        $os = [
+            'Windows 3.1',
+            'Windows 95',
+            'Windows 98',
+            'Windows 2000',
+            'Windows NT',
+            'Windows XP',
+            'Windows Vista',
+            'Redhat Linux',
+            'Ubuntu',
+            'Fedora',
+            'AmigaOS',
+            'OS 10.5'
+        ];
+
+        // randomly generate UserAgent
+        return $browser[mt_rand(0, 7)] . '/' . mt_rand(1, 8) . '.' . mt_rand(0, 9) . ' (' .
+            $os[mt_rand(0, 11)] . ' ' . mt_rand(1, 7) . '.' . mt_rand(0, 9) . '; en-US;)';
     }
 }

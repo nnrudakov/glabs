@@ -54,6 +54,13 @@ class Object
     private $description;
 
     /**
+     * Price.
+     *
+     * @var string
+     */
+    private $price;
+
+    /**
      * Main image.
      *
      * @var Image
@@ -80,12 +87,14 @@ class Object
      * @param string  $url        Link.
      * @param string  $title      Title.
      * @param integer $categoryId Category ID.
+     * @param string  $price      Price.
      */
-    public function __construct($url, $title, $categoryId)
+    public function __construct($url, $title, $categoryId, $price)
     {
         $this->url      = $url;
         $this->title    = $title;
         $this->category = $categoryId;
+        $this->price    = str_replace('$', '', $price);
         self::$dom = new Dom();
     }
 
@@ -98,7 +107,8 @@ class Object
             'category'          => $this->getCategory(),
             'title'             => $this->getTitle(),
             'description'       => $this->getDescription(),
-            'product_sell_type' => $this->getProductSellType()
+            'product_sell_type' => $this->getProductSellType(),
+            'mrp'               => $this->getPrice()
         ];
     }
 
@@ -110,7 +120,7 @@ class Object
         self::$dom->loadFromUrl($this->url, [], new ProxyCurl());
         $this->setDescription();
         $this->setImages();
-        //print_r($this); //die;
+        //print_r($this->toArray()); die;
     }
 
     /**
@@ -181,6 +191,16 @@ class Object
         }
 
         return true;
+    }
+
+    /**
+     * Return price.
+     *
+     * @return string
+     */
+    public function getPrice()
+    {
+        return $this->price;
     }
 
     /**
