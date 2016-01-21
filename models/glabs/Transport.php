@@ -18,7 +18,7 @@ class Transport
      *
      * @var string
      */
-    private static $url = 'http://gis-iss.nr/index.php';//'http://211.233.159.68/bear1030/api/addproduct';
+    private static $url = 'http://211.233.159.68/bear1030/api/addproduct';
 
     /**
      * Login.
@@ -60,11 +60,6 @@ class Transport
      */
     public function send()
     {
-        $params = array_merge(
-            ['loginemail' => self::$loginemail, 'password' => self::$password],
-            $this->object->toArray()
-        );
-
         $ch = curl_init(self::$url);
 
         if (!ini_get('open_basedir')) {
@@ -72,9 +67,11 @@ class Transport
         }
 
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->prepareParams());
+        curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_SAFE_UPLOAD, true);
 
         $content = curl_exec($ch);
         if ($content === false) {
@@ -83,6 +80,73 @@ class Transport
             throw new TransportException('Error retrieving ' . $error);
         }
 
+        //echo $content;
+        $content = json_decode($content, true);
+
+        if (!$content['success']) {
+            throw new TransportException('Error retrieving ' . $content['msg']);
+        }
+
         return true;
+    }
+
+    /**
+     * Prepare params.
+     *
+     * @return array $params
+     */
+    private function prepareParams()
+    {
+        $params = array_merge(
+            ['loginemail' => self::$loginemail, 'password' => self::$password],
+            $this->object->toArray(),
+            [
+                'thumbnail";filename="' . $this->object->getThumbnail()->getFilename() => $this->object->getThumbnail()->getData()
+            ]
+        );
+        if ($this->object->getSubimage()) {
+            foreach ($this->object->getSubimage() as $image) {
+                $params['thumbnail1[]";filename="' . $image->getFilename()] = $image->getData();
+            }
+        }
+
+        return $params;
+    }
+
+    /**
+     * @return string
+     */
+    private function userAgent()
+    {
+        //list of browsers
+        $browser = [
+            'Firefox',
+            'Safari',
+            'Opera',
+            'Flock',
+            'Internet Explorer',
+            'Seamonkey',
+            'Konqueror',
+            'GoogleBot'
+        ];
+        //list of operating systems
+        $os = [
+            'Windows 3.1',
+            'Windows 95',
+            'Windows 98',
+            'Windows 2000',
+            'Windows NT',
+            'Windows XP',
+            'Windows Vista',
+            'Redhat Linux',
+            'Ubuntu',
+            'Fedora',
+            'AmigaOS',
+            'OS 10.5'
+        ];
+
+        // randomly generate UserAgent
+        return $browser[mt_rand(0, 7)] . '/' . mt_rand(1, 8) . '.' . mt_rand(0, 9) . ' (' .
+            $os[mt_rand(0, 11)] . ' ' . mt_rand(1, 7) . '.' . mt_rand(0, 9) . '; en-US;)';
     }
 }

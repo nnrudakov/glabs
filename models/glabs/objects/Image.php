@@ -21,6 +21,13 @@ class Image extends BaseObject
     public $url;
 
     /**
+     * File name.
+     *
+     * @var string
+     */
+    public $filename;
+
+    /**
      * Binary data.
      *
      * @var string
@@ -29,6 +36,7 @@ class Image extends BaseObject
 
     public function init()
     {
+        $this->setFilename();
         $this->setData(file_get_contents($this->getUrl()));
     }
 
@@ -50,6 +58,24 @@ class Image extends BaseObject
     public function setUrl($url)
     {
         $this->url = $url;
+    }
+
+    /**
+     * Return filename.
+     *
+     * @return string
+     */
+    public function getFilename()
+    {
+        return $this->filename;
+    }
+
+    /**
+     * Set file name.ame.
+     */
+    public function setFilename()
+    {
+        $this->filename = basename($this->getUrl());
     }
 
     /**

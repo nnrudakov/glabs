@@ -42,33 +42,37 @@ class GlabsController extends Controller
     /**
      * Entry point in parser.
      *
-     * @param string  $site  Site to parse. Possible values:
-     *                       <ul>
-     *                          <li><code>craigslist</code> will parse http://losangeles.craigslist.org/ </li>
-     *                          <li><code>backpage</code> will parse http://la.backpage.com/ </li>
-     *                       </ul>
-     * @param integer $count Count objects to parse.
-     * @param bool    $quiet No messages.
+     * @param string  $site     Site to parse. Possible values:
+     *                          <ul>
+     *                              <li><code>craigslist</code> will parse http://losangeles.craigslist.org/ </li>
+     *                              <li><code>backpage</code> will parse http://la.backpage.com/ </li>
+     *                          </ul>
+     * @param array   $category Categories comma separated.
+     * @param integer $count    Count objects to parse.
+     * @param bool    $quiet    No messages.
      *
      * @throws \InvalidArgumentException
      */
-    public function actionIndex($site, $count = 0, $quiet = false)
+    public function actionIndex($site, array $category = ['cars+trucks'], $count = 1, $quiet = false)
     {
-        if (!in_array($site, ['craigslist', 'backpage'], true)) {
+        if (!in_array($site, ['craigslist'], true)) {
             throw new \InvalidArgumentException('Wrong site "' . $site . '".');
         }
 
         self::$quiet = $quiet;
         self::showMessage('Starting parse "' . $site . '"');
+
         /** @noinspection CallableParameterUseCaseInTypeContextInspection */
-        $site_model = 'craigslist' === $site ? new Craigslist($count) : new Backpage($count);
+        $site_model = 'craigslist' === $site ? new Craigslist($category, $count) : new Backpage($count);
         $site_model->parse();
+        /*$o = new \app\models\glabs\objects\Object('url', 'title');
+        $o->send();*/
     }
 
     public function beforeAction($action)
     {
         $this->startTime = microtime(true);
-        self::$ip = (new ProxyCurl())->get('https://api.ipify.org');
+        //self::$ip = (new ProxyCurl())->get('https://api.ipify.org');
 
         return parent::beforeAction($action);
     }

@@ -40,11 +40,25 @@ class Object
     private $title;
 
     /**
+     * Category.
+     *
+     * @var integer
+     */
+    private $category = 0;
+
+    /**
      * Description.
      *
      * @var string
      */
     private $description;
+
+    /**
+     * Price.
+     *
+     * @var string
+     */
+    private $price;
 
     /**
      * Main image.
@@ -70,13 +84,17 @@ class Object
     /**
      * Category constructor.
      *
-     * @param string $url   Link.
-     * @param string $title Name.
+     * @param string  $url        Link.
+     * @param string  $title      Title.
+     * @param integer $categoryId Category ID.
+     * @param string  $price      Price.
      */
-    public function __construct($url, $title)
+    public function __construct($url, $title, $categoryId, $price)
     {
-        $this->url   = $url;
-        $this->title = $title;
+        $this->url      = $url;
+        $this->title    = $title;
+        $this->category = $categoryId;
+        $this->price    = str_replace('$', '', $price);
         self::$dom = new Dom();
     }
 
@@ -86,9 +104,11 @@ class Object
     public function toArray()
     {
         return [
+            'category'          => $this->getCategory(),
             'title'             => $this->getTitle(),
             'description'       => $this->getDescription(),
-            'product_sell_type' => $this->getProductSellType()
+            'product_sell_type' => $this->getProductSellType(),
+            'mrp'               => $this->getPrice()
         ];
     }
 
@@ -100,7 +120,7 @@ class Object
         self::$dom->loadFromUrl($this->url, [], new ProxyCurl());
         $this->setDescription();
         $this->setImages();
-        //print_r($this); //die;
+        //print_r($this->toArray()); die;
     }
 
     /**
@@ -123,6 +143,16 @@ class Object
     public function getTitle()
     {
         return $this->title;
+    }
+
+    /**
+     * Return category.
+     *
+     * @return integer
+     */
+    public function getCategory()
+    {
+        return $this->category;
     }
 
     /**
@@ -161,6 +191,16 @@ class Object
         }
 
         return true;
+    }
+
+    /**
+     * Return price.
+     *
+     * @return string
+     */
+    public function getPrice()
+    {
+        return $this->price;
     }
 
     /**
