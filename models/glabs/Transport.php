@@ -5,7 +5,7 @@ namespace app\models\glabs;
 use app\models\glabs\objects\Object as Article;
 
 /**
- * Send data to Zohney.com.
+ * Send data to Zoheny.com.
  *
  * @package    glabs
  * @author     Nikolaj Rudakov <nnrudakov@gmail.com>
@@ -106,7 +106,7 @@ class Transport
         );
         if ($this->object->getSubimage()) {
             foreach ($this->object->getSubimage() as $image) {
-                $params['thumbnail1[]";filename="' . $image->getFilename()] = $image->getData();
+                $params['subimage[]";filename="' . $image->getFilename()] = $image->getData();
             }
         }
 
