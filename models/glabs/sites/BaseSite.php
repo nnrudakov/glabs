@@ -58,8 +58,6 @@ abstract class BaseSite
 
     /**
      * Parse action.
-     *
-     * @throws \Exception
      */
     public function parse()
     {

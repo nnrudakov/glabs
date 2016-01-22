@@ -129,13 +129,15 @@ class Object
     /**
      * Send object to Zoheny.com
      *
+     * @param bool $isTest
+     *
      * @return bool
      *
      * @throws TransportException
      */
-    public function send()
+    public function send($isTest = false)
     {
-        return (new Transport($this))->send();
+        return (new Transport($this))->send($isTest);
     }
 
     /**

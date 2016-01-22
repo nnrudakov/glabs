@@ -54,11 +54,13 @@ class Transport
     /**
      * Send object.
      *
+     * @param bool $isTest
+     *
      * @return bool
      *
      * @throws TransportException
      */
-    public function send()
+    public function send($isTest = false)
     {
         $ch = curl_init(self::$url);
 
@@ -72,6 +74,10 @@ class Transport
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($ch, CURLOPT_SAFE_UPLOAD, true);
+
+        if ($isTest) {
+            return true;
+        }
 
         $content = curl_exec($ch);
         if ($content === false) {

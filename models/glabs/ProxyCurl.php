@@ -33,7 +33,7 @@ class ProxyCurl implements CurlInterface
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
 
-        sleep(2);
+        sleep(mt_rand(1,3));
         $content = curl_exec($ch);
         if ($content === false) {
             // there was a problem

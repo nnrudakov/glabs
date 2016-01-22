@@ -78,6 +78,7 @@ class Category
     protected function getObjectsLinks($count)
     {
         $dom = new Dom();
+
         foreach ($this->url as $url) {
             $dom->loadFromUrl($url, [], new ProxyCurl());
 
@@ -107,7 +108,7 @@ class Category
                         continue;
                     }
 
-                    $object          = new Object(
+                    $object = new Object(
                         'http://' . parse_url($url, PHP_URL_HOST) . $link->getAttribute('href'),
                         $title,
                         $this->categoryId,
@@ -119,8 +120,6 @@ class Category
                 }
             }
         }
-
-        GlabsController::showMessage('');
     }
 
     /**
