@@ -2,6 +2,7 @@
 
 namespace app\models\glabs\sites;
 
+use app\commands\GlabsController;
 use app\models\glabs\categories\Category;
 use app\models\glabs\ProxyCurl;
 use PHPHtmlParser\Dom;
@@ -83,7 +84,7 @@ class Craigslist extends BaseSite
             $this->categories[] = new Category($url, $title, $category['category_id'], $count);
         }
 
-        parent::getCategoriesLinks($count);
+        GlabsController::showMessage("\n");
 
         return true;
     }

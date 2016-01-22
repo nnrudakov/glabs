@@ -78,6 +78,7 @@ class Category
     protected function getObjectsLinks($count)
     {
         $dom = new Dom();
+
         foreach ($this->url as $url) {
             $dom->loadFromUrl($url, [], new ProxyCurl());
 
@@ -119,8 +120,6 @@ class Category
                 }
             }
         }
-
-        GlabsController::showMessage('');
     }
 
     /**
@@ -141,7 +140,7 @@ class Category
             }
             GlabsController::showMessage("\t\t" . 'Sending object... ', false);
             try {
-                $object->send(true);
+                $object->send();
                 GlabsController::showMessage('Success.');
             } catch (TransportException $e) {
                 GlabsController::showMessage('Fail with message: "' . $e->getMessage() . '"');

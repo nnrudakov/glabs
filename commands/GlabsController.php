@@ -6,8 +6,7 @@
 
 namespace app\commands;
 
-use app\models\glabs\ProxyCurl;
-use app\models\glabs\sites\Backpage;
+//use app\models\glabs\ProxyCurl;
 use app\models\glabs\sites\Craigslist;
 use yii\console\Controller;
 
@@ -41,29 +40,16 @@ class GlabsController extends Controller
 
     /**
      * Entry point in parser.
-     *
-     * @param string  $site     Site to parse. Possible values:
-     *                          <ul>
-     *                              <li><code>craigslist</code> will parse http://losangeles.craigslist.org/ </li>
-     *                              <li><code>backpage</code> will parse http://la.backpage.com/ </li>
-     *                          </ul>
-     * @param array   $category Categories comma separated.
-     * @param integer $count    Count objects to parse.
-     * @param bool    $quiet    No messages.
-     *
-     * @throws \InvalidArgumentException
+     * @param array   $categories Categories comma separated.
+     * @param integer $count      Count objects to parse.
+     * @param bool    $quiet      No messages in stdout.
      */
-    public function actionIndex($site, array $category = ['cars+trucks'], $count = 50, $quiet = false)
+    public function actionIndex(array $categories = ['cars+trucks'], $count = 100, $quiet = false)
     {
-        if (!in_array($site, ['craigslist'], true)) {
-            throw new \InvalidArgumentException('Wrong site "' . $site . '".');
-        }
-
         self::$quiet = $quiet;
-        self::showMessage('Starting parse "' . $site . '"');
+        self::showMessage('Starting parse "http://losangeles.craigslist.org/"');
 
-        /** @noinspection CallableParameterUseCaseInTypeContextInspection */
-        $site_model = 'craigslist' === $site ? new Craigslist($category, $count) : new Backpage($count);
+        $site_model = new Craigslist($categories, $count);
         $site_model->parse();
     }
 
