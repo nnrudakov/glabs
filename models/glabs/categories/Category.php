@@ -94,8 +94,8 @@ class Category
     protected function getObjectsLinks()
     {
         foreach ($this->url as $url) {
-            self::$page = 300;
-            $this->collectObjects($url. '?s=' . self::$page);
+            self::$page = 0;
+            $this->collectObjects($url);
         }
     }
 
