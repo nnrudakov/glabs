@@ -23,17 +23,20 @@ class ProxyCurl implements CurlInterface
      */
     public function get($url)
     {
+        $proxies = file(\Yii::getAlias('@runtime/proxy.txt'));
+        $proxy = $proxies[array_rand($proxies)];
         $ch = curl_init($url);
 
         if (!ini_get('open_basedir')) {
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         }
 
+        curl_setopt($ch, CURLOPT_PROXY, '103.245.197.78:8080');
         curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
 
-        sleep(mt_rand(1,3));
+        //sleep(mt_rand(3,4));
         $content = curl_exec($ch);
         if ($content === false) {
             // there was a problem

@@ -58,7 +58,7 @@ class Object
      *
      * @var string
      */
-    private $price;
+    private $price = 0;
 
     /**
      * Main image.
@@ -82,19 +82,24 @@ class Object
     private $subimage = [];
 
     /**
+     * @var array
+     */
+    private $emails = [];
+
+    /**
      * Category constructor.
      *
      * @param string  $url        Link.
      * @param string  $title      Title.
      * @param integer $categoryId Category ID.
-     * @param string  $price      Price.
+     * @param string  $type       Type.
      */
-    public function __construct($url, $title, $categoryId, $price)
+    public function __construct($url, $title, $categoryId, $type)
     {
-        $this->url      = $url;
-        $this->title    = $title;
-        $this->category = $categoryId;
-        $this->price    = str_replace('$', '', $price);
+        $this->url             = $url;
+        $this->title           = $title;
+        $this->category        = $categoryId;
+        $this->productSellType = $type;
         self::$dom = new Dom();
     }
 
@@ -117,13 +122,17 @@ class Object
 
     /**
      * Parse object page.
+     *
+     * @throws CurlException
      */
     public function parse()
     {
         self::$dom->loadFromUrl($this->url, [], new ProxyCurl());
         $this->setDescription();
+        $this->setEmails();
         $this->setImages();
-        //print_r($this->toArray()); die;
+        /*print_r($this->toArray());
+        die;*/
     }
 
     /**
@@ -219,6 +228,27 @@ class Object
     }
 
     /**
+     * Set price.
+     *
+     * @param \PHPHtmlParser\Dom\AbstractNode $node Node.
+     */
+    public function setPrice($node)
+    {
+        /* @var \PHPHtmlParser\Dom\AbstractNode $price */
+        if ($price = $node->find('.price')[0]) {
+            $this->price = $price->text();
+        } else {
+            if (preg_match('/\$(\d+)/', $this->title, $matches)) {
+                $this->price = $matches[1];
+            } else if (preg_match('/(\d+)\$/', $this->title, $matches)) {
+                $this->price = $matches[1];
+            }
+        }
+
+        $this->price = str_replace('$', '', $this->price);
+    }
+
+    /**
      * Return main image.
      *
      * @return Image
@@ -238,6 +268,9 @@ class Object
         return $this->subimage;
     }
 
+    /**
+     * @return string
+     */
     public function getProductSellType()
     {
         return $this->productSellType;
@@ -277,5 +310,24 @@ class Object
         }
 
         return true;
+    }
+
+    /**
+     * Return object emails.
+     *
+     * @return array
+     */
+    public function getEmails()
+    {
+        return $this->emails;
+    }
+
+    /**
+     * Set emails.
+     */
+    private function setEmails()
+    {
+        preg_match_all('/[a-zA-Z0-9.!#$%&’*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*/', $this->description, $matches);
+        $this->emails = $matches[0];
     }
 }

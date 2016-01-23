@@ -29,47 +29,55 @@ class Craigslist extends BaseSite
      * @var array
      */
     protected static $categoriesList = [
-        'antiques'       => ['url' => ['/search/ata'], 'category_id' => 1],
-        'appliances'     => ['url' => ['/search/ppa'], 'category_id' => 2],
-        'apts / housing' => ['url' => ['/search/apa'], 'category_id' => 31],
-        'arts+crafts'    => ['url' => ['/search/ara'], 'category_id' => 3],
-        'atv/utv/sno'    => ['url' => ['/search/sna'], 'category_id' => 4],
-        'auto parts'     => ['url' => ['/search/wta', '/search/pta'], 'category_id' => 5],
-        'baby+kid'       => ['url' => ['/search/baa'], 'category_id' => 6],
-        'beauty+hlth'    => ['url' => ['/search/haa'], 'category_id' => 7],
-        'bikes'          => ['url' => ['/search/bia', '/search/bip'], 'category_id' => 8],
-        'boats'          => ['url' => ['/search/boo', '/search/bpa'], 'category_id' => 9],
-        'books'          => ['url' => ['/search/bka'], 'category_id' => 10],
-        'business'       => ['url' => ['/search/bfa'], 'category_id' => 11],
-        'cars+trucks'    => ['url' => ['/search/cta'], 'category_id' => 12],
-        'cell phones'    => ['url' => ['/search/moa'], 'category_id' => 13],
-        'clothes+acc'    => ['url' => ['/search/cla'], 'category_id' => 14],
-        'collectibles'   => ['url' => ['/search/cba'], 'category_id' => 15],
-        'computers'      => ['url' => ['/search/sya', '/search/syp'], 'category_id' => 0],
-        'electronics'    => ['url' => ['/search/ela'], 'category_id' => 16],
-        'farm+garden'    => ['url' => ['/search/gra'], 'category_id' => 17],
-        'furniture'      => ['url' => ['/search/fua'], 'category_id' => 18],
-        'heavy equip'    => ['url' => ['/search/hva'], 'category_id' => 19],
-        'household'      => ['url' => ['/search/hsa'], 'category_id' => 20],
-        'jewelry'        => ['url' => ['/search/jwa'], 'category_id' => 21],
-        'materials'      => ['url' => ['/search/maa'], 'category_id' => 22],
-        'motorcycles'    => ['url' => ['/search/mca', '/search/mpa'], 'category_id' => 23],
-        'music instr'    => ['url' => ['/search/msa'], 'category_id' => 24],
-        'photo+video'    => ['url' => ['/search/pha'], 'category_id' => 25],
-        'rvs+camp'       => ['url' => ['/search/rva'], 'category_id' => 37],
-        'sporting'       => ['url' => ['/search/sga'], 'category_id' => 26],
-        'tickets'        => ['url' => ['/search/tia'], 'category_id' => 27],
-        'tools'          => ['url' => ['/search/tla'], 'category_id' => 28],
-        'toys+games'     => ['url' => ['/search/taa'], 'category_id' => 29],
-        'video gaming'   => ['url' => ['/search/vga'], 'category_id' => 30]
+        'Antiques'          => ['type' => 'Sell', 'category_id' => 1,  'url' => ['/search/ata']],
+        'Appliances'        => ['type' => 'Sell', 'category_id' => 2,  'url' => ['/search/ppa']],
+        'Apts / Housing'    => ['type' => 'Rent', 'category_id' => 31, 'url' => ['/search/apa']],
+        'Arts & Crafts'     => ['type' => 'Sell', 'category_id' => 3,  'url' => ['/search/ara']],
+        'ATV/UTV/Snow'      => ['type' => 'Sell', 'category_id' => 4,  'url' => ['/search/sna']],
+        'Auto Parts'        => ['type' => 'Sell', 'category_id' => 5,  'url' => ['/search/wta', '/search/pta']],
+        'Baby & Kid'        => ['type' => 'Sell', 'category_id' => 6,  'url' => ['/search/baa']],
+        'Beauty & Health'   => ['type' => 'Sell', 'category_id' => 7,  'url' => ['/search/haa']],
+        'Bikes'             => ['type' => 'Sell', 'category_id' => 8,  'url' => ['/search/bia', '/search/bip']],
+        'Boats'             => ['type' => 'Sell', 'category_id' => 9,  'url' => ['/search/boo', '/search/bpa']],
+        'Books'             => ['type' => 'Sell', 'category_id' => 10, 'url' => ['/search/bka']],
+        'Business'          => ['type' => 'Sell', 'category_id' => 11, 'url' => ['/search/bfa']],
+        'Cars & Trucks'     => ['type' => 'Sell', 'category_id' => 12, 'url' => ['/search/cta']],
+        'Cell Phones'       => ['type' => 'Sell', 'category_id' => 13, 'url' => ['/search/moa']],
+        'Clothes'           => ['type' => 'Sell', 'category_id' => 14, 'url' => ['/search/cla']],
+        'Collectibles'      => ['type' => 'Sell', 'category_id' => 15, 'url' => ['/search/cba']],
+        'Electronics'       => ['type' => 'Sell', 'category_id' => 16, 'url' => ['/search/ela']],
+        'Farm & Garden'     => ['type' => 'Sell', 'category_id' => 17, 'url' => ['/search/gra']],
+        'Furniture'         => ['type' => 'Sell', 'category_id' => 18, 'url' => ['/search/fua']],
+        'Heavy Equipment'   => ['type' => 'Sell', 'category_id' => 19, 'url' => ['/search/hva']],
+        'Household'         => ['type' => 'Sell', 'category_id' => 20, 'url' => ['/search/hsa']],
+        'Housing'           => ['type' => 'Rent', 'category_id' => 38, 'url' => ['/search/hhh']],
+        'Jewelry'           => ['type' => 'Sell', 'category_id' => 21, 'url' => ['/search/jwa']],
+        'Materials'         => ['type' => 'Sell', 'category_id' => 22, 'url' => ['/search/maa']],
+        'Motorcycles'       => ['type' => 'Sell', 'category_id' => 23, 'url' => ['/search/mca', '/search/mpa']],
+        'Music Instr'       => ['type' => 'Sell', 'category_id' => 24, 'url' => ['/search/msa']],
+        'Office'            => ['type' => 'Rent', 'category_id' => 32, 'url' => ['/search/off']],
+        'Parking / Storage' => ['type' => 'Rent', 'category_id' => 33, 'url' => ['/search/prk']],
+        'Photo & Video'     => ['type' => 'Sell', 'category_id' => 25, 'url' => ['/search/pha']],
+        //'Rooms'             => ['type' => 'Rent', 'category_id' => 34, 'url' => ['']],
+        'RVs & Camping'     => ['type' => 'Sell', 'category_id' => 37, 'url' => ['/search/rva']],
+        'Sporting'          => ['type' => 'Sell', 'category_id' => 26, 'url' => ['/search/sga']],
+        'Sublets'           => ['type' => 'Rent', 'category_id' => 35, 'url' => ['/search/sub']],
+        'Tickets'           => ['type' => 'Sell', 'category_id' => 27, 'url' => ['/search/tia']],
+        'Tools'             => ['type' => 'Sell', 'category_id' => 28, 'url' => ['/search/tla']],
+        'Toys & Games'      => ['type' => 'Sell', 'category_id' => 29, 'url' => ['/search/taa']],
+        'Vacation Rentals'  => ['type' => 'Rent', 'category_id' => 36, 'url' => ['/search/vac']],
+        'Video Games'       => ['type' => 'Sell', 'category_id' => 30, 'url' => ['/search/vga']]
     ];
 
+    /**
+     * @inheritdoc
+     */
     protected function getCategoriesLinks($count)
     {
         $host = self::$url;
         $categories = $this->inCategories;
 
-        if (!$categories) {
+        if (!$categories || (isset($categories[0]) && $categories[0] === '')) {
             $categories = array_keys(self::$categoriesList);
         }
 
@@ -81,42 +89,10 @@ class Craigslist extends BaseSite
             parent::progress();
             $category = self::$categoriesList[$title];
             $url = array_map(function ($item) use ($host) { return $host . $item; }, $category['url']);
-            $this->categories[] = new Category($url, $title, $category['category_id'], $count);
+            $this->categories[] = new Category($url, $title, $category['category_id'], $category['type'], $count);
         }
 
         GlabsController::showMessage("\n");
-
-        return true;
-    }
-
-    /**
-     * @param int $count
-     *
-     * @return bool
-     *
-     * @deprecated
-     */
-    private function testGetCategoriesLinks($count)
-    {
-        /*$dom = new Dom();
-        $dom->loadFromUrl(self::$url, [], new ProxyCurl());
-        $links = $dom->find('#center')[0]->find('a');
-
-        / @var \PHPHtmlParser\Dom\AbstractNode $link /
-        foreach ($links as $link) {
-            if ($count && count($this->categories) >= $count) {
-                break;
-            }
-            $href = $link->getAttribute('href');
-            if ('/forums' === $href || false !== strpos($href, 'https://forums.')) {
-                continue;
-            }
-            parent::$doneCategories++;
-            parent::progress();
-            $this->categories[] = new Category(self::$url . $href, $link->find('span')->text(), $count);
-        }
-
-        parent::getCategoriesLinks($count);*/
 
         return true;
     }
