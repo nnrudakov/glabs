@@ -95,6 +95,9 @@ class Category
     {
         foreach ($this->url as $url) {
             self::$page = 0;
+            if (!self::$page) {
+                $url = '?s='. self::$page;
+            }
             $this->collectObjects($url);
         }
     }
