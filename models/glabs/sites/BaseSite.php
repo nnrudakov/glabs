@@ -4,6 +4,7 @@ namespace app\models\glabs\sites;
 
 use app\commands\GlabsController;
 use app\models\glabs\categories\Category;
+use app\models\glabs\objects\ObjectException;
 use PHPHtmlParser\Exceptions\CurlException;
 use yii\base\InvalidParamException;
 
@@ -63,6 +64,7 @@ abstract class BaseSite
      *
      * @throws CurlException
      * @throws InvalidParamException
+     * @throws ObjectException
      */
     public function parse()
     {

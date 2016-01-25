@@ -2,7 +2,6 @@
 
 namespace app\models\glabs\objects;
 
-use app\commands\GlabsController;
 use app\models\glabs\ProxyCurl;
 use app\models\glabs\Transport;
 use app\models\glabs\TransportException;
@@ -124,11 +123,13 @@ class Object
      * Parse object page.
      *
      * @throws CurlException
+     * @throws ObjectException
      */
     public function parse()
     {
         self::$dom->loadFromUrl($this->url, [], new ProxyCurl());
         $this->setDescription();
+        $this->setPhone();
         $this->setEmails();
         $this->setImages();
         /*print_r($this->toArray());
@@ -195,6 +196,7 @@ class Object
      * @return bool
      *
      * @throws \PHPHtmlParser\Exceptions\CurlException
+     * @throws ObjectException
      */
     private function setDescription()
     {
@@ -204,11 +206,15 @@ class Object
         // "click" to show contact
         if ($contact = $postingbody->find('.showcontact')[0]) {
             try {
-                $this->description = (new ProxyCurl())->get(
+                $description = (new ProxyCurl())->get(
                     'http://' . parse_url($this->url, PHP_URL_HOST) . $contact->getAttribute('href')
                 );
+                if (false !== strpos($description, 'g-recaptcha')) {
+                    throw new ObjectException('Showed Google captcha.');
+                }
+                $this->description = $description;
             } catch (CurlException $e) {
-                GlabsController::showMessage("\t\t" . 'Object missed because od error: ' . $e->getMessage());
+                throw new ObjectException('Could not get contacts (' . $e->getMessage() . ').');
             }
         } else {
             $this->description = $postingbody->innerHtml();
@@ -231,6 +237,8 @@ class Object
      * Set price.
      *
      * @param \PHPHtmlParser\Dom\AbstractNode $node Node.
+     *
+     * @throws ObjectException
      */
     public function setPrice($node)
     {
@@ -246,6 +254,10 @@ class Object
         }
 
         $this->price = str_replace('$', '', $this->price);
+
+        if (!$this->price) {
+            throw new ObjectException('There is no price in object.');
+        }
     }
 
     /**
@@ -280,6 +292,8 @@ class Object
      * Set images.
      *
      * @return bool
+     *
+     * @throws ObjectException
      */
     private function setImages()
     {
@@ -306,10 +320,37 @@ class Object
                 }
             }
         } else {
+            /** @noinspection PhpUndefinedMethodInspection */
             $this->thumbnail = new Image(['url' => $figure->find('img')[0]->getAttribute('src')]);
         }
 
+        if (!$this->thumbnail) {
+            throw new ObjectException('Has no files.');
+        }
+
         return true;
+    }
+
+    /**
+     * @return bool
+     *
+     * @throws ObjectException
+     */
+    private function setPhone()
+    {
+        $patterns = [
+            // 111-111-1111 | 1111111111 | 111 1111111     |   (111) 111-1111     | 111......... 111..........11.......11....
+            '/\d+-\d+-\d+/', '/\d{10}/', '/\d{3}\s+\d{7}/', '/\(\d+\)\s?[\d+-]+/', '/\d+\.+\s?\d+\.+\d+\.+\d+\.+/',
+            // 111 111 1111
+            '/\d+\s\d+\s\d+/'
+        ];
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $this->description)) {
+                return true;
+            }
+        }
+
+        throw new ObjectException('Has no phone.');
     }
 
     /**

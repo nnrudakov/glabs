@@ -6,6 +6,8 @@
 
 namespace app\commands;
 
+use app\models\glabs\objects\ObjectException;
+use PHPHtmlParser\Exceptions\CurlException;
 use Yii;
 //use app\models\glabs\ProxyCurl;
 use app\models\glabs\sites\Craigslist;
@@ -47,6 +49,8 @@ class GlabsController extends Controller
      * @param bool    $quiet      No messages in stdout.
      *
      * @throws InvalidParamException
+     * @throws ObjectException
+     * @throws CurlException
      */
     public function actionIndex(array $categories = [], $count = 5, $quiet = false)
     {

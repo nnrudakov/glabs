@@ -3,6 +3,7 @@
 namespace app\models\glabs\categories;
 
 use app\commands\GlabsController;
+use app\models\glabs\objects\ObjectException;
 use app\models\glabs\ProxyCurl;
 use app\models\glabs\objects\Object;
 use app\models\glabs\sites\BaseSite;
@@ -46,7 +47,14 @@ class Category
      *
      * @var integer
      */
-    private $count;
+    private $count = 0;
+
+    /**
+     * Count objects.
+     *
+     * @var integer
+     */
+    private $needCount = 0;
 
     /**
      * Objects.
@@ -54,6 +62,11 @@ class Category
      * @var Object[]
      */
     private $objects = [];
+
+    /**
+     * @var Object[]
+     */
+    private $doneObjects = [];
 
     /**
      * Category page.
@@ -70,6 +83,16 @@ class Category
     private $type;
 
     /**
+     * @var integer
+     */
+    private $i = 0;
+
+    /**
+     * @var array
+     */
+    private $collected = [];
+
+    /**
      * Category constructor.
      *
      * @param array   $url        Link.
@@ -84,7 +107,7 @@ class Category
         $this->title      = $title;
         $this->categoryId = $categoryId;
         $this->type       = $type;
-        $this->count      = $count;
+        $this->count = $this->needCount = $count;
         $this->getObjectsLinks();
     }
 
@@ -130,20 +153,26 @@ class Category
 
             /* @var \PHPHtmlParser\Dom\AbstractNode $link */
             if ($link = $span->find('a')[0]) {
-                $object = new Object($host . $link->getAttribute('href'), $link->text(), $this->categoryId, $this->type);
-                $object->setPrice($span);
-
-                if (!$object->getPrice()) {
+                $url = $host . $link->getAttribute('href');
+                if (in_array($url, $this->collected)) {
+                    continue;
+                }
+                $object = new Object($url, $link->text(), $this->categoryId, $this->type);
+                try {
+                    $object->setPrice($span);
+                } catch (ObjectException $e) {
                     continue;
                 }
 
+                $this->collected[] = $url;
                 $this->objects[] = $object;
                 BaseSite::$doneObjects++;
                 BaseSite::progress();
             }
         }
 
-        if (count($this->objects) < $this->count) {
+        $collected_count = count($this->objects);
+        if ($collected_count && $collected_count < $this->count) {
             $url = str_replace('?s=' . self::$page, '', $url);
             self::$page += 100;
             return $this->collectObjects($url . '?s=' . self::$page);
@@ -157,20 +186,27 @@ class Category
      *
      * @throws CurlException
      * @throws InvalidParamException
+     * @throws ObjectException
      */
     public function parse()
     {
         GlabsController::showMessage('Parsing category "' . $this->title . '"');
-        for ($i = 0, $count = count($this->objects); $i < $count; $i++) {
-            /* @var \app\models\glabs\objects\Object $object */
-            $object = $this->objects[$i];
-            GlabsController::showMessage("\t" . ($i + 1) . ') Parsing object "' . $object->getTitle() .
-                '" (' . $object->getUrl() . ')');
-            $object->parse();
-            if (!$object->getThumbnail()) {
-                GlabsController::showMessage("\t\t" . 'Object skipped because it has no files.');
+        /** @var \app\models\glabs\objects\Object $object */
+        foreach ($this->objects as $object) {
+            if (in_array($object->getUrl(), $this->doneObjects)) {
                 continue;
             }
+            $this->i++;
+            GlabsController::showMessage("\t" . $this->i . ') Parsing object "' . $object->getTitle() .
+                '" (' . $object->getUrl() . ')');
+            try {
+                $object->parse();
+                $this->doneObjects[] = $object->getUrl();
+            } catch (ObjectException $e) {
+                GlabsController::showMessage("\t\t" . 'Object skipped because of reason: ' . $e->getMessage());
+                continue;
+            }
+
             GlabsController::showMessage("\t\t" . 'Sending object... ', false);
             try {
                 $object->send();
@@ -179,6 +215,14 @@ class Category
                 GlabsController::showMessage('Fail with message: "' . $e->getMessage() . '"');
             }
             GlabsController::saveObjectsEmails($object);
+        }
+
+        $done_count = count($this->doneObjects);
+        if ($done_count < $this->needCount) {
+            $this->count = $this->needCount - $done_count;
+            $this->objects = [];
+            $this->collectObjects(reset($this->url) . (self::$page ? '?s=' . self::$page : ''));
+            $this->parse();
         }
     }
 
@@ -194,7 +238,7 @@ class Category
         if (!$this->count) {
             /* @var \PHPHtmlParser\Dom\AbstractNode $total_count */
             $total_count = $dom->find('.totalcount')[0];
-            $this->count = (int) $total_count->text();
+            $this->count = $this->needCount = (int) $total_count->text();
         }
 
         return true;
