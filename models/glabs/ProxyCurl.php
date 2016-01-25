@@ -31,12 +31,13 @@ class ProxyCurl implements CurlInterface
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         }
 
-        //curl_setopt($ch, CURLOPT_PROXY, '103.245.197.78:8080');
+        //curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLOPT_PROXY, '185.60.135.57:80');
         curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
 
-        sleep(mt_rand(3,4));
+        sleep(mt_rand(3,5));
         $content = curl_exec($ch);
         if ($content === false) {
             // there was a problem
