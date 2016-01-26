@@ -156,7 +156,7 @@ abstract class BaseCategory
      */
     public function parse()
     {
-        GlabsController::showMessage('Parsing category "' . $this->title . '"');
+        GlabsController::showMessage("\n" . 'Parsing category "' . $this->title . '"');
         /** @var \app\models\glabs\objects\BaseObject $object */
         foreach ($this->objects as $object) {
             if (in_array($object->getUrl(), $this->doneObjects, true)) {
@@ -182,8 +182,6 @@ abstract class BaseCategory
             }
             GlabsController::saveObjectsEmails($object);
         }
-
-        GlabsController::showMessage('');
 
         $done_count = count($this->doneObjects);
         if ($done_count < $this->needCount) {

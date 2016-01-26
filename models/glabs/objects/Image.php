@@ -38,7 +38,6 @@ class Image extends Object
 
     public function init()
     {
-        $this->setFilename();
         $this->setData();
     }
 
@@ -103,5 +102,8 @@ class Image extends Object
         } catch (CurlException $e) {
             throw new ImageException('Cannot get image: ' . $e->getMessage());
         }
+
+        $this->setUrl(TorCurl::$connectedURL);
+        $this->setFilename();
     }
 }

@@ -15,6 +15,13 @@ use PHPHtmlParser\Exceptions\CurlException;
 class TorCurl implements CurlInterface
 {
     /**
+     * Connected URL.
+     *
+     * @var string
+     */
+    public static $connectedURL;
+
+    /**
      * Localhost is a hostname that means this computer or this host.
      *
      * @var string
@@ -80,6 +87,8 @@ class TorCurl implements CurlInterface
         sleep(mt_rand(3, 5));
         $content = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        self::$connectedURL = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+
         if (404 === $code){
             throw new CurlException('Content not found.');
         }
