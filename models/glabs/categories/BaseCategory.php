@@ -19,78 +19,85 @@ use yii\base\InvalidParamException;
  * @author     Nikolaj Rudakov <nnrudakov@gmail.com>
  * @copyright  2016
  */
-class Category
+abstract class BaseCategory
 {
     /**
      * URL.
      *
      * @var array
      */
-    private $url = [];
+    protected $url = [];
 
     /**
      * Title.
      *
      * @var string
      */
-    private $title;
+    protected $title;
 
     /**
      * Category ID.
      *
      * @var integer
      */
-    private $categoryId;
+    protected $categoryId;
 
     /**
      * Count objects.
      *
      * @var integer
      */
-    private $count = 0;
+    protected $count = 0;
 
     /**
      * Count objects.
      *
      * @var integer
      */
-    private $needCount = 0;
+    protected $needCount = 0;
 
     /**
      * Objects.
      *
      * @var Object[]
      */
-    private $objects = [];
+    protected $objects = [];
 
     /**
      * @var Object[]
      */
-    private $doneObjects = [];
+    protected $doneObjects = [];
 
     /**
      * Category page.
      *
      * @var integer
      */
-    private static $page = 0;
+    protected static $page = 0;
+
+    /**
+     * Page parameter.
+     *
+     * @var string
+     */
+    protected static $pageParam = '';
 
     /**
      * Type.
      *
      * @var string
      */
-    private $type;
+    protected $type;
 
     /**
      * @var integer
      */
-    private $i = 0;
+    protected $i = 0;
 
     /**
      * @var array
      */
-    private $collected = [];
+    protected $collected = [];
 
     /**
      * Category constructor.
@@ -107,21 +114,20 @@ class Category
         $this->title      = $title;
         $this->categoryId = $categoryId;
         $this->type       = $type;
-        $this->count = $this->needCount = $count;
+        $this->count      = $this->needCount = $count;
         $this->getObjectsLinks();
     }
 
     /**
      * Fill objects by name and URL.
+     *
+     * @throws CurlException
      */
     protected function getObjectsLinks()
     {
         foreach ($this->url as $url) {
             self::$page = 0;
-            if (self::$page) {
-                $url .= '?s='. self::$page;
-            }
-            $this->collectObjects($url);
+            $this->collectObjects($this->getPagedUrl($url));
         }
     }
 
@@ -131,54 +137,12 @@ class Category
      * @param string $url URL.
      *
      * @return bool
+     *
+     * @throws CurlException
      */
-    private function collectObjects($url)
+    protected function collectObjects($url)
     {
-        $host = 'http://' . parse_url($url, PHP_URL_HOST);
-        $dom = new Dom();
-        $dom->loadFromUrl($url, [], new ProxyCurl());
 
-        // end collect. no results
-        if ($dom->find('#moon')[0]) {
-            return true;
-        }
-
-        $this->checkTotalObjects($dom);
-
-        /* @var \PHPHtmlParser\Dom\AbstractNode $span */
-        foreach ($dom->find('.txt') as $span) {
-            if (count($this->objects) >= $this->count) {
-                break;
-            }
-
-            /* @var \PHPHtmlParser\Dom\AbstractNode $link */
-            if ($link = $span->find('a')[0]) {
-                $url = $host . $link->getAttribute('href');
-                if (in_array($url, $this->collected)) {
-                    continue;
-                }
-                $object = new Object($url, $link->text(), $this->categoryId, $this->type);
-                try {
-                    $object->setPrice($span);
-                } catch (ObjectException $e) {
-                    continue;
-                }
-
-                $this->collected[] = $url;
-                $this->objects[] = $object;
-                BaseSite::$doneObjects++;
-                BaseSite::progress();
-            }
-        }
-
-        $collected_count = count($this->objects);
-        if ($collected_count && $collected_count < $this->count) {
-            $url = str_replace('?s=' . self::$page, '', $url);
-            self::$page += 100;
-            return $this->collectObjects($url . '?s=' . self::$page);
-        }
-
-        return true;
     }
 
     /**
@@ -191,9 +155,9 @@ class Category
     public function parse()
     {
         GlabsController::showMessage('Parsing category "' . $this->title . '"');
-        /** @var \app\models\glabs\objects\Object $object */
+        /** @var \app\models\glabs\objects\BaseObject $object */
         foreach ($this->objects as $object) {
-            if (in_array($object->getUrl(), $this->doneObjects)) {
+            if (in_array($object->getUrl(), $this->doneObjects, true)) {
                 continue;
             }
             $this->i++;
@@ -217,13 +181,31 @@ class Category
             GlabsController::saveObjectsEmails($object);
         }
 
+        GlabsController::showMessage('');
+
         $done_count = count($this->doneObjects);
         if ($done_count < $this->needCount) {
             $this->count = $this->needCount - $done_count;
             $this->objects = [];
-            $this->collectObjects(reset($this->url) . (self::$page ? '?s=' . self::$page : ''));
+            $this->collectObjects($this->getPagedUrl(reset($this->url)));
             $this->parse();
         }
+    }
+
+    /**
+     * Get paged URL.
+     *
+     * @param $url string URL.
+     *
+     * @return string
+     */
+    protected function getPagedUrl($url)
+    {
+        if (self::$page) {
+            $url .= self::$pageParam . self::$page;
+        }
+
+        return $url;
     }
 
     /**
@@ -233,14 +215,8 @@ class Category
      *
      * @return bool
      */
-    private function checkTotalObjects($dom)
+    protected function checkTotalObjects($dom)
     {
-        if (!$this->count) {
-            /* @var \PHPHtmlParser\Dom\AbstractNode $total_count */
-            $total_count = $dom->find('.totalcount')[0];
-            $this->count = $this->needCount = (int) $total_count->text();
-        }
 
-        return true;
     }
 }

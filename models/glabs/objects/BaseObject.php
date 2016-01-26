@@ -15,75 +15,75 @@ use PHPHtmlParser\Exceptions\CurlException;
  * @author     Nikolaj Rudakov <nnrudakov@gmail.com>
  * @copyright  2016
  */
-class Object
+class BaseObject
 {
     /**
      * Dom.
      *
      * @var \PHPHtmlParser\Dom
      */
-    private static $dom;
+    protected static $dom;
 
     /**
      * URL.
      *
      * @var string
      */
-    private $url;
+    protected $url;
 
     /**
      * Title.
      *
      * @var string
      */
-    private $title;
+    protected $title;
 
     /**
      * Category.
      *
      * @var integer
      */
-    private $category = 0;
+    protected $category = 0;
 
     /**
      * Description.
      *
      * @var string
      */
-    private $description;
+    protected $description;
 
     /**
      * Price.
      *
      * @var string
      */
-    private $price = 0;
+    protected $price = 0;
 
     /**
      * Main image.
      *
      * @var Image
      */
-    private $thumbnail;
+    protected $thumbnail;
 
     /**
      * Type.
      *
      * @var string
      */
-    private $productSellType = 'Sell';
+    protected $productSellType = 'Sell';
 
     /**
      * Images.
      *
      * @var Image[]
      */
-    private $subimage = [];
+    protected $subimage = [];
 
     /**
      * @var array
      */
-    private $emails = [];
+    protected $emails = [];
 
     /**
      * Category constructor.
@@ -198,29 +198,9 @@ class Object
      * @throws \PHPHtmlParser\Exceptions\CurlException
      * @throws ObjectException
      */
-    private function setDescription()
+    protected function setDescription()
     {
-        /* @var \PHPHtmlParser\Dom\AbstractNode $postingbody */
-        $postingbody = self::$dom->find('#postingbody');
-        /* @var \PHPHtmlParser\Dom\AbstractNode $contact */
-        // "click" to show contact
-        if ($contact = $postingbody->find('.showcontact')[0]) {
-            try {
-                $description = (new ProxyCurl())->get(
-                    'http://' . parse_url($this->url, PHP_URL_HOST) . $contact->getAttribute('href')
-                );
-                if (false !== strpos($description, 'g-recaptcha')) {
-                    throw new ObjectException('Showed Google captcha.');
-                }
-                $this->description = $description;
-            } catch (CurlException $e) {
-                throw new ObjectException('Could not get contacts (' . $e->getMessage() . ').');
-            }
-        } else {
-            $this->description = $postingbody->innerHtml();
-        }
 
-        return true;
     }
 
     /**
@@ -242,22 +222,7 @@ class Object
      */
     public function setPrice($node)
     {
-        /* @var \PHPHtmlParser\Dom\AbstractNode $price */
-        if ($price = $node->find('.price')[0]) {
-            $this->price = $price->text();
-        } else {
-            if (preg_match('/\$(\d+)/', $this->title, $matches)) {
-                $this->price = $matches[1];
-            } else if (preg_match('/(\d+)\$/', $this->title, $matches)) {
-                $this->price = $matches[1];
-            }
-        }
 
-        $this->price = str_replace('$', '', $this->price);
-
-        if (!$this->price) {
-            throw new ObjectException('There is no price in object.');
-        }
     }
 
     /**
@@ -295,40 +260,9 @@ class Object
      *
      * @throws ObjectException
      */
-    private function setImages()
+    protected function setImages()
     {
-        /* @var \PHPHtmlParser\Dom\AbstractNode $figure */
-        $figure = self::$dom->find('figure')[0];
-        if (!$figure) {
-            return false;
-        }
 
-        $is_multiimage = false !== strpos($figure->getAttribute('class'), 'multiimage');
-
-        if ($is_multiimage) {
-            /* @var \PHPHtmlParser\Dom\AbstractNode $link */
-            foreach ($figure->find('a') as $link) {
-                if (count($this->subimage) >= 4) {
-                    break;
-                }
-
-                $href = $link->getAttribute('href');
-                if (!$this->thumbnail) {
-                    $this->thumbnail = new Image(['url' => $href]);
-                } else {
-                    $this->subimage[] = new Image(['url' => $href]);
-                }
-            }
-        } else {
-            /** @noinspection PhpUndefinedMethodInspection */
-            $this->thumbnail = new Image(['url' => $figure->find('img')[0]->getAttribute('src')]);
-        }
-
-        if (!$this->thumbnail) {
-            throw new ObjectException('Has no files.');
-        }
-
-        return true;
     }
 
     /**
@@ -336,7 +270,7 @@ class Object
      *
      * @throws ObjectException
      */
-    private function setPhone()
+    protected function setPhone()
     {
         $patterns = [
             // 111-111-1111 | 1111111111 | 111 1111111     |   (111) 111-1111     | 111......... 111..........11.......11....
@@ -366,7 +300,7 @@ class Object
     /**
      * Set emails.
      */
-    private function setEmails()
+    protected function setEmails()
     {
         preg_match_all('/[a-zA-Z0-9.!#$%&’*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*/', $this->description, $matches);
         $this->emails = $matches[0];

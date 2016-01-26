@@ -2,7 +2,7 @@
 
 namespace app\models\glabs;
 
-use app\models\glabs\objects\Object as Article;
+use app\models\glabs\objects\BaseObject;
 
 /**
  * Send data to Zoheny.com.
@@ -44,9 +44,9 @@ class Transport
     /**
      * Transport constructor.
      *
-     * @param Article $object
+     * @param BaseObject $object
      */
-    public function __construct(Article $object)
+    public function __construct(BaseObject $object)
     {
         $this->object = $object;
     }

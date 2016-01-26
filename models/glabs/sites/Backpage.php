@@ -2,31 +2,31 @@
 
 namespace app\models\glabs\sites;
 
-use app\models\glabs\categories\Craigslist as Category;
+use app\models\glabs\categories\Backpage as Category;
 use PHPHtmlParser\Dom;
 
 /**
- * Craigslist site.
+ * Backpage site.
  *
  * @package    glabs
  * @author     Nikolaj Rudakov <nnrudakov@gmail.com>
  * @copyright  2016
  */
-class Craigslist extends BaseSite
+class Backpage extends BaseSite
 {
     /**
      * URL.
      *
      * @var string
      */
-    protected $url = 'http://losangeles.craigslist.org';
+    protected $url = 'http://la.backpage.com/';
 
     /**
      * Categories.
      *
      * @var array
      */
-    protected $categoriesList = [
+    protected static $categoriesList = [
         'Antiques'          => ['type' => 'Sell', 'category_id' => 1,  'url' => ['/search/ata']],
         'Appliances'        => ['type' => 'Sell', 'category_id' => 2,  'url' => ['/search/ppa']],
         'Apts / Housing'    => ['type' => 'Rent', 'category_id' => 31, 'url' => ['/search/apa']],

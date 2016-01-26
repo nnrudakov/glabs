@@ -6,13 +6,14 @@
 
 namespace app\commands;
 
-use app\models\glabs\objects\ObjectException;
-use PHPHtmlParser\Exceptions\CurlException;
 use Yii;
-//use app\models\glabs\ProxyCurl;
-use app\models\glabs\sites\Craigslist;
 use yii\base\InvalidParamException;
 use yii\console\Controller;
+use app\models\glabs\objects\ObjectException;
+use app\models\glabs\ProxyCurl;
+use app\models\glabs\sites\Craigslist;
+use app\models\glabs\sites\Backpage;
+use PHPHtmlParser\Exceptions\CurlException;
 
 /**
  * Glabs catalog parser.
@@ -44,20 +45,35 @@ class GlabsController extends Controller
 
     /**
      * Entry point in parser.
+     *
+     * @param string  $site       Site to parse. Possible values:
+     *                            <ul>
+     *                              <li><code>craigslist</code> will parse http://losangeles.craigslist.org/ </li>
+     *                              <li><code>backpage</code> will parse http://la.backpage.com/ </li>
+     *                            </ul>
      * @param array   $categories Categories comma separated.
      * @param integer $count      Count objects to parse.
+     * @param string  $proxy      Proxy IP and port.
      * @param bool    $quiet      No messages in stdout.
      *
      * @throws InvalidParamException
      * @throws ObjectException
      * @throws CurlException
      */
-    public function actionIndex(array $categories = [], $count = 5, $quiet = false)
+    public function actionIndex($site, array $categories = [], $count = 0, $proxy = '', $quiet = false)
     {
+        if (!in_array($site, ['craigslist', 'backpage'], true)) {
+            throw new InvalidParamException('Wrong site "' . $site . '".');
+        }
+
+        if ($proxy) {
+            ProxyCurl::$proxy = $proxy;
+        }
+
         self::$quiet = $quiet;
         self::showMessage('Starting parse "http://losangeles.craigslist.org/"');
 
-        $site_model = new Craigslist($categories, $count);
+        $site_model = 'craigslist' === $site ? new Craigslist($categories, $count) : new Backpage($categories, $count);
         $site_model->parse();
     }
 
@@ -102,7 +118,7 @@ class GlabsController extends Controller
     /**
      * Set object's email into CSV file.
      *
-     * @param \app\models\glabs\objects\Object $object Object.
+     * @param \app\models\glabs\objects\BaseObject $object Object.
      *
      * @return bool
      *
