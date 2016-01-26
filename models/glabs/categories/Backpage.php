@@ -20,13 +20,9 @@ class Backpage extends BaseCategory
     /**
      * @inheritdoc
      */
-    protected static $pageParam = '&page=';
-
-    /**
-     * @inheritdoc
-     */
     public function __construct($url, $title, $categoryId, $type, $count)
     {
+        self::$pageParam = '&page=';
         $url = array_map(function ($item) { return $item . '?layout=summary'; }, $url);
         parent::__construct($url, $title, $categoryId, $type, $count);
     }
@@ -54,18 +50,18 @@ class Backpage extends BaseCategory
 
             /* @var \PHPHtmlParser\Dom\AbstractNode $link */
             if ($link = $span->find('a', 0)) {
-                $url = $link->getAttribute('href');
-                if (in_array($url, $this->collected, true)) {
+                $href = $link->getAttribute('href');
+                if (in_array($href, $this->collected, true)) {
                     continue;
                 }
-                $object = new Object($url, $link->text(), $this->categoryId, $this->type);
+                $object = new Object($href, $link->text(), $this->categoryId, $this->type);
                 try {
                     $object->setPrice();
                 } catch (ObjectException $e) {
                     continue;
                 }
 
-                $this->collected[] = $url;
+                $this->collected[] = $href;
                 $this->objects[] = $object;
                 BaseSite::$doneObjects++;
                 BaseSite::progress();

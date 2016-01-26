@@ -21,7 +21,11 @@ class Craigslist extends BaseCategory
     /**
      * @inheritdoc
      */
-    protected static $pageParam = '?s=';
+    public function __construct(array $url, $title, $categoryId, $type, $count)
+    {
+        self::$pageParam = '?s=';
+        parent::__construct($url, $title, $categoryId, $type, $count);
+    }
 
     /**
      * @inheritdoc
@@ -50,18 +54,18 @@ class Craigslist extends BaseCategory
 
             /* @var \PHPHtmlParser\Dom\AbstractNode $link */
             if ($link = $span->find('a')[0]) {
-                $url = $host . $link->getAttribute('href');
+                $href = $host . $link->getAttribute('href');
                 if (in_array($url, $this->collected, true)) {
                     continue;
                 }
-                $object = new Object($url, $link->text(), $this->categoryId, $this->type);
+                $object = new Object($href, $link->text(), $this->categoryId, $this->type);
                 try {
                     $object->setPrice($span);
                 } catch (ObjectException $e) {
                     continue;
                 }
 
-                $this->collected[] = $url;
+                $this->collected[] = $href;
                 $this->objects[] = $object;
                 BaseSite::$doneObjects++;
                 BaseSite::progress();
