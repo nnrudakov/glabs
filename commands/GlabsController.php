@@ -10,7 +10,7 @@ use Yii;
 use yii\base\InvalidParamException;
 use yii\console\Controller;
 use app\models\glabs\objects\ObjectException;
-use app\models\glabs\ProxyCurl;
+use app\models\glabs\TorCurl;
 use app\models\glabs\sites\Craigslist;
 use app\models\glabs\sites\Backpage;
 use PHPHtmlParser\Exceptions\CurlException;
@@ -67,11 +67,11 @@ class GlabsController extends Controller
         }
 
         if ($proxy) {
-            ProxyCurl::$proxy = $proxy;
+            //TorCurl::$proxy = $proxy;
         }
 
         self::$quiet = $quiet;
-        self::showMessage('Starting parse "http://losangeles.craigslist.org/"');
+        self::showMessage('Starting parse site "' . $site . '"');
 
         $site_model = 'craigslist' === $site ? new Craigslist($categories, $count) : new Backpage($categories, $count);
         $site_model->parse();

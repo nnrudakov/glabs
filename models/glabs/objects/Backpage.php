@@ -2,7 +2,7 @@
 
 namespace app\models\glabs\objects;
 
-use app\models\glabs\ProxyCurl;
+use app\models\glabs\TorCurl;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
 
@@ -21,24 +21,8 @@ class Backpage extends BaseObject
     protected function setDescription()
     {
         /* @var \PHPHtmlParser\Dom\AbstractNode $postingbody */
-        $postingbody = self::$dom->find('#postingbody');
-        /* @var \PHPHtmlParser\Dom\AbstractNode $contact */
-        // "click" to show contact
-        if ($contact = $postingbody->find('.showcontact')[0]) {
-            try {
-                $description = (new ProxyCurl())->get(
-                    'http://' . parse_url($this->url, PHP_URL_HOST) . $contact->getAttribute('href')
-                );
-                if (false !== strpos($description, 'g-recaptcha')) {
-                    throw new ObjectException('Showed Google captcha.');
-                }
-                $this->description = $description;
-            } catch (CurlException $e) {
-                throw new ObjectException('Could not get contacts (' . $e->getMessage() . ').');
-            }
-        } else {
-            $this->description = $postingbody->innerHtml();
-        }
+        $postingbody = self::$dom->find('.postingBody', 0);
+        $this->description = $postingbody->innerHtml();
 
         return true;
     }
@@ -46,20 +30,12 @@ class Backpage extends BaseObject
     /**
      * @inheritdoc
      */
-    public function setPrice($node)
+    public function setPrice()
     {
-        /* @var \PHPHtmlParser\Dom\AbstractNode $price */
-        if ($price = $node->find('.price')[0]) {
-            $this->price = $price->text();
-        } else {
-            if (preg_match('/\$(\d+)/', $this->title, $matches)) {
-                $this->price = $matches[1];
-            } else if (preg_match('/(\d+)\$/', $this->title, $matches)) {
-                $this->price = $matches[1];
-            }
+        if (preg_match('/\$([\d+,]+)/', $this->title, $matches)) {
+            $this->price = $matches[1];
+            $this->price = str_replace(',', '', $this->price);
         }
-
-        $this->price = str_replace('$', '', $this->price);
 
         if (!$this->price) {
             throw new ObjectException('There is no price in object.');
@@ -71,31 +47,35 @@ class Backpage extends BaseObject
      */
     protected function setImages()
     {
-        /* @var \PHPHtmlParser\Dom\AbstractNode $figure */
-        $figure = self::$dom->find('figure')[0];
-        if (!$figure) {
-            return false;
-        }
+        foreach ($this->getImageTags() as $imageTag) {
+            if (count($this->subimage) >= 4) {
+                break;
+            }
 
-        $is_multiimage = false !== strpos($figure->getAttribute('class'), 'multiimage');
+            if ($imageTag->getAttribute('alt')) {
+                continue;
+            }
 
-        if ($is_multiimage) {
-            /* @var \PHPHtmlParser\Dom\AbstractNode $link */
-            foreach ($figure->find('a') as $link) {
-                if (count($this->subimage) >= 4) {
-                    break;
-                }
-
-                $href = $link->getAttribute('href');
-                if (!$this->thumbnail) {
-                    $this->thumbnail = new Image(['url' => $href]);
-                } else {
-                    $this->subimage[] = new Image(['url' => $href]);
+            $parent = $imageTag->getParent();
+            $url = $parent->getAttribute('href');
+            if (false === strpos($url, '.jpg')) {
+                $url = $imageTag->getAttribute('src');
+                if (false === strpos($url, 'GetImage.aspx')) {
+                    continue;
                 }
             }
-        } else {
-            /** @noinspection PhpUndefinedMethodInspection */
-            $this->thumbnail = new Image(['url' => $figure->find('img')[0]->getAttribute('src')]);
+
+            try {
+                $image = new Image(['url' => $url]);
+            } catch (ImageException $e) {
+                continue;
+            }
+
+            if (!$this->thumbnail) {
+                $this->thumbnail = $image;
+            } else {
+                $this->subimage[] = $image;
+            }
         }
 
         if (!$this->thumbnail) {
@@ -103,5 +83,21 @@ class Backpage extends BaseObject
         }
 
         return true;
+    }
+
+    /**
+     * @return \PHPHtmlParser\Dom\AbstractNode[]
+     */
+    private function getImageTags()
+    {
+        /* @var \PHPHtmlParser\Dom\AbstractNode $photos */
+        $photos = self::$dom->getElementById('viewAdPhotoLayout');
+        if ($photos) {
+            return $photos->find('img');
+        }
+
+        /* @var \PHPHtmlParser\Dom\AbstractNode $postingbody */
+        $postingbody = self::$dom->find('.postingBody', 0);
+        return $postingbody->find('img');
     }
 }

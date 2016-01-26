@@ -2,7 +2,7 @@
 
 namespace app\models\glabs\objects;
 
-use app\models\glabs\ProxyCurl;
+use app\models\glabs\TorCurl;
 use app\models\glabs\Transport;
 use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
@@ -127,7 +127,7 @@ class BaseObject
      */
     public function parse()
     {
-        self::$dom->loadFromUrl($this->url, [], new ProxyCurl());
+        self::$dom->loadFromUrl($this->url, [], new TorCurl());
         $this->setDescription();
         $this->setPhone();
         $this->setEmails();
@@ -220,7 +220,7 @@ class BaseObject
      *
      * @throws ObjectException
      */
-    public function setPrice($node)
+    public function setPrice($node = null)
     {
 
     }

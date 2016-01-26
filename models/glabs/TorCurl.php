@@ -51,7 +51,7 @@ class TorCurl implements CurlInterface
      *
      * @var integer
      */
-    private $timeout = 40;
+    private $timeout = 30;
 
     /**
      * A tor curl implementation to get the content of the url.
@@ -77,8 +77,13 @@ class TorCurl implements CurlInterface
         curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
 
-        sleep(mt_rand(3,4));
+        sleep(mt_rand(3, 5));
         $content = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if (404 === $code){
+            throw new CurlException('Content not found.');
+        }
+
         if ($content === false) {
             // there was a problem
             $error = curl_error($ch);

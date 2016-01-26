@@ -42,8 +42,13 @@ class ProxyCurl implements CurlInterface
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
 
-        sleep(mt_rand(3,5));
+        sleep(mt_rand(3, 5));
         $content = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if (404 === $code){
+            throw new CurlException('Content not found.');
+        }
+
         if ($content === false) {
             // there was a problem
             $error = curl_error($ch);

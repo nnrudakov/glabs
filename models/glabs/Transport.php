@@ -18,7 +18,7 @@ class Transport
      *
      * @var string
      */
-    private static $url = 'http://zoheny.com/api/addproduct';//'http://211.233.159.68/bear1030/api/addproduct';
+    private static $url = 'http://211.233.159.68/bear1030/api/addproduct';//'http://zoheny.com/api/addproduct';
 
     /**
      * Login.
@@ -86,7 +86,6 @@ class Transport
             throw new TransportException('Error retrieving ' . $error);
         }
 
-        //echo $content;
         $content = json_decode($content, true);
 
         if (!$content['success']) {

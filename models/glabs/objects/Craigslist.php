@@ -2,7 +2,7 @@
 
 namespace app\models\glabs\objects;
 
-use app\models\glabs\ProxyCurl;
+use app\models\glabs\TorCurl;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
 
@@ -24,9 +24,9 @@ class Craigslist extends BaseObject
         $postingbody = self::$dom->find('#postingbody');
         /* @var \PHPHtmlParser\Dom\AbstractNode $contact */
         // "click" to show contact
-        if ($contact = $postingbody->find('.showcontact')[0]) {
+        if ($contact = $postingbody->find('.showcontact', 0)) {
             try {
-                $description = (new ProxyCurl())->get(
+                $description = (new TorCurl())->get(
                     'http://' . parse_url($this->url, PHP_URL_HOST) . $contact->getAttribute('href')
                 );
                 if (false !== strpos($description, 'g-recaptcha')) {
@@ -49,7 +49,7 @@ class Craigslist extends BaseObject
     public function setPrice($node)
     {
         /* @var \PHPHtmlParser\Dom\AbstractNode $price */
-        if ($price = $node->find('.price')[0]) {
+        if ($price = $node->find('.price', 0)) {
             $this->price = $price->text();
         } else {
             if (preg_match('/\$(\d+)/', $this->title, $matches)) {
@@ -72,7 +72,7 @@ class Craigslist extends BaseObject
     protected function setImages()
     {
         /* @var \PHPHtmlParser\Dom\AbstractNode $figure */
-        $figure = self::$dom->find('figure')[0];
+        $figure = self::$dom->find('figure', 0);
         if (!$figure) {
             return false;
         }
@@ -86,20 +86,28 @@ class Craigslist extends BaseObject
                     break;
                 }
 
-                $href = $link->getAttribute('href');
+                try {
+                    $image = new Image(['url' => $link->getAttribute('href')]);
+                } catch (ImageException $e) {
+                    continue;
+                }
+
                 if (!$this->thumbnail) {
-                    $this->thumbnail = new Image(['url' => $href]);
+                    $this->thumbnail = $image;
                 } else {
-                    $this->subimage[] = new Image(['url' => $href]);
+                    $this->subimage[] = $image;
                 }
             }
-        } else {
-            /** @noinspection PhpUndefinedMethodInspection */
-            $this->thumbnail = new Image(['url' => $figure->find('img')[0]->getAttribute('src')]);
-        }
 
-        if (!$this->thumbnail) {
-            throw new ObjectException('Has no files.');
+            if (!$this->thumbnail) {
+                throw new ObjectException('Has no files.');
+            }
+        } else {
+            try {
+                $this->thumbnail = new Image(['url' => $figure->find('img', 0)->getAttribute('src')]);
+            } catch (ImageException $e) {
+                throw new ObjectException('Has no files.');
+            }
         }
 
         return true;

@@ -3,7 +3,7 @@
 namespace app\models\glabs\categories;
 
 use app\models\glabs\objects\ObjectException;
-use app\models\glabs\ProxyCurl;
+use app\models\glabs\TorCurl;
 use app\models\glabs\objects\Backpage as Object;
 use app\models\glabs\sites\BaseSite;
 use PHPHtmlParser\Dom;
@@ -20,39 +20,47 @@ class Backpage extends BaseCategory
     /**
      * @inheritdoc
      */
-    protected static $pageParam = '?page=';
+    protected static $pageParam = '&page=';
+
+    /**
+     * @inheritdoc
+     */
+    public function __construct($url, $title, $categoryId, $type, $count)
+    {
+        $url = array_map(function ($item) { return $item . '?layout=summary'; }, $url);
+        parent::__construct($url, $title, $categoryId, $type, $count);
+    }
 
     /**
      * @inheritdoc
      */
     protected function collectObjects($url)
     {
-        $host = 'http://' . parse_url($url, PHP_URL_HOST);
         $dom = new Dom();
-        $dom->loadFromUrl($url, [], new ProxyCurl());
+        $dom->loadFromUrl($url, [], new TorCurl());
 
         // end collect. no results
-        if ($dom->find('#moon')[0]) {
+        if (false !== strpos($dom, 'No matches found.')) {
             return true;
         }
 
         $this->checkTotalObjects($dom);
 
         /* @var \PHPHtmlParser\Dom\AbstractNode $span */
-        foreach ($dom->find('.txt') as $span) {
+        foreach ($dom->find('.summaryHeader') as $span) {
             if (count($this->objects) >= $this->count) {
                 break;
             }
 
             /* @var \PHPHtmlParser\Dom\AbstractNode $link */
-            if ($link = $span->find('a')[0]) {
-                $url = $host . $link->getAttribute('href');
+            if ($link = $span->find('a', 0)) {
+                $url = $link->getAttribute('href');
                 if (in_array($url, $this->collected, true)) {
                     continue;
                 }
                 $object = new Object($url, $link->text(), $this->categoryId, $this->type);
                 try {
-                    $object->setPrice($span);
+                    $object->setPrice();
                 } catch (ObjectException $e) {
                     continue;
                 }
@@ -67,7 +75,7 @@ class Backpage extends BaseCategory
         $collected_count = count($this->objects);
         if ($collected_count && $collected_count < $this->count) {
             $url = str_replace(self::$pageParam . self::$page, '', $url);
-            self::$page += 100;
+            self::$page += self::$page ? 1 : 2;
             return $this->collectObjects($this->getPagedUrl($url));
         }
 
@@ -80,9 +88,7 @@ class Backpage extends BaseCategory
     protected function checkTotalObjects($dom)
     {
         if (!$this->count) {
-            /* @var \PHPHtmlParser\Dom\AbstractNode $total_count */
-            $total_count = $dom->find('.totalcount')[0];
-            $this->count = $this->needCount = (int) $total_count->text();
+            $this->count = $this->needCount = 2500;
         }
 
         return true;

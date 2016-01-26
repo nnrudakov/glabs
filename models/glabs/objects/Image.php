@@ -2,7 +2,9 @@
 
 namespace app\models\glabs\objects;
 
-use yii\base\Object as BaseObject;
+use app\models\glabs\TorCurl;
+use PHPHtmlParser\Exceptions\CurlException;
+use yii\base\Object;
 
 /**
  * Object image class.
@@ -11,7 +13,7 @@ use yii\base\Object as BaseObject;
  * @author     Nikolaj Rudakov <nnrudakov@gmail.com>
  * @copyright  2016
  */
-class Image extends BaseObject
+class Image extends Object
 {
     /**
      * URL.
@@ -37,7 +39,7 @@ class Image extends BaseObject
     public function init()
     {
         $this->setFilename();
-        $this->setData(file_get_contents($this->getUrl()));
+        $this->setData();
     }
 
     /**
@@ -89,10 +91,17 @@ class Image extends BaseObject
     }
 
     /**
-     * @param string $value
+     * Get image content.
+     *
+     * @throws CurlException
+     * @throws ImageException
      */
-    protected function setData($value)
+    protected function setData()
     {
-        $this->data = $value;
+        try {
+            $this->data = (new TorCurl())->get($this->url);
+        } catch (CurlException $e) {
+            throw new ImageException('Cannot get image: ' . $e->getMessage());
+        }
     }
 }
