@@ -136,6 +136,7 @@ class BaseObject
             self::$dom->loadFromUrl($this->url, [], GlabsController::$curl);
         } catch (CurlException $e) {
             if (false === strpos($e->getMessage(), 'Connection timed out')) {
+                GlabsController::showMessage(' ...trying again', false);
                 throw new CurlException($e->getMessage());
             }
             $this->parse();
