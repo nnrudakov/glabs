@@ -6,6 +6,7 @@
 
 namespace app\commands;
 
+use app\models\glabs\TorCurl;
 use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
 use Yii;
@@ -32,6 +33,13 @@ class GlabsController extends Controller
      * @var array
      */
     public static $sites = ['craigslist', 'backpage'];
+
+    /**
+     * Curl class.
+     *
+     * @var ProxyCurl | TorCurl
+     */
+    public static $curl;
 
     /**
      * IP connection.
@@ -62,6 +70,11 @@ class GlabsController extends Controller
      *                            </ul>
      * @param array   $categories Categories comma separated.
      * @param integer $count      Count objects to parse.
+     * @param string  $curl       cURL type. Possible values:
+     *                            <ul>
+     *                              <li><code>proxy</code> (default)</li>
+     *                              <li><code>tor</code></li>
+     *                            </ul>
      * @param string  $proxy      Proxy IP and port.
      * @param bool    $quiet      No messages in stdout.
      *
@@ -69,11 +82,13 @@ class GlabsController extends Controller
      * @throws ObjectException
      * @throws CurlException
      */
-    public function actionIndex($site, array $categories = [], $count = 0, $proxy = '', $quiet = false)
+    public function actionIndex($site, array $categories = [], $count = 0, $curl = 'proxy', $proxy = '', $quiet = false)
     {
         if (!in_array($site, self::$sites, true)) {
             throw new InvalidParamException('Wrong site "' . $site . '".');
         }
+
+        self::$curl = 'proxy' === $curl ? new ProxyCurl() : new TorCurl();
 
         if ($proxy) {
             ProxyCurl::$proxy = $proxy;
@@ -89,13 +104,18 @@ class GlabsController extends Controller
     /**
      * Upload only one object.
      *
-     * @param string  $site       Site to parse. Possible values:
-     *                            <ul>
-     *                              <li><code>craigslist</code> will parse http://losangeles.craigslist.org/ </li>
-     *                              <li><code>backpage</code> will parse http://la.backpage.com/ </li>
-     *                            </ul>
-     * @param string $url URL to object.
+     * @param string $site     Site to parse. Possible values:
+     *                         <ul>
+     *                          <li><code>craigslist</code> will parse http://losangeles.craigslist.org/ </li>
+     *                          <li><code>backpage</code> will parse http://la.backpage.com/ </li>
+     *                         </ul>
+     * @param string $url      URL to object.
      * @param string $category Category.
+     * @param string $curl     cURL type. Possible values:
+     *                         <ul>
+     *                          <li><code>proxy</code> (default)</li>
+     *                          <li><code>tor</code></li>
+     *                         </ul>
      * @param string $proxy    Proxy IP and port.
      *
      * @return bool
@@ -105,11 +125,13 @@ class GlabsController extends Controller
      * @throws CurlException
      * @throws TransportException
      */
-    public function actionObject($site, $url, $category, $proxy = '')
+    public function actionObject($site, $url, $category, $curl = 'proxy', $proxy = '')
     {
         if (!in_array($site, self::$sites, true)) {
             throw new InvalidParamException('Wrong site "' . $site . '".');
         }
+
+        self::$curl = 'proxy' === $curl ? new ProxyCurl() : new TorCurl();
 
         if ($proxy) {
             ProxyCurl::$proxy = $proxy;
@@ -140,6 +162,8 @@ class GlabsController extends Controller
             return true;
         }
         self::saveObjectsEmails($object);
+
+        return true;
     }
 
     /**

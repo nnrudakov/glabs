@@ -4,9 +4,6 @@ namespace app\models\glabs\categories;
 
 use app\commands\GlabsController;
 use app\models\glabs\objects\ObjectException;
-use app\models\glabs\ProxyCurl;
-use app\models\glabs\objects\Object;
-use app\models\glabs\sites\BaseSite;
 use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;

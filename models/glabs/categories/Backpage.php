@@ -2,8 +2,8 @@
 
 namespace app\models\glabs\categories;
 
+use app\commands\GlabsController;
 use app\models\glabs\objects\ObjectException;
-use app\models\glabs\ProxyCurl;
 use app\models\glabs\objects\Backpage as Object;
 use app\models\glabs\sites\BaseSite;
 use PHPHtmlParser\Dom;
@@ -33,7 +33,7 @@ class Backpage extends BaseCategory
     protected function collectObjects($url)
     {
         $dom = new Dom();
-        $dom->loadFromUrl($url, [], new ProxyCurl());
+        $dom->loadFromUrl($url, [], GlabsController::$curl);
 
         // end collect. no results
         if (false !== strpos($dom, 'No matches found.')) {

@@ -2,9 +2,7 @@
 
 namespace app\models\glabs\objects;
 
-use app\models\glabs\ProxyCurl;
 use PHPHtmlParser\Dom;
-use PHPHtmlParser\Exceptions\CurlException;
 
 /**
  * Class of objects of backpage.com.

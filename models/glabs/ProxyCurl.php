@@ -23,7 +23,7 @@ class ProxyCurl implements CurlInterface
      *
      * @var string
      */
-    public static $connectedURL;
+    public $connectedURL;
 
     /**
      * A proxy curl implementation to get the content of the url.
@@ -52,7 +52,7 @@ class ProxyCurl implements CurlInterface
         sleep(mt_rand(3, 5));
         $content = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        self::$connectedURL = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+        $this->connectedURL = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
         if (404 === $code){
             throw new CurlException('Content not found.');
         }

@@ -19,7 +19,7 @@ class TorCurl implements CurlInterface
      *
      * @var string
      */
-    public static $connectedURL;
+    public $connectedURL;
 
     /**
      * Localhost is a hostname that means this computer or this host.
@@ -87,7 +87,7 @@ class TorCurl implements CurlInterface
         sleep(mt_rand(3, 5));
         $content = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        self::$connectedURL = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+        $this->connectedURL = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 
         if (404 === $code){
             throw new CurlException('Content not found.');
@@ -121,6 +121,8 @@ class TorCurl implements CurlInterface
             fwrite($fp, $this->command . "\n");
             fread($fp, 512);
         }
+
+        return true;
     }
 
     /**
