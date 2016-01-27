@@ -6,6 +6,8 @@
 
 namespace app\commands;
 
+use app\models\glabs\TransportException;
+use PHPHtmlParser\Dom;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\console\Controller;
@@ -24,6 +26,13 @@ use PHPHtmlParser\Exceptions\CurlException;
 /** @noinspection LongInheritanceChainInspection */
 class GlabsController extends Controller
 {
+    /**
+     * Sites.
+     *
+     * @var array
+     */
+    public static $sites = ['craigslist', 'backpage'];
+
     /**
      * IP connection.
      *
@@ -62,7 +71,7 @@ class GlabsController extends Controller
      */
     public function actionIndex($site, array $categories = [], $count = 0, $proxy = '', $quiet = false)
     {
-        if (!in_array($site, ['craigslist', 'backpage'], true)) {
+        if (!in_array($site, self::$sites, true)) {
             throw new InvalidParamException('Wrong site "' . $site . '".');
         }
 
@@ -71,12 +80,72 @@ class GlabsController extends Controller
         }
 
         self::$quiet = $quiet;
-        self::showMessage('Starting parse site "' . $site . '"');
+        self::showMessage('Starting to parse site "' . $site . '"');
 
         $site_model = 'craigslist' === $site ? new Craigslist($categories, $count) : new Backpage($categories, $count);
         $site_model->parse();
     }
 
+    /**
+     * Upload only one object.
+     *
+     * @param string  $site       Site to parse. Possible values:
+     *                            <ul>
+     *                              <li><code>craigslist</code> will parse http://losangeles.craigslist.org/ </li>
+     *                              <li><code>backpage</code> will parse http://la.backpage.com/ </li>
+     *                            </ul>
+     * @param string $url URL to object.
+     * @param string $category Category.
+     * @param string $proxy    Proxy IP and port.
+     *
+     * @return bool
+     *
+     * @throws InvalidParamException
+     * @throws ObjectException
+     * @throws CurlException
+     * @throws TransportException
+     */
+    public function actionObject($site, $url, $category, $proxy = '')
+    {
+        // ./yii glabs/object backpage "http://la.backpage.com/AntiquesForSale/699-jim-beam-decanter-collection-for-sale-30-ea-new-condition-trades-considered/43731604" "Antiques" "185.60.135.57:80"
+        if (!in_array($site, self::$sites, true)) {
+            throw new InvalidParamException('Wrong site "' . $site . '".');
+        }
+
+        if ($proxy) {
+            ProxyCurl::$proxy = $proxy;
+        }
+
+        $categories = 'craigslist' === $site ? Craigslist::CATEGORIES : Backpage::CATEGORIES;
+        if (!array_key_exists($category, $categories)) {
+            throw new InvalidParamException('Wrong category "' . $category . '".');
+        }
+
+        self::showMessage('Starting to parse object "' . $url . '"');
+
+        $category = $categories[$category];
+        $object = 'craigslist' === $site
+            ? new \app\models\glabs\objects\Craigslist($url, 'none', $category['category_id'], $category['type'])
+            : new \app\models\glabs\objects\Backpage($url, 'none', $category['category_id'], $category['type']);
+        try {
+            $object->parse();
+            $object->setPrice();
+            self::showMessage("\t" . 'Sending object... ', false);
+            $object->send();
+            self::showMessage('Success.');
+        } catch (ObjectException $e) {
+            self::showMessage("\t" . 'Cannot parse object: ' . $e->getMessage());
+            return true;
+        } catch (TransportException $e) {
+            self::showMessage('Fail with message: "' . $e->getMessage() . '"');
+            return true;
+        }
+        self::saveObjectsEmails($object);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function beforeAction($action)
     {
         self::$startTime = microtime(true);
@@ -85,6 +154,9 @@ class GlabsController extends Controller
         return parent::beforeAction($action);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function afterAction($action, $result)
     {
         //file_put_contents(\Yii::getAlias('@runtime/logs/last_ip'),  self::$ip. "\n");

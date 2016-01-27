@@ -2,7 +2,7 @@
 
 namespace app\models\glabs\objects;
 
-use app\models\glabs\TorCurl;
+use app\models\glabs\ProxyCurl;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
 
@@ -15,6 +15,16 @@ use PHPHtmlParser\Exceptions\CurlException;
  */
 class Backpage extends BaseObject
 {
+    /**
+     * @inheritdoc
+     */
+    protected function setTitle()
+    {
+        if ('none' === $this->title) {
+            $this->title = self::$dom->find('h1', 0)->text();
+        }
+    }
+
     /**
      * @inheritdoc
      */
@@ -47,12 +57,15 @@ class Backpage extends BaseObject
      */
     protected function setImages()
     {
-        foreach ($this->getImageTags() as $imageTag) {
+        /* @var \PHPHtmlParser\Dom\AbstractNode[] $imageTags */
+        list($imageTags, $layout) = $this->getImageTags();
+
+        foreach ($imageTags as $imageTag) {
             if (count($this->subimage) >= 4) {
                 break;
             }
 
-            if ($imageTag->getAttribute('alt')) {
+            if (!$layout && $imageTag->getAttribute('alt')) {
                 continue;
             }
 
@@ -60,7 +73,7 @@ class Backpage extends BaseObject
             $url = $parent->getAttribute('href');
             if (false === strpos($url, '.jpg')) {
                 $url = $imageTag->getAttribute('src');
-                if (false === strpos($url, 'GetImage.aspx')) {
+                if (!$layout && false === strpos($url, 'GetImage.aspx')) {
                     continue;
                 }
             }
@@ -86,18 +99,18 @@ class Backpage extends BaseObject
     }
 
     /**
-     * @return \PHPHtmlParser\Dom\AbstractNode[]
+     * @return array
      */
     private function getImageTags()
     {
         /* @var \PHPHtmlParser\Dom\AbstractNode $photos */
         $photos = self::$dom->getElementById('viewAdPhotoLayout');
         if ($photos) {
-            return $photos->find('img');
+            return [$photos->find('img'), true];
         }
 
         /* @var \PHPHtmlParser\Dom\AbstractNode $postingbody */
         $postingbody = self::$dom->find('.postingBody', 0);
-        return $postingbody->find('img');
+        return [$postingbody->find('img'), false];
     }
 }

@@ -67,8 +67,10 @@ abstract class BaseSite
      *
      * @param array   $categories Categories.
      * @param integer $count      Count object per category.
+     *
+     * @throws CurlException
      */
-    public function __construct($categories, $count) {
+    public function __construct(array $categories, $count) {
         $this->inCategories = $categories;
         $this->getCategoriesLinks($count);
     }
@@ -93,6 +95,8 @@ abstract class BaseSite
      * @param integer $count How many category objects to parse.
      *
      * @return bool
+     *
+     * @throws CurlException
      */
     protected function getCategoriesLinks($count)
     {
@@ -127,6 +131,8 @@ abstract class BaseSite
      * @param $categoryId   integer
      * @param $categoryType string
      * @param $count        integer
+     *
+     * @throws CurlException
      */
     protected function setCategory($url, $title, $categoryId, $categoryType, $count)
     {

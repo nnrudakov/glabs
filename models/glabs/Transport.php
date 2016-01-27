@@ -18,7 +18,8 @@ class Transport
      *
      * @var string
      */
-    private static $url = 'http://zoheny.com/api/addproduct';
+    //private static $url = 'http://zoheny.com/api/addproduct';
+    private static $url = 'http://211.233.159.68/bear1030/api/addproduct';
 
     /**
      * Login.

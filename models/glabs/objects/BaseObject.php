@@ -2,7 +2,7 @@
 
 namespace app\models\glabs\objects;
 
-use app\models\glabs\TorCurl;
+use app\models\glabs\ProxyCurl;
 use app\models\glabs\Transport;
 use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
@@ -127,7 +127,8 @@ class BaseObject
      */
     public function parse()
     {
-        self::$dom->loadFromUrl($this->url, [], new TorCurl());
+        self::$dom->loadFromUrl($this->url, [], new ProxyCurl());
+        $this->setTitle();
         $this->setDescription();
         $this->setPhone();
         $this->setEmails();
@@ -168,6 +169,14 @@ class BaseObject
     public function getTitle()
     {
         return $this->title;
+    }
+
+    /**
+     * Set title.
+     */
+    protected function setTitle()
+    {
+
     }
 
     /**

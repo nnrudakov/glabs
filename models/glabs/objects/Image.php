@@ -2,7 +2,7 @@
 
 namespace app\models\glabs\objects;
 
-use app\models\glabs\TorCurl;
+use app\models\glabs\ProxyCurl;
 use PHPHtmlParser\Exceptions\CurlException;
 use yii\base\Object;
 
@@ -98,12 +98,16 @@ class Image extends Object
     protected function setData()
     {
         try {
-            $this->data = (new TorCurl())->get($this->url);
+            $this->data = (new ProxyCurl())->get($this->url);
         } catch (CurlException $e) {
             throw new ImageException('Cannot get image: ' . $e->getMessage());
         }
 
-        $this->setUrl(TorCurl::$connectedURL);
+        if (false !== strpos($this->data, '<html')) {
+            throw new ImageException('Response is HTML. Proxy error.');
+        }
+
+        $this->setUrl(ProxyCurl::$connectedURL);
         $this->setFilename();
     }
 }
