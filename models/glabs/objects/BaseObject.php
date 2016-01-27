@@ -86,6 +86,11 @@ class BaseObject
     protected $emails = [];
 
     /**
+     * @var bool
+     */
+    protected $phone = false;
+
+    /**
      * Category constructor.
      *
      * @param string  $url        Link.
@@ -140,6 +145,11 @@ class BaseObject
         $this->setPhone();
         $this->setEmails();
         $this->setImages();
+
+        if (!$this->phone && !$this->emails) {
+            throw new ObjectException('Has no phone and email.');
+        }
+
         /*print_r($this->toArray());
         die;*/
     }
@@ -283,8 +293,6 @@ class BaseObject
 
     /**
      * @return bool
-     *
-     * @throws ObjectException
      */
     protected function setPhone()
     {
@@ -296,11 +304,10 @@ class BaseObject
         ];
         foreach ($patterns as $pattern) {
             if (preg_match($pattern, $this->description)) {
+                $this->phone = true;
                 return true;
             }
         }
-
-        throw new ObjectException('Has no phone.');
     }
 
     /**
