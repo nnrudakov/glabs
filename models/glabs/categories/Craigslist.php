@@ -3,7 +3,7 @@
 namespace app\models\glabs\categories;
 
 use app\models\glabs\objects\ObjectException;
-use app\models\glabs\TorCurl;
+use app\models\glabs\ProxyCurl;
 use app\models\glabs\objects\Craigslist as Object;
 use app\models\glabs\sites\BaseSite;
 use PHPHtmlParser\Dom;
@@ -34,7 +34,7 @@ class Craigslist extends BaseCategory
     {
         $host = 'http://' . parse_url($url, PHP_URL_HOST);
         $dom = new Dom();
-        $dom->loadFromUrl($url, [], new TorCurl());
+        $dom->loadFromUrl($url, [], new ProxyCurl());
         if (false !== strpos($dom, 'This IP has been automatically blocked.')) {
             throw new CurlException('IP has been blocked.');
         }
