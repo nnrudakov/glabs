@@ -86,6 +86,7 @@ abstract class BaseSite
     {
         foreach ($this->categories as $category) {
             $category->parse();
+            GlabsController::showMessage('Successful sent objects: ' . GlabsController::$sentObjects);
         }
     }
 

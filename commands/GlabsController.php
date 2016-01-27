@@ -49,6 +49,11 @@ class GlabsController extends Controller
     public static $ip;
 
     /**
+     * @var integer
+     */
+    public static $sentObjects = 0;
+
+    /**
      * Begin execution time.
      *
      * @var integer

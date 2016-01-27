@@ -173,6 +173,7 @@ abstract class BaseCategory
             GlabsController::showMessage("\t\t" . 'Sending object... ', false);
             try {
                 $object->send();
+                GlabsController::$sentObjects++;
                 GlabsController::showMessage('Success.');
             } catch (TransportException $e) {
                 GlabsController::showMessage('Fail with message: "' . $e->getMessage() . '"');
