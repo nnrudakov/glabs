@@ -19,14 +19,14 @@ class Backpage extends BaseSite
      *
      * @var string
      */
-    protected $url = 'http://la.backpage.com';
+    const URL = 'http://la.backpage.com';
 
     /**
      * Categories.
      *
      * @var array
      */
-    protected $categoriesList = [
+    const CATEGORIES = [
         'Antiques'          => ['type' => 'Sell', 'category_id' => 1,  'url' => ['/AntiquesForSale/']],
         'Appliances'        => ['type' => 'Sell', 'category_id' => 2,  'url' => ['/AppliancesForSale/']],
         'Apts / Housing'    => ['type' => 'Rent', 'category_id' => 31, 'url' => ['/ApartmentsForRent/']],
@@ -66,6 +66,16 @@ class Backpage extends BaseSite
         'Vacation Rentals'  => ['type' => 'Rent', 'category_id' => 36, 'url' => ['/VacationForRent/']],
         //'Video Games'       => ['type' => 'Sell', 'category_id' => 30, 'url' => ['']]
     ];
+
+    /**
+     * @inheritdoc
+     */
+    public function __construct(array $categories, $count)
+    {
+        $this->url = self::URL;
+        $this->categoriesList = self::CATEGORIES;
+        parent::__construct($categories, $count);
+    }
 
     /**
      * @inheritdoc

@@ -19,14 +19,14 @@ class Craigslist extends BaseSite
      *
      * @var string
      */
-    protected $url = 'http://losangeles.craigslist.org';
+    const URL = 'http://losangeles.craigslist.org';
 
     /**
      * Categories.
      *
      * @var array
      */
-    protected $categoriesList = [
+    const CATEGORIES = [
         'Antiques'          => ['type' => 'Sell', 'category_id' => 1,  'url' => ['/search/ata']],
         'Appliances'        => ['type' => 'Sell', 'category_id' => 2,  'url' => ['/search/ppa']],
         'Apts / Housing'    => ['type' => 'Rent', 'category_id' => 31, 'url' => ['/search/apa']],
@@ -66,6 +66,16 @@ class Craigslist extends BaseSite
         'Vacation Rentals'  => ['type' => 'Rent', 'category_id' => 36, 'url' => ['/search/vac']],
         'Video Games'       => ['type' => 'Sell', 'category_id' => 30, 'url' => ['/search/vga']]
     ];
+
+    /**
+     * @inheritdoc
+     */
+    public function __construct(array $categories, $count)
+    {
+        $this->url = self::URL;
+        $this->categoriesList = self::CATEGORIES;
+        parent::__construct($categories, $count);
+    }
 
     /**
      * @inheritdoc
