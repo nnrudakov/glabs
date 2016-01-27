@@ -1,0 +1,103 @@
+<?php
+
+namespace app\models\glabs\objects;
+
+use app\models\glabs\TorCurl;
+use PHPHtmlParser\Dom;
+use PHPHtmlParser\Exceptions\CurlException;
+
+/**
+ * Class of objects of backpage.com.
+ *
+ * @package    glabs
+ * @author     Nikolaj Rudakov <nnrudakov@gmail.com>
+ * @copyright  2016
+ */
+class Backpage extends BaseObject
+{
+    /**
+     * @inheritdoc
+     */
+    protected function setDescription()
+    {
+        /* @var \PHPHtmlParser\Dom\AbstractNode $postingbody */
+        $postingbody = self::$dom->find('.postingBody', 0);
+        $this->description = $postingbody->innerHtml();
+
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setPrice()
+    {
+        if (preg_match('/\$([\d+,]+)/', $this->title, $matches)) {
+            $this->price = $matches[1];
+            $this->price = str_replace(',', '', $this->price);
+        }
+
+        if (!$this->price) {
+            throw new ObjectException('There is no price in object.');
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function setImages()
+    {
+        foreach ($this->getImageTags() as $imageTag) {
+            if (count($this->subimage) >= 4) {
+                break;
+            }
+
+            if ($imageTag->getAttribute('alt')) {
+                continue;
+            }
+
+            $parent = $imageTag->getParent();
+            $url = $parent->getAttribute('href');
+            if (false === strpos($url, '.jpg')) {
+                $url = $imageTag->getAttribute('src');
+                if (false === strpos($url, 'GetImage.aspx')) {
+                    continue;
+                }
+            }
+
+            try {
+                $image = new Image(['url' => $url]);
+            } catch (ImageException $e) {
+                continue;
+            }
+
+            if (!$this->thumbnail) {
+                $this->thumbnail = $image;
+            } else {
+                $this->subimage[] = $image;
+            }
+        }
+
+        if (!$this->thumbnail) {
+            throw new ObjectException('Has no files.');
+        }
+
+        return true;
+    }
+
+    /**
+     * @return \PHPHtmlParser\Dom\AbstractNode[]
+     */
+    private function getImageTags()
+    {
+        /* @var \PHPHtmlParser\Dom\AbstractNode $photos */
+        $photos = self::$dom->getElementById('viewAdPhotoLayout');
+        if ($photos) {
+            return $photos->find('img');
+        }
+
+        /* @var \PHPHtmlParser\Dom\AbstractNode $postingbody */
+        $postingbody = self::$dom->find('.postingBody', 0);
+        return $postingbody->find('img');
+    }
+}

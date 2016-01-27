@@ -3,7 +3,7 @@
 namespace app\models\glabs\sites;
 
 use app\commands\GlabsController;
-use app\models\glabs\categories\Category;
+use app\models\glabs\categories\BaseCategory;
 use app\models\glabs\objects\ObjectException;
 use PHPHtmlParser\Exceptions\CurlException;
 use yii\base\InvalidParamException;
@@ -18,9 +18,23 @@ use yii\base\InvalidParamException;
 abstract class BaseSite
 {
     /**
+     * URL.
+     *
+     * @var string
+     */
+    protected $url;
+
+    /**
      * Categories.
      *
-     * @var Category[]
+     * @var array
+     */
+    protected $categoriesList = [];
+
+    /**
+     * Categories.
+     *
+     * @var BaseCategory[]
      */
     protected $categories = [];
 
@@ -77,10 +91,46 @@ abstract class BaseSite
      * Fill categories by name and URL.
      *
      * @param integer $count How many category objects to parse.
+     *
+     * @return bool
      */
     protected function getCategoriesLinks($count)
     {
-        GlabsController::showMessage('');
+        $host = $this->url;
+        $categories = $this->inCategories;
+
+        if (!$categories || (isset($categories[0]) && $categories[0] === '')) {
+            $categories = array_keys($this->categoriesList);
+        }
+
+        foreach ($categories as $title) {
+            if (!array_key_exists($title, $this->categoriesList)) {
+                continue;
+            }
+            self::$doneCategories++;
+            self::progress();
+            $category = $this->categoriesList[$title];
+            $url = array_map(function ($item) use ($host) { return $host . $item; }, $category['url']);
+            $this->setCategory($url, $title, $category['category_id'], $category['type'], $count);
+        }
+
+        GlabsController::showMessage("\n");
+
+        return true;
+    }
+
+    /**
+     * Set category.
+     *
+     * @param $url          string
+     * @param $title        string
+     * @param $categoryId   integer
+     * @param $categoryType string
+     * @param $count        integer
+     */
+    protected function setCategory($url, $title, $categoryId, $categoryType, $count)
+    {
+
     }
 
     /**

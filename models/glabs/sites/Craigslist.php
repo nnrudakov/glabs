@@ -2,9 +2,7 @@
 
 namespace app\models\glabs\sites;
 
-use app\commands\GlabsController;
-use app\models\glabs\categories\Category;
-use app\models\glabs\ProxyCurl;
+use app\models\glabs\categories\Craigslist as Category;
 use PHPHtmlParser\Dom;
 
 /**
@@ -21,14 +19,14 @@ class Craigslist extends BaseSite
      *
      * @var string
      */
-    protected static $url = 'http://losangeles.craigslist.org';
+    protected $url = 'http://losangeles.craigslist.org';
 
     /**
      * Categories.
      *
      * @var array
      */
-    protected static $categoriesList = [
+    protected $categoriesList = [
         'Antiques'          => ['type' => 'Sell', 'category_id' => 1,  'url' => ['/search/ata']],
         'Appliances'        => ['type' => 'Sell', 'category_id' => 2,  'url' => ['/search/ppa']],
         'Apts / Housing'    => ['type' => 'Rent', 'category_id' => 31, 'url' => ['/search/apa']],
@@ -72,28 +70,8 @@ class Craigslist extends BaseSite
     /**
      * @inheritdoc
      */
-    protected function getCategoriesLinks($count)
+    protected function setCategory($url, $title, $categoryId, $categoryType, $count)
     {
-        $host = self::$url;
-        $categories = $this->inCategories;
-
-        if (!$categories || (isset($categories[0]) && $categories[0] === '')) {
-            $categories = array_keys(self::$categoriesList);
-        }
-
-        foreach ($categories as $title) {
-            if (!array_key_exists($title, self::$categoriesList)) {
-                continue;
-            }
-            parent::$doneCategories++;
-            parent::progress();
-            $category = self::$categoriesList[$title];
-            $url = array_map(function ($item) use ($host) { return $host . $item; }, $category['url']);
-            $this->categories[] = new Category($url, $title, $category['category_id'], $category['type'], $count);
-        }
-
-        GlabsController::showMessage("\n");
-
-        return true;
+        $this->categories[] = new Category($url, $title, $categoryId, $categoryType, $count);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace app\models\glabs;
 
-use app\models\glabs\objects\Object as Article;
+use app\models\glabs\objects\BaseObject;
 
 /**
  * Send data to Zoheny.com.
@@ -18,7 +18,7 @@ class Transport
      *
      * @var string
      */
-    private static $url = 'http://zoheny.com/api/addproduct';//'http://211.233.159.68/bear1030/api/addproduct';
+    private static $url = 'http://zoheny.com/api/addproduct';
 
     /**
      * Login.
@@ -44,9 +44,9 @@ class Transport
     /**
      * Transport constructor.
      *
-     * @param Article $object
+     * @param BaseObject $object
      */
-    public function __construct(Article $object)
+    public function __construct(BaseObject $object)
     {
         $this->object = $object;
     }
@@ -86,7 +86,6 @@ class Transport
             throw new TransportException('Error retrieving ' . $error);
         }
 
-        //echo $content;
         $content = json_decode($content, true);
 
         if (!$content['success']) {
