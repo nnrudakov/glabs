@@ -103,6 +103,10 @@ class Image extends Object
             throw new ImageException('Cannot get image: ' . $e->getMessage());
         }
 
+        if (false !== strpos($this->data, '<html')) {
+            throw new ImageException('Response is HTML. Proxy error.');
+        }
+
         $this->setUrl(ProxyCurl::$connectedURL);
         $this->setFilename();
     }
