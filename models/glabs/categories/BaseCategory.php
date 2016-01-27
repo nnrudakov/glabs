@@ -182,7 +182,7 @@ abstract class BaseCategory
         }
 
         $done_count = count($this->doneObjects);
-        if ($done_count < $this->needCount) {
+        if (count($this->objects) && $done_count < $this->needCount) {
             $this->count = $this->needCount - $done_count;
             $this->objects = [];
             $this->collectObjects($this->getPagedUrl(reset($this->url)));

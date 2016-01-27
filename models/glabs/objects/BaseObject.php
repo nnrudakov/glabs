@@ -127,7 +127,14 @@ class BaseObject
      */
     public function parse()
     {
-        self::$dom->loadFromUrl($this->url, [], GlabsController::$curl);
+        try {
+            self::$dom->loadFromUrl($this->url, [], GlabsController::$curl);
+        } catch (CurlException $e) {
+            if (false === strpos($e->getMessage(), 'Connection timed out')) {
+                throw new CurlException($e->getMessage());
+            }
+            $this->parse();
+        }
         $this->setTitle();
         $this->setDescription();
         $this->setPhone();
