@@ -3,7 +3,6 @@
 namespace app\models\glabs\objects;
 
 use app\commands\GlabsController;
-use app\models\glabs\ProxyCurl;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
 

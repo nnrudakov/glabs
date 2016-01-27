@@ -6,14 +6,14 @@
 
 namespace app\commands;
 
-use app\models\glabs\TorCurl;
-use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\console\Controller;
 use app\models\glabs\objects\ObjectException;
 use app\models\glabs\ProxyCurl;
+use app\models\glabs\TorCurl;
+use app\models\glabs\TransportException;
 use app\models\glabs\sites\Craigslist;
 use app\models\glabs\sites\Backpage;
 use PHPHtmlParser\Exceptions\CurlException;
