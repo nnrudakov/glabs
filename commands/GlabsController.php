@@ -107,6 +107,7 @@ class GlabsController extends Controller
      */
     public function actionObject($site, $url, $category, $proxy = '')
     {
+        // ./yii glabs/object backpage "http://la.backpage.com/AntiquesForSale/699-jim-beam-decanter-collection-for-sale-30-ea-new-condition-trades-considered/43731604" "Antiques" "185.60.135.57:80"
         if (!in_array($site, self::$sites, true)) {
             throw new InvalidParamException('Wrong site "' . $site . '".');
         }
