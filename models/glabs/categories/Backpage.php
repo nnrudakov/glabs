@@ -50,7 +50,7 @@ class Backpage extends BaseCategory
 
             /* @var \PHPHtmlParser\Dom\AbstractNode $link */
             if ($link = $span->find('a', 0)) {
-                $href = $link->getAttribute('href');
+                $href = 'http://la.backpage.com/AntiquesForSale/6999-1938-mills-castle-25-slot-machine-like-new-carefreeaz-new-condition-trades-699900/43731360';// $link->getAttribute('href');
                 if (in_array($href, $this->collected, true)) {
                     continue;
                 }
