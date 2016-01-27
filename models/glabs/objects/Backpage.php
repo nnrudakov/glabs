@@ -94,7 +94,7 @@ class Backpage extends BaseObject
         if (!$this->thumbnail) {
             throw new ObjectException('Has no files.');
         }
-        file_put_contents(\Yii::getAlias('@runtime/' . $this->thumbnail->getFilename()), $this->thumbnail->getData());
+
         return true;
     }
 
