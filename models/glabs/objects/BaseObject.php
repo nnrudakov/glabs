@@ -309,6 +309,16 @@ class BaseObject
                 return true;
             }
         }
+
+        /* @var \PHPHtmlParser\Dom\AbstractNode[] $contacts */
+        if ($contacts = self::$dom->find('.metaInfoDisplay', 0)) {
+            foreach ($patterns as $pattern) {
+                if (preg_match($pattern, $contacts)) {
+                    $this->phone = true;
+                    return true;
+                }
+            }
+        }
     }
 
     /**
