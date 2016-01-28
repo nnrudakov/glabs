@@ -50,7 +50,7 @@ class Backpage extends BaseSite
         'Household'         => ['type' => 'Sell', 'category_id' => 20, 'url' => ['/Household/']],
         //'Housing'           => ['type' => 'Rent', 'category_id' => 38, 'url' => ['']],
         //'Jewelry'           => ['type' => 'Sell', 'category_id' => 21, 'url' => ['']],
-        'Materials'         => ['type' => 'Sell', 'category_id' => 22, 'url' => ['/ToolsForSale/']],
+        //'Materials'         => ['type' => 'Sell', 'category_id' => 22, 'url' => ['']],
         'Motorcycles'       => ['type' => 'Sell', 'category_id' => 23, 'url' => ['/MotorcyclesForSale/']],
         'Music Instr'       => ['type' => 'Sell', 'category_id' => 24, 'url' => ['/MusicEquipForSale/']],
         'Office'            => ['type' => 'Rent', 'category_id' => 32, 'url' => ['/CommercialForRent/']],
@@ -61,7 +61,7 @@ class Backpage extends BaseSite
         'Sporting'          => ['type' => 'Sell', 'category_id' => 26, 'url' => ['/SportsEquipForSale/']],
         //'Sublets'           => ['type' => 'Rent', 'category_id' => 35, 'url' => ['']],
         'Tickets'           => ['type' => 'Sell', 'category_id' => 27, 'url' => ['/TicketsForSale/']],
-        //'Tools'             => ['type' => 'Sell', 'category_id' => 28, 'url' => ['']],
+        'Tools'             => ['type' => 'Sell', 'category_id' => 28, 'url' => ['/ToolsForSale/']],
         //'Toys & Games'      => ['type' => 'Sell', 'category_id' => 29, 'url' => ['']],
         'Vacation Rentals'  => ['type' => 'Rent', 'category_id' => 36, 'url' => ['/VacationForRent/']],
         //'Video Games'       => ['type' => 'Sell', 'category_id' => 30, 'url' => ['']]
