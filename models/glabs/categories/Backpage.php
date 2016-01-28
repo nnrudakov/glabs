@@ -7,6 +7,7 @@ use app\models\glabs\objects\ObjectException;
 use app\models\glabs\objects\Backpage as Object;
 use app\models\glabs\sites\BaseSite;
 use PHPHtmlParser\Dom;
+use PHPHtmlParser\Exceptions\CurlException;
 
 /**
  * Class of categories of craigslist.org.
@@ -33,7 +34,15 @@ class Backpage extends BaseCategory
     protected function collectObjects($url)
     {
         $dom = new Dom();
-        $dom->loadFromUrl($url, [], GlabsController::$curl);
+        try {
+            $dom->loadFromUrl($url, [], GlabsController::$curl);
+        } catch (CurlException $e) {
+            if (false === strpos($e->getMessage(), 'timed out') ) {
+                throw new CurlException($e->getMessage());
+            }
+            GlabsController::showMessage(' ...trying again', false);
+            $this->collectObjects($url);
+        }
 
         // end collect. no results
         if (false !== strpos($dom, 'No matches found.')) {
