@@ -74,7 +74,8 @@ class Backpage extends BaseObject
             $url = $parent->getAttribute('href');
             if (false === strpos($url, '.jpg')) {
                 $url = $imageTag->getAttribute('src');
-                if (!$layout && false === strpos($url, 'GetImage.aspx')) {
+                if (!$layout &&
+                    (false === strpos($url, 'GetImage.aspx') || false === strpos($url, 'images.psndealer.com'))) {
                     continue;
                 }
             }
