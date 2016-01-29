@@ -45,7 +45,7 @@ class Backpage extends BaseObject
      */
     public function setPrice()
     {
-        if (preg_match('/\$([\d+,.]+)/', $this->title, $matches)) {
+        if (preg_match('/\$([\d,.]+)/', $this->title, $matches)) {
             $this->price = $matches[1];
             $this->price = str_replace(',', '', $this->price);
         }
