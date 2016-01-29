@@ -58,7 +58,7 @@ class TorCurl implements CurlInterface
      *
      * @var integer
      */
-    private $timeout = 30;
+    private $timeout = 40;
 
     /**
      * A tor curl implementation to get the content of the url.

@@ -47,7 +47,7 @@ class ProxyCurl implements CurlInterface
         //curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 40);
 
         sleep(mt_rand(3, 5));
         $content = curl_exec($ch);
