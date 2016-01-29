@@ -79,7 +79,7 @@ class Backpage extends BaseObject
                 if (!$layout &&
                     false === strpos($url, 'GetImage.aspx') && false === strpos($url, 'images.psndealer.com') &&
                     false === strpos($url, 'cdn.vflyer.com') && false === strpos($url, 'cloudfront.net') &&
-                    false !== strpos($url, '.mp4')) {
+                    false !== strpos($url, '.mp4') && false !== strpos($url, '.3gp')) {
                     continue;
                 }
             }
