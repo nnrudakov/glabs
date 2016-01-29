@@ -40,6 +40,9 @@ class Backpage extends BaseCategory
             if (false === strpos($e->getMessage(), 'timed out') ) {
                 throw new CurlException($e->getMessage());
             }
+            if (false === strpos($e->getMessage(), '525') ) {
+                throw new CurlException($e->getMessage());
+            }
             GlabsController::showMessage(' ...trying again', false);
             $this->collectObjects($url);
         }

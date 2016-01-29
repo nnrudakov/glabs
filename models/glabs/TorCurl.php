@@ -103,6 +103,10 @@ class TorCurl implements CurlInterface
             throw new CurlException('IP ' . GlabsController::$ip . ' has been blocked.');
         }
 
+        if (false !== strpos($content, 'Error 525')) {
+            throw new CurlException('Error in a source site.');
+        }
+
         return $content;
     }
 

@@ -63,6 +63,10 @@ class ProxyCurl implements CurlInterface
             throw new CurlException('Error retrieving "' . $url . '" (' . $error . ')');
         }
 
+        if (false !== strpos($content, 'Error 525')) {
+            throw new CurlException('Error in a source site.');
+        }
+
         return $content;
     }
 
