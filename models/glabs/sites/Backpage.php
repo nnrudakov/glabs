@@ -56,7 +56,7 @@ class Backpage extends BaseSite
         'Office'            => ['type' => 'Rent', 'category_id' => 32, 'url' => ['/CommercialForRent/']],
         //'Parking / Storage' => ['type' => 'Rent', 'category_id' => 33, 'url' => ['']],
         //'Photo & Video'     => ['type' => 'Sell', 'category_id' => 25, 'url' => ['']],
-        'Rooms'             => ['type' => 'Rent', 'category_id' => 34, 'url' => ['/Roommates/']],
+        'Rooms'             => ['type' => 'Rent', 'category_id' => 34, 'url' => ['/ApartmentsForRent/']],
         //'RVs & Camping'     => ['type' => 'Sell', 'category_id' => 37, 'url' => ['']],
         'Sporting'          => ['type' => 'Sell', 'category_id' => 26, 'url' => ['/SportsEquipForSale/']],
         //'Sublets'           => ['type' => 'Rent', 'category_id' => 35, 'url' => ['']],
