@@ -21,6 +21,8 @@ class Backpage extends BaseObject
         if ('none' === $this->title) {
             $this->title = self::$dom->find('h1', 0)->text();
         }
+
+        parent::setTitle();
     }
 
     /**

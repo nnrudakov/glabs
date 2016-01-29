@@ -44,7 +44,7 @@ class Backpage extends BaseCategory
                 throw new CurlException($e->getMessage());
             }
             GlabsController::showMessage(' ...trying again', false);
-            $this->collectObjects($url);
+            return $this->collectObjects($url);
         }
 
         // end collect. no results

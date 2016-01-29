@@ -118,6 +118,7 @@ class BaseObject
             'description'       => $this->getDescription(),
             'product_sell_type' => $this->getProductSellType(),
             'mrp'               => $this->getPrice(),
+            'rent_rate'         => $this->getPrice(),
             'short_description' => 'New',
             'delivery_time'     => 'pickup',
             'no_of_items'       => 1
@@ -126,6 +127,8 @@ class BaseObject
 
     /**
      * Parse object page.
+     *
+     * @return bool
      *
      * @throws CurlException
      * @throws ObjectException
@@ -139,7 +142,8 @@ class BaseObject
                 GlabsController::showMessage(' ...trying again', false);
                 throw new CurlException($e->getMessage());
             }
-            $this->parse();
+
+            return $this->parse();
         }
         $this->setTitle();
         $this->setDescription();
@@ -151,8 +155,7 @@ class BaseObject
             throw new ObjectException('Has no phone and email.');
         }
 
-        /*print_r($this->toArray());
-        die;*/
+        return true;
     }
 
     /**
@@ -191,10 +194,14 @@ class BaseObject
 
     /**
      * Set title.
+     *
+     * @throws ObjectException
      */
     protected function setTitle()
     {
-
+        if (false !== strpos($this->title, 'Beautiful Blonde')) {
+            throw new ObjectException('Deprecated title.');
+        }
     }
 
     /**

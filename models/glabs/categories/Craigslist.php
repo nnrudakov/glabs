@@ -41,7 +41,7 @@ class Craigslist extends BaseCategory
                 throw new CurlException($e->getMessage());
             }
             GlabsController::showMessage(' ...trying again', false);
-            $this->collectObjects($url);
+            return $this->collectObjects($url);
         }
 
         if (false !== strpos($dom, 'This IP has been automatically blocked.')) {
