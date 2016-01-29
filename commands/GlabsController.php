@@ -231,7 +231,7 @@ class GlabsController extends Controller
         }
 
         $fp = fopen(Yii::getAlias('@runtime/emails_' . (int) self::$startTime. '.csv'), 'a');
-        fputcsv($fp, array_merge([$object->getUrl()], $object->getEmails()));
+        fputcsv($fp, array_merge([$object->getUrl()], array_unique($object->getEmails())));
         fclose($fp);
 
         return true;
