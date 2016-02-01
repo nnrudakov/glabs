@@ -2,9 +2,7 @@
 
 namespace app\models\glabs\objects;
 
-use app\models\glabs\ProxyCurl;
 use PHPHtmlParser\Dom;
-use PHPHtmlParser\Exceptions\CurlException;
 
 /**
  * Class of objects of backpage.com.
@@ -23,6 +21,8 @@ class Backpage extends BaseObject
         if ('none' === $this->title) {
             $this->title = self::$dom->find('h1', 0)->text();
         }
+
+        parent::setTitle();
     }
 
     /**
@@ -32,6 +32,9 @@ class Backpage extends BaseObject
     {
         /* @var \PHPHtmlParser\Dom\AbstractNode $postingbody */
         $postingbody = self::$dom->find('.postingBody', 0);
+        if (!$postingbody) {
+            throw new ObjectException('There is no content');
+        }
         $this->description = $postingbody->innerHtml();
 
         return true;
@@ -42,7 +45,7 @@ class Backpage extends BaseObject
      */
     public function setPrice()
     {
-        if (preg_match('/\$([\d+,]+)/', $this->title, $matches)) {
+        if (preg_match('/\$([\d,.]+)/', $this->title, $matches)) {
             $this->price = $matches[1];
             $this->price = str_replace(',', '', $this->price);
         }
@@ -73,7 +76,11 @@ class Backpage extends BaseObject
             $url = $parent->getAttribute('href');
             if (false === strpos($url, '.jpg')) {
                 $url = $imageTag->getAttribute('src');
-                if (!$layout && false === strpos($url, 'GetImage.aspx')) {
+                if (!$layout &&
+                    false === strpos($url, 'GetImage.aspx') && false === strpos($url, 'images.psndealer.com') &&
+                    false === strpos($url, 'cdn.vflyer.com') && false === strpos($url, 'cloudfront.net') &&
+                    false !== strpos($url, '.mp4') && false !== strpos($url, '.3gp') &&
+                    false === strpos($url, 'postlets.imgix.net') && false === strpos($url, 'cdn-w.v12soft.com')) {
                     continue;
                 }
             }

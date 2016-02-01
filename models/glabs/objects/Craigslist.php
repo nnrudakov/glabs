@@ -2,7 +2,7 @@
 
 namespace app\models\glabs\objects;
 
-use app\models\glabs\ProxyCurl;
+use app\commands\GlabsController;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
 
@@ -26,7 +26,7 @@ class Craigslist extends BaseObject
         // "click" to show contact
         if ($contact = $postingbody->find('.showcontact', 0)) {
             try {
-                $description = (new ProxyCurl())->get(
+                $description = GlabsController::$curl->get(
                     'http://' . parse_url($this->url, PHP_URL_HOST) . $contact->getAttribute('href')
                 );
                 if (false !== strpos($description, 'g-recaptcha')) {

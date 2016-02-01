@@ -19,7 +19,7 @@ class TorCurl implements CurlInterface
      *
      * @var string
      */
-    public static $connectedURL;
+    public $connectedURL;
 
     /**
      * Localhost is a hostname that means this computer or this host.
@@ -58,7 +58,7 @@ class TorCurl implements CurlInterface
      *
      * @var integer
      */
-    private $timeout = 30;
+    private $timeout = 40;
 
     /**
      * A tor curl implementation to get the content of the url.
@@ -87,7 +87,7 @@ class TorCurl implements CurlInterface
         sleep(mt_rand(3, 5));
         $content = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        self::$connectedURL = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+        $this->connectedURL = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 
         if (404 === $code){
             throw new CurlException('Content not found.');
@@ -101,6 +101,10 @@ class TorCurl implements CurlInterface
 
         if (false !== strpos($content, 'This IP has been automatically blocked.')) {
             throw new CurlException('IP ' . GlabsController::$ip . ' has been blocked.');
+        }
+
+        if (false !== strpos($content, 'Error 525')) {
+            throw new CurlException('Error in a source site.');
         }
 
         return $content;
@@ -121,6 +125,8 @@ class TorCurl implements CurlInterface
             fwrite($fp, $this->command . "\n");
             fread($fp, 512);
         }
+
+        return true;
     }
 
     /**

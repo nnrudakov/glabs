@@ -2,7 +2,9 @@
 
 namespace app\models\glabs\objects;
 
+use app\commands\GlabsController;
 use app\models\glabs\ProxyCurl;
+use app\models\glabs\TorCurl;
 use PHPHtmlParser\Exceptions\CurlException;
 use yii\base\Object;
 
@@ -97,8 +99,10 @@ class Image extends Object
      */
     protected function setData()
     {
+        /* @var ProxyCurl | TorCurl $curl */
+        $curl = GlabsController::$curl;
         try {
-            $this->data = (new ProxyCurl())->get($this->url);
+            $this->data = $curl->get($this->url);
         } catch (CurlException $e) {
             throw new ImageException('Cannot get image: ' . $e->getMessage());
         }
@@ -107,7 +111,7 @@ class Image extends Object
             throw new ImageException('Response is HTML. Proxy error.');
         }
 
-        $this->setUrl(ProxyCurl::$connectedURL);
+        $this->setUrl($curl->connectedURL);
         $this->setFilename();
     }
 }

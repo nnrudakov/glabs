@@ -4,9 +4,6 @@ namespace app\models\glabs\categories;
 
 use app\commands\GlabsController;
 use app\models\glabs\objects\ObjectException;
-use app\models\glabs\ProxyCurl;
-use app\models\glabs\objects\Object;
-use app\models\glabs\sites\BaseSite;
 use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
@@ -176,6 +173,7 @@ abstract class BaseCategory
             GlabsController::showMessage("\t\t" . 'Sending object... ', false);
             try {
                 $object->send();
+                GlabsController::$sentObjects++;
                 GlabsController::showMessage('Success.');
             } catch (TransportException $e) {
                 GlabsController::showMessage('Fail with message: "' . $e->getMessage() . '"');
@@ -184,7 +182,7 @@ abstract class BaseCategory
         }
 
         $done_count = count($this->doneObjects);
-        if ($done_count < $this->needCount) {
+        if (count($this->objects) && $done_count < $this->needCount) {
             $this->count = $this->needCount - $done_count;
             $this->objects = [];
             $this->collectObjects($this->getPagedUrl(reset($this->url)));

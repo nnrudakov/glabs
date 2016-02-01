@@ -2,7 +2,7 @@
 
 namespace app\models\glabs\objects;
 
-use app\models\glabs\ProxyCurl;
+use app\commands\GlabsController;
 use app\models\glabs\Transport;
 use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
@@ -86,6 +86,11 @@ class BaseObject
     protected $emails = [];
 
     /**
+     * @var bool
+     */
+    protected $phone = false;
+
+    /**
      * Category constructor.
      *
      * @param string  $url        Link.
@@ -113,6 +118,7 @@ class BaseObject
             'description'       => $this->getDescription(),
             'product_sell_type' => $this->getProductSellType(),
             'mrp'               => $this->getPrice(),
+            'rent_rate'         => $this->getPrice(),
             'short_description' => 'New',
             'delivery_time'     => 'pickup',
             'no_of_items'       => 1
@@ -122,19 +128,34 @@ class BaseObject
     /**
      * Parse object page.
      *
+     * @return bool
+     *
      * @throws CurlException
      * @throws ObjectException
      */
     public function parse()
     {
-        self::$dom->loadFromUrl($this->url, [], new ProxyCurl());
+        try {
+            self::$dom->loadFromUrl($this->url, [], GlabsController::$curl);
+        } catch (CurlException $e) {
+            if (false === strpos($e->getMessage(), 'timed out') ) {
+                GlabsController::showMessage(' ...trying again', false);
+                throw new CurlException($e->getMessage());
+            }
+
+            return $this->parse();
+        }
         $this->setTitle();
         $this->setDescription();
         $this->setPhone();
         $this->setEmails();
         $this->setImages();
-        /*print_r($this->toArray());
-        die;*/
+
+        if (!$this->phone && !$this->emails) {
+            throw new ObjectException('Has no phone and email.');
+        }
+
+        return true;
     }
 
     /**
@@ -173,10 +194,14 @@ class BaseObject
 
     /**
      * Set title.
+     *
+     * @throws ObjectException
      */
     protected function setTitle()
     {
-
+        if (false !== strpos($this->title, 'Beautiful Blonde')) {
+            throw new ObjectException('Deprecated title.');
+        }
     }
 
     /**
@@ -276,24 +301,31 @@ class BaseObject
 
     /**
      * @return bool
-     *
-     * @throws ObjectException
      */
     protected function setPhone()
     {
         $patterns = [
             // 111-111-1111 | 1111111111 | 111 1111111     |   (111) 111-1111     | 111......... 111..........11.......11....
             '/\d+-\d+-\d+/', '/\d{10}/', '/\d{3}\s+\d{7}/', '/\(\d+\)\s?[\d+-]+/', '/\d+\.+\s?\d+\.+\d+\.+\d+\.+/',
-            // 111 111 1111
-            '/\d+\s\d+\s\d+/'
+            // 111 111 1111        |    1 -111- 111        |  111--111--1111
+            '/\d{3}\s\d{3}\s\d{4}/', '/\d+\s+-\d+-\s+\d+/', '/\d+--\d+--\d+/'
         ];
         foreach ($patterns as $pattern) {
             if (preg_match($pattern, $this->description)) {
+                $this->phone = true;
                 return true;
             }
         }
 
-        throw new ObjectException('Has no phone.');
+        /* @var \PHPHtmlParser\Dom\AbstractNode[] $contacts */
+        if ($contacts = self::$dom->find('.metaInfoDisplay', 0)) {
+            foreach ($patterns as $pattern) {
+                if (preg_match($pattern, $contacts)) {
+                    $this->phone = true;
+                    return true;
+                }
+            }
+        }
     }
 
     /**

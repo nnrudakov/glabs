@@ -6,13 +6,14 @@
 
 namespace app\commands;
 
-use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\console\Controller;
 use app\models\glabs\objects\ObjectException;
 use app\models\glabs\ProxyCurl;
+use app\models\glabs\TorCurl;
+use app\models\glabs\TransportException;
 use app\models\glabs\sites\Craigslist;
 use app\models\glabs\sites\Backpage;
 use PHPHtmlParser\Exceptions\CurlException;
@@ -34,11 +35,23 @@ class GlabsController extends Controller
     public static $sites = ['craigslist', 'backpage'];
 
     /**
+     * Curl class.
+     *
+     * @var ProxyCurl | TorCurl
+     */
+    public static $curl;
+
+    /**
      * IP connection.
      *
      * @var string
      */
     public static $ip;
+
+    /**
+     * @var integer
+     */
+    public static $sentObjects = 0;
 
     /**
      * Begin execution time.
@@ -62,6 +75,11 @@ class GlabsController extends Controller
      *                            </ul>
      * @param array   $categories Categories comma separated.
      * @param integer $count      Count objects to parse.
+     * @param string  $curl       cURL type. Possible values:
+     *                            <ul>
+     *                              <li><code>proxy</code> (default)</li>
+     *                              <li><code>tor</code></li>
+     *                            </ul>
      * @param string  $proxy      Proxy IP and port.
      * @param bool    $quiet      No messages in stdout.
      *
@@ -69,11 +87,13 @@ class GlabsController extends Controller
      * @throws ObjectException
      * @throws CurlException
      */
-    public function actionIndex($site, array $categories = [], $count = 0, $proxy = '', $quiet = false)
+    public function actionIndex($site, array $categories = [], $count = 0, $curl = 'proxy', $proxy = '', $quiet = false)
     {
         if (!in_array($site, self::$sites, true)) {
             throw new InvalidParamException('Wrong site "' . $site . '".');
         }
+
+        self::$curl = 'proxy' === $curl ? new ProxyCurl() : new TorCurl();
 
         if ($proxy) {
             ProxyCurl::$proxy = $proxy;
@@ -89,13 +109,18 @@ class GlabsController extends Controller
     /**
      * Upload only one object.
      *
-     * @param string  $site       Site to parse. Possible values:
-     *                            <ul>
-     *                              <li><code>craigslist</code> will parse http://losangeles.craigslist.org/ </li>
-     *                              <li><code>backpage</code> will parse http://la.backpage.com/ </li>
-     *                            </ul>
-     * @param string $url URL to object.
+     * @param string $site     Site to parse. Possible values:
+     *                         <ul>
+     *                          <li><code>craigslist</code> will parse http://losangeles.craigslist.org/ </li>
+     *                          <li><code>backpage</code> will parse http://la.backpage.com/ </li>
+     *                         </ul>
+     * @param string $url      URL to object.
      * @param string $category Category.
+     * @param string $curl     cURL type. Possible values:
+     *                         <ul>
+     *                          <li><code>proxy</code> (default)</li>
+     *                          <li><code>tor</code></li>
+     *                         </ul>
      * @param string $proxy    Proxy IP and port.
      *
      * @return bool
@@ -105,12 +130,13 @@ class GlabsController extends Controller
      * @throws CurlException
      * @throws TransportException
      */
-    public function actionObject($site, $url, $category, $proxy = '')
+    public function actionObject($site, $url, $category, $curl = 'proxy', $proxy = '')
     {
-        // ./yii glabs/object backpage "http://la.backpage.com/AntiquesForSale/699-jim-beam-decanter-collection-for-sale-30-ea-new-condition-trades-considered/43731604" "Antiques" "185.60.135.57:80"
         if (!in_array($site, self::$sites, true)) {
             throw new InvalidParamException('Wrong site "' . $site . '".');
         }
+
+        self::$curl = 'proxy' === $curl ? new ProxyCurl() : new TorCurl();
 
         if ($proxy) {
             ProxyCurl::$proxy = $proxy;
@@ -121,7 +147,7 @@ class GlabsController extends Controller
             throw new InvalidParamException('Wrong category "' . $category . '".');
         }
 
-        self::showMessage('Starting to parse object "' . $url . '"');
+        self::showMessage('Parsing object "' . $url . '"');
 
         $category = $categories[$category];
         $object = 'craigslist' === $site
@@ -141,6 +167,8 @@ class GlabsController extends Controller
             return true;
         }
         self::saveObjectsEmails($object);
+
+        return true;
     }
 
     /**
@@ -203,7 +231,7 @@ class GlabsController extends Controller
         }
 
         $fp = fopen(Yii::getAlias('@runtime/emails_' . (int) self::$startTime. '.csv'), 'a');
-        fputcsv($fp, array_merge([$object->getUrl()], $object->getEmails()));
+        fputcsv($fp, array_merge([$object->getUrl()], array_unique($object->getEmails())));
         fclose($fp);
 
         return true;
