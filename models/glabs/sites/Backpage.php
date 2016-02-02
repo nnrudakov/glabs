@@ -65,14 +65,16 @@ class Backpage extends BaseSite
         //'Toys & Games'      => ['type' => 'Sell', 'category_id' => 29, 'url' => ['']],
         'Vacation Rentals'  => ['type' => 'Rent', 'category_id' => 36, 'url' => ['/VacationForRent/']],
         //'Video Games'       => ['type' => 'Sell', 'category_id' => 30, 'url' => ['']]
+        // chatapp users
+        'Users'             => ['type' => '',     'category_id' => 0,  'url' => ['/MenSeekWomen/', '/WomenSeekMen/']]
     ];
 
     /**
      * @inheritdoc
      */
-    public function __construct(array $categories, $count)
+    public function __construct(array $categories, $count, $url = '')
     {
-        $this->url = self::URL;
+        $this->url = $url ?: self::URL;
         $this->categoriesList = self::CATEGORIES;
         parent::__construct($categories, $count);
     }

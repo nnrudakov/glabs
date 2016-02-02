@@ -64,15 +64,17 @@ class Craigslist extends BaseSite
         'Tools'             => ['type' => 'Sell', 'category_id' => 28, 'url' => ['/search/tla']],
         'Toys & Games'      => ['type' => 'Sell', 'category_id' => 29, 'url' => ['/search/taa']],
         'Vacation Rentals'  => ['type' => 'Rent', 'category_id' => 36, 'url' => ['/search/vac']],
-        'Video Games'       => ['type' => 'Sell', 'category_id' => 30, 'url' => ['/search/vga']]
+        'Video Games'       => ['type' => 'Sell', 'category_id' => 30, 'url' => ['/search/vga']],
+        // chatapp users
+        'Users'             => ['type' => '',     'category_id' => 0,  'url' => ['/search/m4w', '/search/w4m']]
     ];
 
     /**
      * @inheritdoc
      */
-    public function __construct(array $categories, $count)
+    public function __construct(array $categories, $count, $url = '')
     {
-        $this->url = self::URL;
+        $this->url = $url ?: self::URL;
         $this->categoriesList = self::CATEGORIES;
         parent::__construct($categories, $count);
     }

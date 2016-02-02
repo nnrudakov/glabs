@@ -3,7 +3,7 @@
 namespace app\models\glabs;
 
 /**
- * Transport exceptions.
+ * Transports exceptions.
  *
  * @package    glabs
  * @author     Nikolaj Rudakov <nnrudakov@gmail.com>

@@ -3,7 +3,7 @@
 namespace app\models\glabs\objects;
 
 use app\commands\GlabsController;
-use app\models\glabs\Transport;
+use app\models\glabs\TransportZoheny;
 use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
@@ -169,7 +169,7 @@ class BaseObject
      */
     public function send($isTest = false)
     {
-        return (new Transport($this))->send($isTest);
+        return (new TransportZoheny($this))->send($isTest);
     }
 
     /**

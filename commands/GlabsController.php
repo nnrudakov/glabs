@@ -23,8 +23,6 @@ use PHPHtmlParser\Exceptions\CurlException;
  *
  * @author Nikolaj Rudakov <nnrudakov@gmail.com>
  */
-
-/** @noinspection LongInheritanceChainInspection */
 class GlabsController extends Controller
 {
     /**
@@ -66,8 +64,7 @@ class GlabsController extends Controller
     private static $quiet = false;
 
     /**
-     * Entry point in parser.
-     *
+     * Parse categories from sites.
      * @param string  $site       Site to parse. Possible values:
      *                            <ul>
      *                              <li><code>craigslist</code> will parse http://losangeles.craigslist.org/ </li>
@@ -108,7 +105,6 @@ class GlabsController extends Controller
 
     /**
      * Upload only one object.
-     *
      * @param string $site     Site to parse. Possible values:
      *                         <ul>
      *                          <li><code>craigslist</code> will parse http://losangeles.craigslist.org/ </li>
@@ -169,6 +165,42 @@ class GlabsController extends Controller
         self::saveObjectsEmails($object);
 
         return true;
+    }
+
+    /**
+     * Upload users.
+     *
+     * @param string  $url   Site Url.
+     * @param integer $count Count objects to parse.
+     * @param string  $curl  cURL type. Possible values:
+     *                       <ul>
+     *                          <li><code>proxy</code> (default)</li>
+     *                          <li><code>tor</code></li>
+     *                       </ul>
+     * @param string  $proxy Proxy IP and port.
+     *
+     * @throws InvalidParamException
+     * @throws CurlException
+     * @throws ObjectException
+     */
+    public function actionChatapp($url, $count = 0, $curl = 'proxy', $proxy = '')
+    {
+        if (false === strpos($url, 'craigslist') && false === strpos($url, 'backpage')) {
+            throw new InvalidParamException('Wrong site.');
+        }
+
+        self::$curl = 'proxy' === $curl ? new ProxyCurl() : new TorCurl();
+
+        if ($proxy) {
+            ProxyCurl::$proxy = $proxy;
+        }
+
+        self::showMessage('Starting to parse "' . $url . '"');
+
+        $site_model = false !== strpos($url, 'craigslist')
+            ? new Craigslist(['Users'], $count, $url)
+            : new Backpage(['Users'], $count, $url);
+        $site_model->parse();
     }
 
     /**
