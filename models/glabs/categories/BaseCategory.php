@@ -3,6 +3,7 @@
 namespace app\models\glabs\categories;
 
 use app\commands\GlabsController;
+use app\models\glabs\objects\BaseObject;
 use app\models\glabs\objects\ObjectException;
 use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
@@ -145,6 +146,21 @@ abstract class BaseCategory
     }
 
     /**
+     * Get object.
+     *
+     * @param string  $url          Link.
+     * @param string  $title        Title.
+     * @param integer $categoryId   Category ID.
+     * @param string  $categoryType Type.
+     *
+     * @return BaseObject
+     */
+    protected function getObjectModel($url, $title, $categoryId, $categoryType)
+    {
+
+    }
+
+    /**
      * Parse category page.
      *
      * @throws CurlException
@@ -182,7 +198,7 @@ abstract class BaseCategory
         }
 
         $done_count = count($this->doneObjects);
-        if (count($this->objects) && $done_count < $this->needCount) {
+        if ($done_count < $this->needCount && count($this->objects)) {
             $this->count = $this->needCount - $done_count;
             $this->objects = [];
             $this->collectObjects($this->getPagedUrl(reset($this->url)));
@@ -216,5 +232,15 @@ abstract class BaseCategory
     protected function checkTotalObjects($dom)
     {
 
+    }
+
+    /**
+     * Is it chatapp category.
+     *
+     * @return bool
+     */
+    protected function isUsersTitle()
+    {
+        return $this->title === 'Users';
     }
 }

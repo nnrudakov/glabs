@@ -1,11 +1,11 @@
 <?php
 
-namespace app\models\glabs\categories;
+namespace app\models\glabs\categories\chatapp;
 
 use app\commands\GlabsController;
+use app\models\glabs\categories\BaseCategory;
 use app\models\glabs\objects\ObjectException;
-use app\models\glabs\objects\Craigslist as AdsObject;
-use app\models\glabs\objects\chatapp\Craigslist as ChatObject;
+use app\models\glabs\objects\chatapp\Backpage as Object;
 use app\models\glabs\sites\BaseSite;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
@@ -17,14 +17,14 @@ use PHPHtmlParser\Exceptions\CurlException;
  * @author     Nikolaj Rudakov <nnrudakov@gmail.com>
  * @copyright  2016
  */
-class Craigslist extends BaseCategory
+class Backpage extends BaseCategory
 {
     /**
      * @inheritdoc
      */
-    public function __construct(array $url, $title, $categoryId, $type, $count)
+    public function __construct($url, $title, $categoryId, $type, $count)
     {
-        self::$pageParam = '?s=';
+        parent::$pageParam = '&page=';
         parent::__construct($url, $title, $categoryId, $type, $count);
     }
 
@@ -33,7 +33,6 @@ class Craigslist extends BaseCategory
      */
     protected function collectObjects($url)
     {
-        $host = 'http://' . parse_url($url, PHP_URL_HOST);
         $dom = new Dom();
         try {
             $dom->loadFromUrl($url, [], GlabsController::$curl);
@@ -41,40 +40,33 @@ class Craigslist extends BaseCategory
             if (false === strpos($e->getMessage(), 'timed out') ) {
                 throw new CurlException($e->getMessage());
             }
+            if (false === strpos($e->getMessage(), '525') ) {
+                throw new CurlException($e->getMessage());
+            }
             GlabsController::showMessage(' ...trying again', false);
             return $this->collectObjects($url);
         }
 
-        if (false !== strpos($dom, 'This IP has been automatically blocked.')) {
-            throw new CurlException('IP has been blocked.');
-        }
-
         // end collect. no results
-        if ($dom->find('#moon')[0]) {
+        if (false !== strpos($dom, 'No matches found.')) {
             return true;
         }
 
         $this->checkTotalObjects($dom);
 
         /* @var \PHPHtmlParser\Dom\AbstractNode $span */
-        foreach ($dom->find('.txt') as $span) {
+        foreach ($dom->find('.cat') as $span) {
             if (count($this->objects) >= $this->count) {
                 break;
             }
 
             /* @var \PHPHtmlParser\Dom\AbstractNode $link */
-            if ($link = $span->find('a')[0]) {
-                $href = $host . $link->getAttribute('href');
-                if (in_array($url, $this->collected, true)) {
+            if ($link = $span->find('a', 0)) {
+                $href = $link->getAttribute('href');
+                if (in_array($href, $this->collected, true)) {
                     continue;
                 }
-                $object = $this->getObjectModel($href, $link->text(), $this->categoryId, $this->type);
-                try {
-                    $object->setPrice($span);
-                } catch (ObjectException $e) {
-                    continue;
-                }
-
+                $object = new Object($href, $link->text(), $this->categoryId, $this->type);
                 $this->collected[] = $href;
                 $this->objects[] = $object;
                 BaseSite::$doneObjects++;
@@ -85,7 +77,7 @@ class Craigslist extends BaseCategory
         $collected_count = count($this->objects);
         if ($collected_count && $collected_count < $this->count) {
             $url = str_replace(self::$pageParam . self::$page, '', $url);
-            self::$page += 100;
+            self::$page += self::$page ? 1 : 2;
             return $this->collectObjects($this->getPagedUrl($url));
         }
 
@@ -95,22 +87,10 @@ class Craigslist extends BaseCategory
     /**
      * @inheritdoc
      */
-    protected function getObjectModel($url, $title, $categoryId, $categoryType)
-    {
-        return $this->isUsersTitle()
-            ? new ChatObject($url, $title, $categoryId, $categoryType)
-            : new AdsObject($url, $title, $categoryId, $categoryType);
-    }
-
-    /**
-     * @inheritdoc
-     */
     protected function checkTotalObjects($dom)
     {
         if (!$this->count) {
-            /* @var \PHPHtmlParser\Dom\AbstractNode $total_count */
-            $total_count = $dom->find('.totalcount')[0];
-            $this->count = $this->needCount = (int) $total_count->text();
+            $this->count = $this->needCount = 2500;
         }
 
         return true;
