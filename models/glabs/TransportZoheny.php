@@ -11,7 +11,7 @@ use app\models\glabs\objects\BaseObject;
  * @author     Nikolaj Rudakov <nnrudakov@gmail.com>
  * @copyright  2016
  */
-class Transport
+class TransportZoheny
 {
     /**
      * API URL.
@@ -43,7 +43,7 @@ class Transport
     private $object;
 
     /**
-     * Transport constructor.
+     * TransportZoheny constructor.
      *
      * @param BaseObject $object
      */

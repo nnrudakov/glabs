@@ -67,12 +67,17 @@ abstract class BaseSite
      *
      * @param array   $categories Categories.
      * @param integer $count      Count object per category.
+     * @param string  $url        Site Url.
      *
      * @throws CurlException
      */
-    public function __construct(array $categories, $count) {
+    public function __construct(array $categories, $count, $url = '') {
         $this->inCategories = $categories;
         $this->getCategoriesLinks($count);
+        if (false === strpos($this->url, 'http')) {
+            $this->url = 'http://' . $this->url;
+        }
+        $this->url = rtrim($this->url, '/');
     }
 
     /**
