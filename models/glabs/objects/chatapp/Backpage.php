@@ -26,7 +26,7 @@ class Backpage extends BaseObject
         if (!$postingbody) {
             throw new ObjectException('There is no content');
         }
-        $this->description = $postingbody->innerHtml();
+        $this->aboutme = $postingbody->innerHtml();
 
         parent::setAboutme();
     }

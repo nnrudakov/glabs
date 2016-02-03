@@ -98,6 +98,11 @@ abstract class BaseCategory
     protected $collected = [];
 
     /**
+     * @var array
+     */
+    protected $collectedCount = [];
+
+    /**
      * Category constructor.
      *
      * @param array   $url        Link.
@@ -126,7 +131,7 @@ abstract class BaseCategory
     protected function getObjectsLinks()
     {
         foreach ($this->url as $url) {
-            self::$page = 0;
+            self::$page = $this->collectedCount[$url] = 0;
             $this->collectObjects($this->getPagedUrl($url));
         }
     }
