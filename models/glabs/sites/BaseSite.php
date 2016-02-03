@@ -72,12 +72,12 @@ abstract class BaseSite
      * @throws CurlException
      */
     public function __construct(array $categories, $count, $url = '') {
-        $this->inCategories = $categories;
-        $this->getCategoriesLinks($count);
         if (false === strpos($this->url, 'http')) {
             $this->url = 'http://' . $this->url;
         }
         $this->url = rtrim($this->url, '/');
+        $this->inCategories = $categories;
+        $this->getCategoriesLinks($count);
     }
 
     /**
