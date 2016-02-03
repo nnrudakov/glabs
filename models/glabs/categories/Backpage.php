@@ -56,7 +56,7 @@ class Backpage extends BaseCategory
 
         /* @var \PHPHtmlParser\Dom\AbstractNode $span */
         foreach ($dom->find('.summaryHeader') as $span) {
-            if (count($this->objects) >= $this->count) {
+            if ($this->collectedCount[$url] >= $this->count) {
                 break;
             }
 
@@ -75,13 +75,13 @@ class Backpage extends BaseCategory
 
                 $this->collected[] = $href;
                 $this->objects[] = $object;
+                $this->collectedCount[$url]++;
                 BaseSite::$doneObjects++;
                 BaseSite::progress();
             }
         }
 
-        $collected_count = count($this->objects);
-        if ($collected_count && $collected_count < $this->count) {
+        if ($this->collectedCount[$url] && $this->collectedCount[$url] < $this->count) {
             $url = str_replace(self::$pageParam . self::$page, '', $url);
             self::$page += self::$page ? 1 : 2;
             return $this->collectObjects($this->getPagedUrl($url));

@@ -27,7 +27,7 @@ class Craigslist extends BaseObject
         /* @var \PHPHtmlParser\Dom\AbstractNode $postingbody */
         $postingbody = self::$dom->find('#postingbody');
         if (!$postingbody) {
-            throw new ObjectException('Content is empty');
+            throw new ObjectException('Content is empty.');
         }
 
         $this->aboutme = $postingbody->innerHtml();

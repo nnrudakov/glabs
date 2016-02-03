@@ -24,7 +24,7 @@ class Backpage extends BaseObject
         /* @var \PHPHtmlParser\Dom\AbstractNode $postingbody */
         $postingbody = self::$dom->find('.postingBody', 0);
         if (!$postingbody) {
-            throw new ObjectException('There is no content');
+            throw new ObjectException('Content is empty.');
         }
         $this->aboutme = $postingbody->innerHtml();
 
