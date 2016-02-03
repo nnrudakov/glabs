@@ -64,7 +64,7 @@ class Craigslist extends BaseCategory
 
             /* @var \PHPHtmlParser\Dom\AbstractNode $link */
             if ($link = $span->find('a')[0]) {
-                $href = $host . $link->getAttribute('href');
+                $href = 'http://newyork.craigslist.org/mnh/w4m/5432045820.html';// $host . $link->getAttribute('href');
                 if (in_array($url, $this->collected, true)) {
                     continue;
                 }

@@ -6,6 +6,8 @@
 
 namespace app\commands;
 
+use app\models\glabs\faker\PhoneNumber;
+use Faker\Factory;
 use PHPHtmlParser\Dom;
 use Yii;
 use yii\base\InvalidParamException;
