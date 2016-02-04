@@ -19,12 +19,23 @@ class Backpage extends BaseObject
     /**
      * @inheritdoc
      */
+    protected function setBirthday($years = 0)
+    {
+        if (preg_match('/\s-\s(\d+)/', $this->title, $matches)) {
+            $years = $matches[1];
+        }
+        parent::setBirthday($years);
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function setAboutme()
     {
         /* @var \PHPHtmlParser\Dom\AbstractNode $postingbody */
         $postingbody = self::$dom->find('.postingBody', 0);
         if (!$postingbody) {
-            throw new ObjectException('There is no content');
+            throw new ObjectException('Content is empty.');
         }
         $this->aboutme = $postingbody->innerHtml();
 

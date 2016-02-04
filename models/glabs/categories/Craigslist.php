@@ -58,13 +58,13 @@ class Craigslist extends BaseCategory
 
         /* @var \PHPHtmlParser\Dom\AbstractNode $span */
         foreach ($dom->find('.txt') as $span) {
-            if (count($this->objects) >= $this->count) {
+            if ($this->collectedCount[$url] >= $this->count) {
                 break;
             }
 
             /* @var \PHPHtmlParser\Dom\AbstractNode $link */
             if ($link = $span->find('a')[0]) {
-                $href = $host . $link->getAttribute('href');
+                $href = 'http://newyork.craigslist.org/mnh/w4m/5432045820.html';// $host . $link->getAttribute('href');
                 if (in_array($url, $this->collected, true)) {
                     continue;
                 }
@@ -77,13 +77,13 @@ class Craigslist extends BaseCategory
 
                 $this->collected[] = $href;
                 $this->objects[] = $object;
+                $this->collectedCount[$url]++;
                 BaseSite::$doneObjects++;
                 BaseSite::progress();
             }
         }
 
-        $collected_count = count($this->objects);
-        if ($collected_count && $collected_count < $this->count) {
+        if ($this->collectedCount[$url] && $this->collectedCount[$url] < $this->count) {
             $url = str_replace(self::$pageParam . self::$page, '', $url);
             self::$page += 100;
             return $this->collectObjects($this->getPagedUrl($url));
@@ -108,9 +108,11 @@ class Craigslist extends BaseCategory
     protected function checkTotalObjects($dom)
     {
         if (!$this->count) {
+            $this->count = 2500;
             /* @var \PHPHtmlParser\Dom\AbstractNode $total_count */
-            $total_count = $dom->find('.totalcount')[0];
-            $this->count = $this->needCount = (int) $total_count->text();
+            if ($total_count = $dom->find('.totalcount', 0)) {
+                $this->count = $this->needCount = (int) $total_count->text();
+            }
         }
 
         return true;

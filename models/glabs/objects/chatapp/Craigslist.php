@@ -18,6 +18,25 @@ class Craigslist extends BaseObject
     /**
      * @inheritdoc
      */
+    protected function setBirthday($years = 0)
+    {
+        /* @var \PHPHtmlParser\Dom\AbstractNode $p */
+        foreach (self::$dom->find('.attrgroup') as $p) {
+            /* @var \PHPHtmlParser\Dom\AbstractNode $span */
+            foreach ($p->find('span') as $span) {
+                if (preg_match('/age:\s+<b>(\d+)<\/b>/', $span->innerHtml(), $matches)) {
+                    $years = (int) $matches[1];
+                    break 2;
+                }
+            }
+        }
+
+        parent::setBirthday($years);
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function setAboutme()
     {
         if (self::$dom->find('.removed', 0)) {
@@ -27,7 +46,7 @@ class Craigslist extends BaseObject
         /* @var \PHPHtmlParser\Dom\AbstractNode $postingbody */
         $postingbody = self::$dom->find('#postingbody');
         if (!$postingbody) {
-            throw new ObjectException('Content is empty');
+            throw new ObjectException('Content is empty.');
         }
 
         $this->aboutme = $postingbody->innerHtml();

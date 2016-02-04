@@ -3,6 +3,7 @@
 namespace app\models\glabs\objects\chatapp;
 
 use app\commands\GlabsController;
+use app\models\glabs\faker\PhoneNumber;
 use app\models\glabs\TransportZoheny;
 use app\models\glabs\TransportException;
 use app\models\glabs\objects\BaseObject as Base;
@@ -76,6 +77,7 @@ class BaseObject extends Base
     public function __construct($url, $title, $categoryId, $type)
     {
         self::$faker = Factory::create();
+        self::$faker->addProvider(new PhoneNumber(self::$faker));
         parent::__construct($url, $title, $categoryId, $type);
     }
 
@@ -84,15 +86,19 @@ class BaseObject extends Base
      */
     public function toArray()
     {
+        $birthday = explode('-', $this->birthday);
         return [
-            'name'        => $this->name,
-            'username'    => $this->username,
-            'password'    => $this->password,
-            'email'       => $this->email,
-            'phonenumber' => $this->phonenumber,
-            'gender'      => $this->gender,
-            'birthday'    => $this->birthday,
-            'promocode'   => $this->promocode
+            'name'            => $this->name,
+            'username'        => $this->username,
+            'password'        => $this->password,
+            'email'           => $this->email,
+            'phonenumber'     => $this->phonenumber,
+            //'gender'          => $this->gender,
+            'birthday[year]'  => $birthday[0],
+            'birthday[month]' => $birthday[1],
+            'birthday[day]'   => $birthday[2],
+            //'promocode'       => $this->promocode,
+            'aboutme'         => $this->aboutme
         ];
     }
 
@@ -118,14 +124,14 @@ class BaseObject extends Base
         }
         $this->setName();
         $this->setUsername();
-        $this->setPrice();
+        $this->setPassword();
         $this->setEmail();
         $this->setPhone();
         $this->setGender();
         $this->setBirthday();
         $this->setAboutme();
         $this->setImages();
-
+        print_r($this->toArray());die;
         return true;
     }
 
@@ -140,7 +146,7 @@ class BaseObject extends Base
      */
     public function send($isTest = false)
     {
-        return (new TransportZoheny($this))->send($isTest);
+        //return (new TransportZoheny($this))->send($isTest);
     }
 
     /**
@@ -148,7 +154,7 @@ class BaseObject extends Base
      */
     protected function setName()
     {
-        $this->name = '';
+        $this->name = self::$faker->name;
     }
 
     /**
@@ -156,7 +162,7 @@ class BaseObject extends Base
      */
     protected function setUsername()
     {
-        $this->username = '';
+        $this->username = self::$faker->unique()->userName;
     }
 
     /**
@@ -164,7 +170,7 @@ class BaseObject extends Base
      */
     protected function setPassword()
     {
-        $this->password = '';
+        $this->password = self::$faker->password();
     }
 
     /**
@@ -172,7 +178,15 @@ class BaseObject extends Base
      */
     protected function setEmail()
     {
-        $this->email = '';
+        $this->email = self::$faker->unique()->email;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function setPhone()
+    {
+        $this->phonenumber = self::$faker->unique()->phoneNumber;
     }
 
     /**
@@ -185,10 +199,16 @@ class BaseObject extends Base
 
     /**
      * Set birthday.
+     *
+     * @param integer $years Years.
      */
-    protected function setBirthday()
+    protected function setBirthday($years = 0)
     {
-        $this->birthday = '';
+        $date = new \DateTime();
+        $this->birthday = $years
+            ? self::$faker->dateTimeBetween('-' . $years . ' years', ((int) $date->format('Y') - $years + 1) . '-01-01')
+                ->format('Y-m-d')
+            : self::$faker->date('Y-m-d', '2002-01-01');
     }
 
     /**
