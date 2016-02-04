@@ -32,14 +32,14 @@ class TransportChatapp
      *
      * @var string
      */
-    private static $photoApi = '/api/profile/upload_photo';
+    private static $photoApi = '/profile/upload_photo';
 
     /**
      * "About me" API.
      *
      * @var string
      */
-    private static $aboutmeApi = '/api/profile/set_property';
+    private static $aboutmeApi = '/profile/set_property';
 
     /**
      * Object to send.
@@ -69,11 +69,27 @@ class TransportChatapp
      */
     public function send($isTest = false)
     {
-        // @todo loop for api urls and requests. if fail field must be regenerated
+        $params = $this->object->toArray();
+        $aboutme = $params['aboutme'];
+        unset($params['aboutme']);
 
         if ($isTest) {
             return true;
         }
+
+        $response = $this->request(self::$url . self::$registerApi, $params);
+        $params = ['token' => $response['data']['token']];
+
+        if ($this->object->getThumbnail()) {
+            $photo = $this->object->getThumbnail();
+            $this->request(
+                self::$url . self::$photoApi,
+                array_merge($params, ['profile_photo";filename="' . $photo->getFilename() => $photo->getData()])
+            );
+        }
+
+        $params['profile[aboutme]'] = $aboutme;
+        $this->request(self::$url . self::$aboutmeApi, $params);
 
         return true;
     }
@@ -84,7 +100,7 @@ class TransportChatapp
      * @param string $url    URL.
      * @param array  $params Params.
      *
-     * @return bool
+     * @return array
      *
      * @throws TransportException
      */
@@ -112,28 +128,11 @@ class TransportChatapp
 
         $content = json_decode($content, true);
 
-        if ($content['error']) {
+        if (isset($content['error'])) {
             throw new TransportException('Error retrieving ' . $content['data']['message']);
         }
 
-        return true;
-    }
-
-    /**
-     * Prepare params.
-     *
-     * @return array $params
-     */
-    private function prepareParams()
-    {
-        $params = array_merge(
-            $this->object->toArray(),
-            [
-                //'thumbnail";filename="' . $this->object->getThumbnail()->getFilename() => $this->object->getThumbnail()->getData()
-            ]
-        );
-
-        return $params;
+        return $content;
     }
 
     /**

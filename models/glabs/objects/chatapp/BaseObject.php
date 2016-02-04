@@ -4,7 +4,7 @@ namespace app\models\glabs\objects\chatapp;
 
 use app\commands\GlabsController;
 use app\models\glabs\faker\PhoneNumber;
-use app\models\glabs\TransportZoheny;
+use app\models\glabs\TransportChatapp;
 use app\models\glabs\TransportException;
 use app\models\glabs\objects\BaseObject as Base;
 use app\models\glabs\objects\ObjectException;
@@ -131,7 +131,7 @@ class BaseObject extends Base
         $this->setBirthday();
         $this->setAboutme();
         $this->setImages();
-        print_r($this->toArray());die;
+        //print_r($this->toArray());die;
         return true;
     }
 
@@ -146,7 +146,7 @@ class BaseObject extends Base
      */
     public function send($isTest = false)
     {
-        //return (new TransportZoheny($this))->send($isTest);
+        return (new TransportChatapp($this))->send($isTest);
     }
 
     /**
