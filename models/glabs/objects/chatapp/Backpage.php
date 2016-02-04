@@ -48,11 +48,12 @@ class Backpage extends BaseObject
     protected function setImages()
     {
         /* @var \PHPHtmlParser\Dom\AbstractNode $imageTag */
-        $imageTag = $this->getImageTags();
-        try {
-            $this->thumbnail = new Image(['url' => $imageTag->getAttribute('src')]);
-        } catch (ImageException $e) {
-            return false;
+        if ($imageTag = $this->getImageTags()) {
+            try {
+                $this->thumbnail = new Image(['url' => $imageTag->getAttribute('src')]);
+            } catch (ImageException $e) {
+                return false;
+            }
         }
 
         return true;
