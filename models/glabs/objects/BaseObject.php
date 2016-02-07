@@ -7,6 +7,7 @@ use app\models\glabs\TransportZoheny;
 use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
+use yii\base\InvalidParamException;
 
 /**
  * Base class of objects.
@@ -97,6 +98,8 @@ class BaseObject
      * @param string  $title      Title.
      * @param integer $categoryId Category ID.
      * @param string  $type       Type.
+     *
+     * @throws ObjectException
      */
     public function __construct($url, $title, $categoryId, $type)
     {
@@ -345,5 +348,34 @@ class BaseObject
     {
         preg_match_all('/[a-zA-Z0-9.!#$%&’*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*/', $this->description, $matches);
         $this->emails = $matches[0];
+    }
+
+    /**
+     * Remove object files.
+     *
+     * @return bool
+     *
+     * @throws InvalidParamException
+     */
+    public function removeFiles()
+    {
+        $dir = \Yii::getAlias('@runtime/data/');
+        if (!$this->thumbnail) {
+            return false;
+        }
+
+        if (!file_exists($dir . $this->thumbnail->getFilename())) {
+            return false;
+        }
+
+        unlink($dir . $this->thumbnail->getFilename());
+
+        foreach ($this->subimage as $item) {
+            if (file_exists($dir . $item->getFilename())) {
+                unlink($dir . $item->getFilename());
+            }
+        }
+
+        return true;
     }
 }

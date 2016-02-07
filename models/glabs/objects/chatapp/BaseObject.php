@@ -4,6 +4,7 @@ namespace app\models\glabs\objects\chatapp;
 
 use app\commands\GlabsController;
 use app\models\glabs\faker\PhoneNumber;
+use app\models\glabs\objects\ImageException;
 use app\models\glabs\TransportChatapp;
 use app\models\glabs\TransportException;
 use app\models\glabs\objects\BaseObject as Base;
@@ -11,6 +12,7 @@ use app\models\glabs\objects\ObjectException;
 use Faker\Factory;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
+use yii\base\InvalidParamException;
 
 /**
  * Base class of chat objects.
@@ -72,6 +74,16 @@ class BaseObject extends Base
     protected static $faker;
 
     /**
+     * Uncensored words.
+     *
+     * @var array
+     */
+    protected static $uncensored = [
+        'sex', 'fuck', 'pussy', 'pusssy', 'escort service', 'servitude', 'licked', 'gfe', 'adult fun', 'empty house',
+        'babe', 'doggy style', 'deep throat', 'condom', 'get love', 'cock'
+    ];
+
+    /**
      * @inheritdoc
      */
     public function __construct($url, $title, $categoryId, $type)
@@ -79,6 +91,7 @@ class BaseObject extends Base
         self::$faker = Factory::create();
         self::$faker->addProvider(new PhoneNumber(self::$faker));
         parent::__construct($url, $title, $categoryId, $type);
+        $this->isUncensored();
     }
 
     /**
@@ -143,6 +156,8 @@ class BaseObject extends Base
      * @return bool
      *
      * @throws TransportException
+     * @throws InvalidParamException
+     * @throws ImageException
      */
     public function send($isTest = false)
     {
@@ -162,7 +177,23 @@ class BaseObject extends Base
      */
     protected function setUsername()
     {
-        $this->username = self::$faker->unique()->userName;
+        $this->username = $this->generateUsername();
+    }
+
+    /**
+     * Generate username.
+     *
+     * @return string
+     */
+    protected function generateUsername()
+    {
+        $username = self::$faker->unique()->userName;
+
+        if (strlen($username) > 15) {
+            return $this->generateUsername();
+        }
+
+        return $username;
     }
 
     /**
@@ -219,5 +250,24 @@ class BaseObject extends Base
     protected function setAboutme()
     {
         $this->aboutme = $this->title . "\n\n" . $this->aboutme;
+    }
+
+    /**
+     * Check unsencored words.
+     *
+     * @return bool
+     *
+     * @throws ObjectException
+     */
+    protected function isUncensored()
+    {
+        $text = strtolower($this->title);
+        foreach (self::$uncensored as $word) {
+            if (false !== strpos($text, $word)) {
+                throw new ObjectException('Title contents uncensored words.');
+            }
+        }
+
+        return false;
     }
 }

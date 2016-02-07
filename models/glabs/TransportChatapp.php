@@ -3,6 +3,8 @@
 namespace app\models\glabs;
 
 use app\models\glabs\objects\BaseObject;
+use app\models\glabs\objects\ImageException;
+use yii\base\InvalidParamException;
 
 /**
  * Send data to Chatapp.mobi.
@@ -66,6 +68,8 @@ class TransportChatapp
      * @return bool
      *
      * @throws TransportException
+     * @throws InvalidParamException
+     * @throws ImageException
      */
     public function send($isTest = false)
     {
@@ -80,15 +84,20 @@ class TransportChatapp
         $response = $this->request(self::$url . self::$registerApi, $params);
         $params = ['token' => $response['data']['token']];
 
-        if ($this->object->getThumbnail()) {
+        /*if ($this->object->getThumbnail()) {
             $photo = $this->object->getThumbnail();
             $this->request(
                 self::$url . self::$photoApi,
-                array_merge($params, ['profile_photo";filename="' . $photo->getFilename() => $photo->getData()])
+                array_merge(
+                    $params,
+                    //['photo' => new \CURLFile($photo->getLocalFile(), 'image/jpeg', $photo->getFilename())]
+                    ['photo' => '@' . realpath($photo->getLocalFile())]
+                )
             );
-        }
+        }*/
 
-        $params['profile[aboutme]'] = $aboutme;
+        $params['property'] = 'aboutme';
+        $params['value']    = $aboutme;
         $this->request(self::$url . self::$aboutmeApi, $params);
 
         return true;

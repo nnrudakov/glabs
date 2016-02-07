@@ -6,6 +6,7 @@ use app\commands\GlabsController;
 use app\models\glabs\ProxyCurl;
 use app\models\glabs\TorCurl;
 use PHPHtmlParser\Exceptions\CurlException;
+use yii\base\InvalidParamException;
 use yii\base\Object;
 
 /**
@@ -96,6 +97,7 @@ class Image extends Object
      *
      * @throws CurlException
      * @throws ImageException
+     * @throws InvalidParamException
      */
     protected function setData()
     {
@@ -113,5 +115,34 @@ class Image extends Object
 
         $this->setUrl($curl->connectedURL);
         $this->setFilename();
+        $this->storeFile();
+    }
+
+    /**
+     * Get local file.
+     *
+     * @return string
+     *
+     * @throws ImageException
+     * @throws InvalidParamException
+     */
+    public function getLocalFile()
+    {
+        $filename = \Yii::getAlias('@runtime/data/' . $this->filename);
+        if (!file_exists($filename)) {
+            throw new ImageException('File "' . $filename . '" not found.');
+        }
+
+        return $filename;
+    }
+
+    /**
+     * Strore file to disk.
+     *
+     * @throws InvalidParamException
+     */
+    private function storeFile()
+    {
+        file_put_contents(\Yii::getAlias('@runtime/data/' . $this->filename),  $this->data. "\n");
     }
 }

@@ -66,7 +66,11 @@ class Backpage extends BaseCategory
                 if (in_array($href, $this->collected, true)) {
                     continue;
                 }
-                $object = new Object($href, $link->text(), $this->categoryId, $this->type);
+                try {
+                    $object = new Object($href, $link->text(), $this->categoryId, $this->type);
+                } catch (ObjectException $e) {
+                    continue;
+                }
                 $this->collected[] = $href;
                 $this->objects[] = $object;
                 $this->collectedCount[$url]++;
