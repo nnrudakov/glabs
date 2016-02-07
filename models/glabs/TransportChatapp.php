@@ -30,6 +30,13 @@ class TransportChatapp
     private static $registerApi = '/auth/register';
 
     /**
+     * Upload file.
+     *
+     * @var string
+     */
+    private static $uploadApi = '/api/upload_file';
+
+    /**
      * Photo API.
      *
      * @var string
@@ -89,13 +96,8 @@ class TransportChatapp
 
         /*if ($this->object->getThumbnail()) {
             $photo = $this->object->getThumbnail();
-            $this->request(
-                self::$url . self::$photoApi,
-                [
-                    'token' => $response['data']['token'],
-                    'photo' => new \CURLFile($photo->getLocalFile(), 'image/jpeg', $photo->getFilename())
-                ]
-            );
+            $response = $this->request(self::$url . self::$uploadApi, ['file' => new \CURLFile($photo->getLocalFile())]);
+            $this->request(self::$url . self::$photoApi, ['token' => $response['data']['token'], 'photo' => $response]);
         }*/
 
         return true;

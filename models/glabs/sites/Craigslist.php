@@ -3,6 +3,7 @@
 namespace app\models\glabs\sites;
 
 use app\models\glabs\categories\Craigslist as Category;
+use app\models\glabs\categories\chatapp\Craigslist as ChatCategory;
 use PHPHtmlParser\Dom;
 
 /**
@@ -84,6 +85,8 @@ class Craigslist extends BaseSite
      */
     protected function setCategory($url, $title, $categoryId, $categoryType, $count)
     {
-        $this->categories[] = new Category($url, $title, $categoryId, $categoryType, $count);
+        $this->categories[] = 'Users' === $title
+            ? new ChatCategory($url, $title, $categoryId, $categoryType, $count)
+            : new Category($url, $title, $categoryId, $categoryType, $count);
     }
 }
