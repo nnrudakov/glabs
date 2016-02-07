@@ -80,7 +80,7 @@ class BaseObject extends Base
      */
     protected static $uncensored = [
         'sex', 'fuck', 'pussy', 'pusssy', 'escort service', 'servitude', 'licked', 'gfe', 'adult fun', 'empty house',
-        'babe', 'doggy style', 'deep throat', 'condom', 'get love', 'cock'
+        'babe', 'doggy style', 'deep throat', 'condom', 'get love', 'cock', 'intimacy', 'curvy', 'anal'
     ];
 
     /**

@@ -161,6 +161,8 @@ abstract class BaseCategory
      * @param string  $categoryType Type.
      *
      * @return BaseObject
+     *
+     * @throws ObjectException
      */
     protected function getObjectModel($url, $title, $categoryId, $categoryType)
     {

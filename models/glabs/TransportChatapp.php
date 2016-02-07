@@ -83,22 +83,20 @@ class TransportChatapp
 
         $response = $this->request(self::$url . self::$registerApi, $params);
         $params = ['token' => $response['data']['token']];
+        $params['property'] = 'aboutme';
+        $params['value']    = $aboutme;
+        $this->request(self::$url . self::$aboutmeApi, $params);
 
         /*if ($this->object->getThumbnail()) {
             $photo = $this->object->getThumbnail();
             $this->request(
                 self::$url . self::$photoApi,
-                array_merge(
-                    $params,
-                    //['photo' => new \CURLFile($photo->getLocalFile(), 'image/jpeg', $photo->getFilename())]
-                    ['photo' => '@' . realpath($photo->getLocalFile())]
-                )
+                [
+                    'token' => $response['data']['token'],
+                    'photo' => new \CURLFile($photo->getLocalFile(), 'image/jpeg', $photo->getFilename())
+                ]
             );
         }*/
-
-        $params['property'] = 'aboutme';
-        $params['value']    = $aboutme;
-        $this->request(self::$url . self::$aboutmeApi, $params);
 
         return true;
     }
