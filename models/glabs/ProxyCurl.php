@@ -44,12 +44,12 @@ class ProxyCurl implements CurlInterface
         if (self::$proxy) {
             curl_setopt($ch, CURLOPT_PROXY, self::$proxy);
         }
-        //curl_setopt($ch, CURLOPT_HEADER, true);
+
         curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 40);
 
-        sleep(mt_rand(3, 5));
+        sleep(mt_rand(5, 10));
         $content = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $this->connectedURL = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
