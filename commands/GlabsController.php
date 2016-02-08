@@ -270,4 +270,22 @@ class GlabsController extends Controller
 
         return true;
     }
+
+    /**
+     * Save imported prodiles links.
+     *
+     * @param \app\models\glabs\objects\chatapp\BaseObject $object Object.
+     *
+     * @return bool
+     *
+     * @throws InvalidParamException
+     */
+    public static function saveUsersLinks($object)
+    {
+        $fp = fopen(Yii::getAlias('@runtime/profiles_' . (int) self::$startTime. '.csv'), 'a');
+        fputcsv($fp, [$object->getUrl(), 'http://chatapp.mobi/app/profile/' . $object->getUsername()]);
+        fclose($fp);
+
+        return true;
+    }
 }

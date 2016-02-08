@@ -173,6 +173,16 @@ class BaseObject extends Base
     }
 
     /**
+     * Return username.
+     *
+     * @return string
+     */
+    public function getUsername()
+    {
+        return $this->username;
+    }
+
+    /**
      * Set username.
      */
     protected function setUsername()
