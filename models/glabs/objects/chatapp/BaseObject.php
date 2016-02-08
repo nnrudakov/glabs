@@ -129,13 +129,17 @@ class BaseObject extends Base
         try {
             self::$dom->loadFromUrl($this->url, [], GlabsController::$curl);
         } catch (CurlException $e) {
-            if (false === strpos($e->getMessage(), 'timed out') ) {
+            if (false !== strpos($e->getMessage(), 'timed out')) {
                 GlabsController::showMessage(' ...trying again', false);
-                throw new CurlException($e->getMessage());
+                return $this->parse();
+            }
+            if (false !== strpos($e->getMessage(), 'Content not found')) {
+                throw new ObjectException($e->getMessage());
             }
 
-            return $this->parse();
+            throw new CurlException($e->getMessage());
         }
+
         $this->setName();
         $this->setUsername();
         $this->setPassword();
