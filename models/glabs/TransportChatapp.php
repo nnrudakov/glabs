@@ -3,6 +3,8 @@
 namespace app\models\glabs;
 
 use app\models\glabs\objects\BaseObject;
+use app\models\glabs\objects\ImageException;
+use yii\base\InvalidParamException;
 
 /**
  * Send data to Chatapp.mobi.
@@ -26,6 +28,13 @@ class TransportChatapp
      * @var string
      */
     private static $registerApi = '/auth/register';
+
+    /**
+     * Upload file.
+     *
+     * @var string
+     */
+    private static $uploadApi = '/api/upload_file';
 
     /**
      * Photo API.
@@ -66,6 +75,8 @@ class TransportChatapp
      * @return bool
      *
      * @throws TransportException
+     * @throws InvalidParamException
+     * @throws ImageException
      */
     public function send($isTest = false)
     {
@@ -79,17 +90,15 @@ class TransportChatapp
 
         $response = $this->request(self::$url . self::$registerApi, $params);
         $params = ['token' => $response['data']['token']];
-
-        if ($this->object->getThumbnail()) {
-            $photo = $this->object->getThumbnail();
-            $this->request(
-                self::$url . self::$photoApi,
-                array_merge($params, ['profile_photo";filename="' . $photo->getFilename() => $photo->getData()])
-            );
-        }
-
-        $params['profile[aboutme]'] = $aboutme;
+        $params['property'] = 'aboutme';
+        $params['value']    = $aboutme;
         $this->request(self::$url . self::$aboutmeApi, $params);
+
+        /*if ($this->object->getThumbnail()) {
+            $photo = $this->object->getThumbnail();
+            $response = $this->request(self::$url . self::$uploadApi, ['file' => new \CURLFile($photo->getLocalFile())]);
+            $this->request(self::$url . self::$photoApi, ['token' => $response['data']['token'], 'photo' => $response]);
+        }*/
 
         return true;
     }

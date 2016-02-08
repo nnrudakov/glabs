@@ -127,6 +127,7 @@ abstract class BaseCategory
      * Fill objects by name and URL.
      *
      * @throws CurlException
+     * @throws ObjectException
      */
     protected function getObjectsLinks()
     {
@@ -144,6 +145,7 @@ abstract class BaseCategory
      * @return bool
      *
      * @throws CurlException
+     * @throws ObjectException
      */
     protected function collectObjects($url)
     {
@@ -159,6 +161,8 @@ abstract class BaseCategory
      * @param string  $categoryType Type.
      *
      * @return BaseObject
+     *
+     * @throws ObjectException
      */
     protected function getObjectModel($url, $title, $categoryId, $categoryType)
     {
@@ -194,9 +198,11 @@ abstract class BaseCategory
             GlabsController::showMessage("\t\t" . 'Sending object... ', false);
             try {
                 $object->send();
+                $object->removeFiles();
                 GlabsController::$sentObjects++;
                 GlabsController::showMessage('Success.');
             } catch (TransportException $e) {
+                $object->removeFiles();
                 GlabsController::showMessage('Fail with message: "' . $e->getMessage() . '"');
             }
             GlabsController::saveObjectsEmails($object);
