@@ -206,6 +206,10 @@ abstract class BaseCategory
                 GlabsController::showMessage('Fail with message: "' . $e->getMessage() . '"');
             }
             GlabsController::saveObjectsEmails($object);
+            if ($this->isUsersTitle()) {
+                /* @var \app\models\glabs\objects\chatapp\BaseObject $object */
+                GlabsController::saveUsersLinks($object);
+            }
         }
 
         $done_count = count($this->doneObjects);
