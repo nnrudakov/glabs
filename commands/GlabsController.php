@@ -272,7 +272,7 @@ class GlabsController extends Controller
     }
 
     /**
-     * Save imported prodiles links.
+     * Save imported profiles links.
      *
      * @param \app\models\glabs\objects\chatapp\BaseObject $object Object.
      *
