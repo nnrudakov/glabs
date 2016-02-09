@@ -23,6 +23,9 @@ class Craigslist extends BaseCraigslist
      */
     protected function collectObjects($url)
     {
+        if (!array_key_exists($url, $this->collectedCount)) {
+            $this->collectedCount[$url] = 0;
+        }
         $host = 'http://' . parse_url($url, PHP_URL_HOST);
         $dom = new Dom();
         try {

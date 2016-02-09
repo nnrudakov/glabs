@@ -80,7 +80,8 @@ class BaseObject extends Base
      */
     protected static $uncensored = [
         'sex', 'fuck', 'pussy', 'pusssy', 'escort service', 'servitude', 'licked', 'gfe', 'adult fun', 'empty house',
-        'babe', 'doggy style', 'deep throat', 'condom', 'get love', 'cock', 'intimacy', 'curvy', 'anal'
+        'babe', 'doggy style', 'deep throat', 'condom', 'get love', 'cock', 'intimacy', 'curvy', 'anal', 'penis',
+        'role playing', 'oral', 'bdsm', 'bbw', 'dick', 'chub', 'mwm'
     ];
 
     /**
@@ -128,13 +129,17 @@ class BaseObject extends Base
         try {
             self::$dom->loadFromUrl($this->url, [], GlabsController::$curl);
         } catch (CurlException $e) {
-            if (false === strpos($e->getMessage(), 'timed out') ) {
+            if (false !== strpos($e->getMessage(), 'timed out')) {
                 GlabsController::showMessage(' ...trying again', false);
-                throw new CurlException($e->getMessage());
+                return $this->parse();
+            }
+            if (false !== strpos($e->getMessage(), 'Content not found')) {
+                throw new ObjectException($e->getMessage());
             }
 
-            return $this->parse();
+            throw new CurlException($e->getMessage());
         }
+
         $this->setName();
         $this->setUsername();
         $this->setPassword();
