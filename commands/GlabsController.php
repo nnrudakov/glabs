@@ -221,9 +221,6 @@ class GlabsController extends Controller
         $sites = $data['sites'];
         $exclude = $data['exclude'];
         foreach ($sites as $i => $site) {
-            if ($data['total_count'] >= 100000) {
-                return true;
-            }
             $this->actionChatapp($site);
             unset($sites[$i]);
             $exclude[] = $site;
