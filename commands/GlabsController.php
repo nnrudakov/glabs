@@ -218,12 +218,12 @@ class GlabsController extends Controller
     {
         //$this->collectSites();
         $data = json_decode(file_get_contents(\Yii::getAlias('@runtime/data/chatapp.json')), true);
-        if ($data['total_count'] >= 100000) {
-            return true;
-        }
         $sites = $data['sites'];
         $exclude = $data['exclude'];
         foreach ($sites as $i => $site) {
+            if ($data['total_count'] >= 100000) {
+                return true;
+            }
             $this->actionChatapp($site);
             unset($sites[$i]);
             $exclude[] = $site;
