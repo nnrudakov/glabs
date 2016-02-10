@@ -58,7 +58,7 @@ class Craigslist extends BaseCraigslist
             /* @var \PHPHtmlParser\Dom\AbstractNode $link */
             if ($link = $span->find('a')[0]) {
                 $href = $link->getAttribute('href');
-                if (0 === strpos($href, '//')) {
+                if (0 === strpos($href, '//') || false !== strpos($href, 'http:')) {
                     continue;
                 }
                 $href = $host . $href;
