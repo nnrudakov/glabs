@@ -7,6 +7,7 @@ use app\models\glabs\TransportZoheny;
 use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
+use PHPHtmlParser\Exceptions\EmptyCollectionException;
 use yii\base\InvalidParamException;
 
 /**
@@ -147,7 +148,10 @@ class BaseObject
             }
 
             return $this->parse();
+        } catch (EmptyCollectionException $e) {
+            throw new ObjectException($e->getMessage());
         }
+
         $this->setTitle();
         $this->setDescription();
         $this->setPhone();
