@@ -285,4 +285,14 @@ class BaseObject extends Base
 
         return false;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function setUploadedLink($id = null)
+    {
+        $this->uploadedLink = 'http://chatapp.mobi/app/profile/' . $this->username;
+    }
+
+
 }

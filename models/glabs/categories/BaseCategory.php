@@ -209,7 +209,10 @@ abstract class BaseCategory
             if ($this->isUsersTitle()) {
                 /* @var \app\models\glabs\objects\chatapp\BaseObject $object */
                 GlabsController::saveUsersLinks($object);
-                GlabsController::saveSiteStatus();
+                GlabsController::saveChatappStatus();
+            } else {
+                GlabsController::saveProductsLinks($object);
+                GlabsController::saveZohenyStatus();
             }
         }
 

@@ -347,6 +347,24 @@ class GlabsController extends Controller
     }
 
     /**
+     * Save imported products links.
+     *
+     * @param \app\models\glabs\objects\BaseObject $object Object.
+     *
+     * @return bool
+     *
+     * @throws InvalidParamException
+     */
+    public static function saveProductsLinks($object)
+    {
+        $fp = fopen(Yii::getAlias('@runtime/products_' . (int) self::$startTime. '.csv'), 'a');
+        fputcsv($fp, [$object->getUrl(), $object->getUploadedLink()]);
+        fclose($fp);
+
+        return true;
+    }
+
+    /**
      * Save imported profiles links.
      *
      * @param \app\models\glabs\objects\chatapp\BaseObject $object Object.
@@ -358,18 +376,30 @@ class GlabsController extends Controller
     public static function saveUsersLinks($object)
     {
         $fp = fopen(Yii::getAlias('@runtime/profiles_' . (int) self::$startTime. '.csv'), 'a');
-        fputcsv($fp, [$object->getUrl(), 'http://chatapp.mobi/app/profile/' . $object->getUsername()]);
+        fputcsv($fp, [$object->getUrl(), $object->getUploadedLink()]);
         fclose($fp);
 
         return true;
     }
 
     /**
-     * Save sites status.
+     * Save zoheny sites status.
      *
      * @throws InvalidParamException
      */
-    public static function saveSiteStatus()
+    public static function saveZohenyStatus()
+    {
+        $data = json_decode(file_get_contents(\Yii::getAlias('@runtime/data/zoheny.json')), true);
+        $data['total_count']++;
+        file_put_contents(\Yii::getAlias('@runtime/data/zoheny.json'),  json_encode($data));
+    }
+
+    /**
+     * Save chatapp sites status.
+     *
+     * @throws InvalidParamException
+     */
+    public static function saveChatappStatus()
     {
         $data = json_decode(file_get_contents(\Yii::getAlias('@runtime/data/chatapp.json')), true);
         $data['total_count']++;

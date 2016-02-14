@@ -93,6 +93,13 @@ class BaseObject
     protected $phone = false;
 
     /**
+     * Uploaded link.
+     *
+     * @var string
+     */
+    protected $uploadedLink;
+
+    /**
      * Category constructor.
      *
      * @param string  $url        Link.
@@ -381,5 +388,27 @@ class BaseObject
         }
 
         return true;
+    }
+
+    /**
+     * Return uploaded link.
+     *
+     * @return string
+     */
+    public function getUploadedLink()
+    {
+        return $this->uploadedLink;
+    }
+
+    /**
+     * Set uploaded link.
+     *
+     * @param mixed $id New ID.
+     */
+    public function setUploadedLink($id = null)
+    {
+        if ($id) {
+            $this->uploadedLink = 'http://zoheny.com/product/details?product=' . $id;
+        }
     }
 }
