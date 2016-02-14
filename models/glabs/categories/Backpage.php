@@ -33,6 +33,9 @@ class Backpage extends BaseCategory
      */
     protected function collectObjects($url)
     {
+        if (!array_key_exists($url, $this->collectedCount)) {
+            $this->collectedCount[$url] = 0;
+        }
         $dom = new Dom();
         try {
             $dom->loadFromUrl($url, [], GlabsController::$curl);
