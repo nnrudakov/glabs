@@ -51,7 +51,7 @@ class Craigslist extends BaseCraigslist
 
         /* @var \PHPHtmlParser\Dom\AbstractNode $span */
         foreach ($dom->find('.txt') as $span) {
-            if ($this->collectedCount[$url] >= $this->count) {
+            if ($this->isEnoughCollect()) {
                 break;
             }
 
@@ -81,7 +81,7 @@ class Craigslist extends BaseCraigslist
             }
         }
 
-        if ($this->collectedCount[$url] && $this->collectedCount[$url] < $this->count) {
+        if (!$this->isEnoughCollect()) {
             $url = str_replace(self::$pageParam . self::$page, '', $url);
             self::$page += 100;
             return $this->collectObjects($this->getPagedUrl($url));

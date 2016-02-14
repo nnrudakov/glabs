@@ -59,7 +59,7 @@ class Backpage extends BaseCategory
 
         /* @var \PHPHtmlParser\Dom\AbstractNode $span */
         foreach ($dom->find('.cat') as $span) {
-            if ($this->collectedCount[$url] >= $this->count) {
+            if ($this->isEnoughCollect()) {
                 break;
             }
 
@@ -82,7 +82,7 @@ class Backpage extends BaseCategory
             }
         }
 
-        if ($this->collectedCount[$url] && $this->collectedCount[$url] < $this->count) {
+        if (!$this->isEnoughCollect()) {
             $url = str_replace(self::$pageParam . self::$page, '', $url);
             self::$page += self::$page ? 1 : 2;
             return $this->collectObjects($this->getPagedUrl($url));

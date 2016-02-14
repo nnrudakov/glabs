@@ -139,6 +139,7 @@ abstract class BaseSite
      * @param $count        integer
      *
      * @throws CurlException
+     * @throws ObjectException
      */
     protected function setCategory($url, $title, $categoryId, $categoryType, $count)
     {
