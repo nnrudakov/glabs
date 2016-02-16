@@ -192,6 +192,7 @@ abstract class BaseCategory
                 $object->parse();
                 $this->doneObjects[] = $object->getUrl();
             } catch (ObjectException $e) {
+                $object->removeFiles();
                 GlabsController::showMessage("\t\t" . 'Object skipped because of reason: ' . $e->getMessage());
                 continue;
             }
