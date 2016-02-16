@@ -12,6 +12,7 @@ use app\models\glabs\objects\ObjectException;
 use Faker\Factory;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
+use PHPHtmlParser\Exceptions\EmptyCollectionException;
 use yii\base\InvalidParamException;
 
 /**
@@ -138,6 +139,8 @@ class BaseObject extends Base
             }
 
             throw new CurlException($e->getMessage());
+        } catch (EmptyCollectionException $e) {
+            throw new ObjectException($e->getMessage());
         }
 
         $this->setName();
