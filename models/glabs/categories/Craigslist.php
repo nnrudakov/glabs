@@ -33,6 +33,9 @@ class Craigslist extends BaseCategory
      */
     protected function collectObjects($url)
     {
+        if (!array_key_exists($url, $this->collectedCount)) {
+            $this->collectedCount[$url] = 0;
+        }
         $host = 'http://' . parse_url($url, PHP_URL_HOST);
         $dom = new Dom();
         try {
@@ -58,14 +61,14 @@ class Craigslist extends BaseCategory
 
         /* @var \PHPHtmlParser\Dom\AbstractNode $span */
         foreach ($dom->find('.txt') as $span) {
-            if ($this->collectedCount[$url] >= $this->count) {
+            if ($this->isEnoughCollect()) {
                 break;
             }
 
             /* @var \PHPHtmlParser\Dom\AbstractNode $link */
             if ($link = $span->find('a')[0]) {
                 $href = $host . $link->getAttribute('href');
-                if (in_array($url, $this->collected, true)) {
+                if (in_array($href, $this->collected, true)) {
                     continue;
                 }
                 $object = $this->getObjectModel($href, $link->text(), $this->categoryId, $this->type);
@@ -83,7 +86,7 @@ class Craigslist extends BaseCategory
             }
         }
 
-        if ($this->collectedCount[$url] && $this->collectedCount[$url] < $this->count) {
+        if (!$this->isEnoughCollect()) {
             $url = str_replace(self::$pageParam . self::$page, '', $url);
             self::$page += 100;
             return $this->collectObjects($this->getPagedUrl($url));

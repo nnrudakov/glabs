@@ -8,6 +8,7 @@ use app\models\glabs\objects\ObjectException;
 use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
+use PHPHtmlParser\Exceptions\EmptyCollectionException;
 use yii\base\InvalidParamException;
 
 /**
@@ -112,6 +113,7 @@ abstract class BaseCategory
      * @param integer $count      Count objects;
      *
      * @throws CurlException
+     * @throws ObjectException
      */
     public function __construct($url, $title, $categoryId, $type, $count)
     {
@@ -191,6 +193,11 @@ abstract class BaseCategory
                 $object->parse();
                 $this->doneObjects[] = $object->getUrl();
             } catch (ObjectException $e) {
+                $object->removeFiles();
+                GlabsController::showMessage("\t\t" . 'Object skipped because of reason: ' . $e->getMessage());
+                continue;
+            } catch (EmptyCollectionException $e) {
+                $object->removeFiles();
                 GlabsController::showMessage("\t\t" . 'Object skipped because of reason: ' . $e->getMessage());
                 continue;
             }
@@ -209,6 +216,10 @@ abstract class BaseCategory
             if ($this->isUsersTitle()) {
                 /* @var \app\models\glabs\objects\chatapp\BaseObject $object */
                 GlabsController::saveUsersLinks($object);
+                GlabsController::saveChatappStatus();
+            } else {
+                GlabsController::saveProductsLinks($object);
+                GlabsController::saveZohenyStatus();
             }
         }
 
@@ -257,5 +268,15 @@ abstract class BaseCategory
     protected function isUsersTitle()
     {
         return $this->title === 'Users';
+    }
+
+    /**
+     * Enough collect?
+     *
+     * @return bool
+     */
+    protected function isEnoughCollect()
+    {
+        return array_sum($this->collectedCount) >= $this->count;
     }
 }

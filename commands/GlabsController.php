@@ -206,6 +206,81 @@ class GlabsController extends Controller
     }
 
     /**
+     * Parse all chatapp sites.
+     *
+     * @return bool
+     *
+     * @throws CurlException
+     * @throws ObjectException
+     * @throws InvalidParamException
+     */
+    public function actionChatappAll()
+    {
+        //$this->collectSites();
+        $data = json_decode(file_get_contents(\Yii::getAlias('@runtime/data/chatapp.json')), true);
+        $sites = $data['sites'];
+        $exclude = $data['exclude'];
+        foreach ($sites as $i => $site) {
+            $this->actionChatapp($site);
+            unset($sites[$i]);
+            $exclude[] = $site;
+            $data = json_decode(file_get_contents(\Yii::getAlias('@runtime/data/chatapp.json')), true);
+            $data['sites'] = $sites;
+            $data['exclude'] = $exclude;
+            file_put_contents(\Yii::getAlias('@runtime/data/chatapp.json'),  json_encode($data));
+            sleep(mt_rand(3600, 5400));
+        }
+
+        return true;
+    }
+
+    private function collectSites()
+    {
+        $old_data = json_decode(file_get_contents(\Yii::getAlias('@runtime/data/chatapp.json')), true);
+        $dom = new Dom();
+        $dom->loadFromFile(\Yii::getAlias('@runtime/sites.html'));
+        $clinks = $blinks = [];
+        $exclude = array_key_exists('exclude', $old_data)
+            ? $old_data['exclude']
+            : [
+                'auburn.craigslist.org', 'bham.craigslist.org', 'dothan.craigslist.org', 'shoals.craigslist.org',
+                'gadsden.craigslist.org', 'huntsville.craigslist.org'
+            ];
+
+        /* @var Dom\AbstractNode $link */
+        foreach ($dom->find('a') as $link) {
+            $href = $link->getAttribute('href');
+            if (0 !== strpos($href, '//')) {
+                continue;
+            }
+            $href = str_replace('/', '', $href);
+            if (in_array($href, $exclude, true)) {
+                continue;
+            }
+            $clinks[] = $href;
+        }
+        shuffle($clinks);
+        $dom->loadFromFile(\Yii::getAlias('@runtime/backpage.html'));
+        /* @var Dom\AbstractNode $link */
+        foreach ($dom->find('a') as $link) {
+            $href = $link->getAttribute('href');
+            $href = str_replace(['http:', '/'], '', $href);
+            if (in_array($href, $exclude, true)) {
+                continue;
+            }
+            $blinks[] = $href;
+        }
+        shuffle($blinks);
+        $data = [
+            'total_count' => (int) $old_data['total_count'],
+            'current_site' => '',
+            'sites' => array_merge($clinks, $blinks),
+            'exclude' => $exclude
+        ];
+        file_put_contents(\Yii::getAlias('@runtime/data/chatapp.json'),  json_encode($data));
+    }
+
+    /**
      * @inheritdoc
      */
     public function beforeAction($action)
@@ -272,6 +347,24 @@ class GlabsController extends Controller
     }
 
     /**
+     * Save imported products links.
+     *
+     * @param \app\models\glabs\objects\BaseObject $object Object.
+     *
+     * @return bool
+     *
+     * @throws InvalidParamException
+     */
+    public static function saveProductsLinks($object)
+    {
+        $fp = fopen(Yii::getAlias('@runtime/products_' . (int) self::$startTime. '.csv'), 'a');
+        fputcsv($fp, [$object->getUrl(), $object->getUploadedLink()]);
+        fclose($fp);
+
+        return true;
+    }
+
+    /**
      * Save imported profiles links.
      *
      * @param \app\models\glabs\objects\chatapp\BaseObject $object Object.
@@ -283,9 +376,33 @@ class GlabsController extends Controller
     public static function saveUsersLinks($object)
     {
         $fp = fopen(Yii::getAlias('@runtime/profiles_' . (int) self::$startTime. '.csv'), 'a');
-        fputcsv($fp, [$object->getUrl(), 'http://chatapp.mobi/app/profile/' . $object->getUsername()]);
+        fputcsv($fp, [$object->getUrl(), $object->getUploadedLink()]);
         fclose($fp);
 
         return true;
+    }
+
+    /**
+     * Save zoheny sites status.
+     *
+     * @throws InvalidParamException
+     */
+    public static function saveZohenyStatus()
+    {
+        $data = json_decode(file_get_contents(\Yii::getAlias('@runtime/data/zoheny.json')), true);
+        $data['total_count']++;
+        file_put_contents(\Yii::getAlias('@runtime/data/zoheny.json'),  json_encode($data));
+    }
+
+    /**
+     * Save chatapp sites status.
+     *
+     * @throws InvalidParamException
+     */
+    public static function saveChatappStatus()
+    {
+        $data = json_decode(file_get_contents(\Yii::getAlias('@runtime/data/chatapp.json')), true);
+        $data['total_count']++;
+        file_put_contents(\Yii::getAlias('@runtime/data/chatapp.json'),  json_encode($data));
     }
 }

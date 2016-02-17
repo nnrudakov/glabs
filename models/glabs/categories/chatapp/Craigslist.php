@@ -51,14 +51,14 @@ class Craigslist extends BaseCraigslist
 
         /* @var \PHPHtmlParser\Dom\AbstractNode $span */
         foreach ($dom->find('.txt') as $span) {
-            if ($this->collectedCount[$url] >= $this->count) {
+            if ($this->isEnoughCollect()) {
                 break;
             }
 
             /* @var \PHPHtmlParser\Dom\AbstractNode $link */
             if ($link = $span->find('a')[0]) {
                 $href = $link->getAttribute('href');
-                if (0 === strpos($href, '//')) {
+                if (0 === strpos($href, '//') || false !== strpos($href, 'http:')) {
                     continue;
                 }
                 $href = $host . $href;
@@ -81,7 +81,7 @@ class Craigslist extends BaseCraigslist
             }
         }
 
-        if ($this->collectedCount[$url] && $this->collectedCount[$url] < $this->count) {
+        if (!$this->isEnoughCollect()) {
             $url = str_replace(self::$pageParam . self::$page, '', $url);
             self::$page += 100;
             return $this->collectObjects($this->getPagedUrl($url));

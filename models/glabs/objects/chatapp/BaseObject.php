@@ -12,6 +12,7 @@ use app\models\glabs\objects\ObjectException;
 use Faker\Factory;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
+use PHPHtmlParser\Exceptions\EmptyCollectionException;
 use yii\base\InvalidParamException;
 
 /**
@@ -138,6 +139,8 @@ class BaseObject extends Base
             }
 
             throw new CurlException($e->getMessage());
+        } catch (EmptyCollectionException $e) {
+            throw new ObjectException($e->getMessage());
         }
 
         $this->setName();
@@ -148,7 +151,7 @@ class BaseObject extends Base
         $this->setGender();
         $this->setBirthday();
         $this->setAboutme();
-        $this->setImages();
+        //$this->setImages();
         //print_r($this->toArray());die;
         return true;
     }
@@ -285,4 +288,14 @@ class BaseObject extends Base
 
         return false;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function setUploadedLink($id = null)
+    {
+        $this->uploadedLink = 'http://chatapp.mobi/app/profile/' . $this->username;
+    }
+
+
 }

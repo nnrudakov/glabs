@@ -73,7 +73,7 @@ class TransportZoheny
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->prepareParams());
         curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($ch, CURLOPT_SAFE_UPLOAD, true);
 
         if ($isTest) {
@@ -92,6 +92,8 @@ class TransportZoheny
         if (!$content['success']) {
             throw new TransportException('Error retrieving ' . $content['msg']);
         }
+
+        $this->object->setUploadedLink((int) $content['product_id']);
 
         return true;
     }
