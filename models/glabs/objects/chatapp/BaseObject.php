@@ -169,7 +169,24 @@ class BaseObject extends Base
      */
     public function send($isTest = false)
     {
-        return (new TransportChatapp($this))->send($isTest);
+        try {
+            (new TransportChatapp($this))->send($isTest);
+        } catch (TransportException $e) {
+            $message = $e->getMessage();
+            if ($message === 'Error retrieving: Username ' . $this->username . ' already taken') {
+                GlabsController::showMessage('re-generate username and trying again... ', false);
+                $this->setUsername();
+                return $this->send($isTest);
+            } elseif ($message === 'Error retrieving: Email "' . $this->email . '" already exist.') {
+                GlabsController::showMessage('re-generate email and trying again... ', false);
+                $this->setEmail();
+                return $this->send($isTest);
+            } else {
+                throw new TransportException($message);
+            }
+        }
+
+        return true;
     }
 
     /**
