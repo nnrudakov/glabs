@@ -8,6 +8,7 @@ use app\models\glabs\objects\ObjectException;
 use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
+use PHPHtmlParser\Exceptions\EmptyCollectionException;
 use yii\base\InvalidParamException;
 
 /**
@@ -192,6 +193,10 @@ abstract class BaseCategory
                 $object->parse();
                 $this->doneObjects[] = $object->getUrl();
             } catch (ObjectException $e) {
+                $object->removeFiles();
+                GlabsController::showMessage("\t\t" . 'Object skipped because of reason: ' . $e->getMessage());
+                continue;
+            } catch (EmptyCollectionException $e) {
                 $object->removeFiles();
                 GlabsController::showMessage("\t\t" . 'Object skipped because of reason: ' . $e->getMessage());
                 continue;
