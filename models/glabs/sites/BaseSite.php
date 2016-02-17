@@ -70,6 +70,7 @@ abstract class BaseSite
      * @param string  $url        Site Url.
      *
      * @throws CurlException
+     * @throws ObjectException
      */
     public function __construct(array $categories, $count, $url = '') {
         if (false === strpos($this->url, 'http')) {
@@ -103,6 +104,7 @@ abstract class BaseSite
      * @return bool
      *
      * @throws CurlException
+     * @throws ObjectException
      */
     protected function getCategoriesLinks($count)
     {
