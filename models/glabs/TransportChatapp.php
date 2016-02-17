@@ -132,13 +132,13 @@ class TransportChatapp
         if ($content === false) {
             // there was a problem
             $error = curl_error($ch);
-            throw new TransportException('Error retrieving ' . $error);
+            throw new TransportException('Error retrieving: ' . ($error ?: 'Connection error'));
         }
 
         $content = json_decode($content, true);
 
         if (isset($content['error'])) {
-            throw new TransportException('Error retrieving ' . $content['data']['message']);
+            throw new TransportException('Error retrieving: ' . $content['data']['message']);
         }
 
         return $content;
