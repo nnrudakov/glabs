@@ -80,7 +80,8 @@ class Backpage extends BaseObject
                     false === strpos($url, 'GetImage.aspx') && false === strpos($url, 'images.psndealer.com') &&
                     false === strpos($url, 'cdn.vflyer.com') && false === strpos($url, 'cloudfront.net') &&
                     false !== strpos($url, '.mp4') && false !== strpos($url, '.3gp') &&
-                    false === strpos($url, 'postlets.imgix.net') && false === strpos($url, 'cdn-w.v12soft.com')) {
+                    false === strpos($url, 'postlets.imgix.net') && false === strpos($url, 'cdn-w.v12soft.com') &&
+                    false === strpos($url, 'autosinorangecounty.com')) {
                     continue;
                 }
             }

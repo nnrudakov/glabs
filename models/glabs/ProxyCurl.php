@@ -49,7 +49,7 @@ class ProxyCurl implements CurlInterface
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 40);
 
-        sleep(mt_rand(5, 10));
+        sleep(mt_rand(10, 20));
         $content = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $this->connectedURL = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
