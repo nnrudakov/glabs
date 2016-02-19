@@ -81,7 +81,8 @@ class Backpage extends BaseObject
                     false === strpos($url, 'cdn.vflyer.com') && false === strpos($url, 'cloudfront.net') &&
                     false !== strpos($url, '.mp4') && false !== strpos($url, '.3gp') &&
                     false === strpos($url, 'postlets.imgix.net') && false === strpos($url, 'cdn-w.v12soft.com') &&
-                    false === strpos($url, 'autosinorangecounty.com')) {
+                    false === strpos($url, 'autosinorangecounty.com') && false === strpos($url, 'images.tapclassifieds.com') &&
+                    false === strpos($url, 'images.auction123.com') && false === strpos($url, '//images.')) {
                     continue;
                 }
             }
