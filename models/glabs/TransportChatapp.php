@@ -100,6 +100,8 @@ class TransportChatapp
             $this->request(self::$url . self::$photoApi, ['token' => $response['data']['token'], 'photo' => $response]);
         }*/
 
+        $this->object->setUploadedLink();
+
         return true;
     }
 
