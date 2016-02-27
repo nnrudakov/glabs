@@ -18,6 +18,19 @@ class Craigslist extends BaseObject
     /**
      * @inheritdoc
      */
+    protected function setTitle()
+    {
+        if (!$this->title || 'none' == $this->title) {
+            /* @var \PHPHtmlParser\Dom\AbstractNode $title */
+            if ($title = self::$dom->find('#titletextonly', 0)) {
+                $this->title = $title->text();
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function setDescription()
     {
         /* @var \PHPHtmlParser\Dom\AbstractNode $postingbody */
@@ -46,10 +59,13 @@ class Craigslist extends BaseObject
     /**
      * @inheritdoc
      */
-    public function setPrice($node)
+    public function setPrice($node = null)
     {
+        /* @var \PHPHtmlParser\Dom\AbstractNode $node */
         /* @var \PHPHtmlParser\Dom\AbstractNode $price */
-        if ($price = $node->find('.price', 0)) {
+        $price = $node !== null ? $node->find('.price', 0) : self::$dom->find('.price', 0);
+
+        if ($price) {
             $this->price = $price->text();
         } else {
             if (preg_match('/\$(\d+)/', $this->title, $matches)) {
@@ -74,7 +90,7 @@ class Craigslist extends BaseObject
         /* @var \PHPHtmlParser\Dom\AbstractNode $figure */
         $figure = self::$dom->find('figure', 0);
         if (!$figure) {
-            return false;
+            throw new ObjectException('Has no files.');
         }
 
         $is_multiimage = false !== strpos($figure->getAttribute('class'), 'multiimage');
