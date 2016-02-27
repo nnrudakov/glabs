@@ -71,7 +71,8 @@ class Craigslist extends BaseCategory
                 if (in_array($href, $this->collected, true)) {
                     continue;
                 }
-                $object = $this->getObjectModel($href, $link->text(), $this->categoryId, $this->type);
+                $title = $link->text() ?: strip_tags($link->innerHtml());
+                $object = $this->getObjectModel($href, $title, $this->categoryId, $this->type);
                 try {
                     $object->setPrice($span);
                 } catch (ObjectException $e) {
@@ -119,5 +120,19 @@ class Craigslist extends BaseCategory
         }
 
         return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getPagedUrl($url)
+    {
+        if (self::$page) {
+            $url .= self::$pageParam . self::$page;
+        }
+
+        $url .= '#list';
+
+        return $url;
     }
 }
