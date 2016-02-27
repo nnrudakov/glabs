@@ -88,6 +88,8 @@ class TransportChatapp
             return true;
         }
 
+        $this->object->setUploadedLink();
+
         $response = $this->request(self::$url . self::$registerApi, $params);
         $params = ['token' => $response['data']['token']];
         $params['property'] = 'aboutme';
@@ -99,8 +101,6 @@ class TransportChatapp
             $response = $this->request(self::$url . self::$uploadApi, ['file' => new \CURLFile($photo->getLocalFile())]);
             $this->request(self::$url . self::$photoApi, ['token' => $response['data']['token'], 'photo' => $response]);
         }*/
-
-        $this->object->setUploadedLink();
 
         return true;
     }
