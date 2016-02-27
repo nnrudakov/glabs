@@ -88,7 +88,7 @@ class Craigslist extends BaseCategory
         }
 
         if (!$this->isEnoughCollect()) {
-            $url = str_replace(self::$pageParam . self::$page, '', $url);
+            $url = str_replace([self::$pageParam . self::$page, '#list'], '', $url);
             self::$page += 100;
             return $this->collectObjects($this->getPagedUrl($url));
         }
