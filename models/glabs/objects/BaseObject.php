@@ -163,11 +163,12 @@ class BaseObject
         $this->setDescription();
         $this->setPhone();
         $this->setEmails();
-        $this->setImages();
 
         if (!$this->phone && !$this->emails) {
             throw new ObjectException('Has no phone and email.');
         }
+
+        $this->setImages();
 
         return true;
     }
