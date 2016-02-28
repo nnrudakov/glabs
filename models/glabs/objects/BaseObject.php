@@ -146,18 +146,7 @@ class BaseObject
      */
     public function parse()
     {
-        try {
-            self::$dom->loadFromUrl($this->url, [], GlabsController::$curl);
-        } catch (CurlException $e) {
-            if (false === strpos($e->getMessage(), 'timed out') ) {
-                GlabsController::showMessage(' ...trying again', false);
-                throw new CurlException($e->getMessage());
-            }
-
-            return $this->parse();
-        } catch (EmptyCollectionException $e) {
-            throw new ObjectException($e->getMessage());
-        }
+        $this->loadDom();
 
         $this->setTitle();
         $this->setDescription();
@@ -169,6 +158,31 @@ class BaseObject
         }
 
         $this->setImages();
+
+        return true;
+    }
+
+    /**
+     * Load DOM.
+     *
+     * @return bool
+     *
+     * @throws ObjectException
+     */
+    protected function loadDom()
+    {
+        try {
+            self::$dom->loadFromUrl($this->url, [], GlabsController::$curl);
+        } catch (CurlException $e) {
+            if (false !== strpos($e->getMessage(), 'timed out')) {
+                GlabsController::showMessage(' ...trying again', false);
+                return $this->loadDom();
+            }
+
+            throw new ObjectException($e->getMessage());
+        } catch (EmptyCollectionException $e) {
+            throw new ObjectException($e->getMessage());
+        }
 
         return true;
     }

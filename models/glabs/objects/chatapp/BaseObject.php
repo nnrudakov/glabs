@@ -127,21 +127,7 @@ class BaseObject extends Base
      */
     public function parse()
     {
-        try {
-            self::$dom->loadFromUrl($this->url, [], GlabsController::$curl);
-        } catch (CurlException $e) {
-            if (false !== strpos($e->getMessage(), 'timed out')) {
-                GlabsController::showMessage(' ...trying again', false);
-                return $this->parse();
-            }
-            if (false !== strpos($e->getMessage(), 'Content not found')) {
-                throw new ObjectException($e->getMessage());
-            }
-
-            throw new CurlException($e->getMessage());
-        } catch (EmptyCollectionException $e) {
-            throw new ObjectException($e->getMessage());
-        }
+        $this->loadDom();
 
         $this->setName();
         $this->setUsername();
