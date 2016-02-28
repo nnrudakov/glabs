@@ -67,13 +67,13 @@ class Craigslist extends BaseCategory
 
             /* @var \PHPHtmlParser\Dom\AbstractNode $link */
             if ($link = $span->find('a')[0]) {
-                $href = $host . $link->getAttribute('href');
-                if (in_array($href, $this->collected, true)) {
+                $href = $this->checkObjectLink($host, $link->getAttribute('href'));
+                if (false === $href) {
                     continue;
                 }
                 $title = $link->text() ?: strip_tags($link->innerHtml());
-                $object = $this->getObjectModel($href, $title, $this->categoryId, $this->type);
                 try {
+                    $object = $this->getObjectModel($href, $title, $this->categoryId, $this->type);
                     $object->setPrice($span);
                 } catch (ObjectException $e) {
                     continue;
@@ -134,5 +134,28 @@ class Craigslist extends BaseCategory
         $url .= '#list';
 
         return $url;
+    }
+
+    /**
+     * Check object link.
+     *
+     * @param string $host Host.
+     * @param string $link URL.
+     *
+     * @return string|bool
+     */
+    protected function checkObjectLink($host, $link)
+    {
+        if ($this->isUsersTitle() && (0 === strpos($link, '//') || false !== strpos($link, 'http:'))) {
+            return false;
+        }
+
+        $link = $host . $link;
+
+        if (in_array($link, $this->collected, true)) {
+            return false;
+        }
+
+        return $link;
     }
 }
