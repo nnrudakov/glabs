@@ -157,6 +157,7 @@ abstract class BaseCategory
     /**
      * Get object.
      *
+     * @param string  $categoryUrl  Category URL.
      * @param string  $url          Link.
      * @param string  $title        Title.
      * @param integer $categoryId   Category ID.
@@ -166,7 +167,7 @@ abstract class BaseCategory
      *
      * @throws ObjectException
      */
-    protected function getObjectModel($url, $title, $categoryId, $categoryType)
+    protected function getObjectModel($categoryUrl, $url, $title, $categoryId, $categoryType)
     {
 
     }

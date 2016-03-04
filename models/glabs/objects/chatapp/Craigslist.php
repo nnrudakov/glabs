@@ -66,7 +66,7 @@ class Craigslist extends BaseObject
             return false;
         }
 
-        $this->thumbnail = new Image(['url' => $figure->find('img', 0)->getAttribute('src')]);
+        $this->thumbnail = new Image(['url' => $figure->find('img', 0)->getAttribute('src'), 'object_url' => $this->url]);
 
         return true;
     }

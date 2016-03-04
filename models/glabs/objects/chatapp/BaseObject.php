@@ -88,11 +88,11 @@ class BaseObject extends Base
     /**
      * @inheritdoc
      */
-    public function __construct($url, $title, $categoryId, $type)
+    public function __construct($categoryUrl, $url, $title, $categoryId, $type)
     {
         self::$faker = Factory::create();
         self::$faker->addProvider(new PhoneNumber(self::$faker));
-        parent::__construct($url, $title, $categoryId, $type);
+        parent::__construct($categoryUrl, $url, $title, $categoryId, $type);
         $this->isUncensored();
     }
 
@@ -299,6 +299,4 @@ class BaseObject extends Base
     {
         $this->uploadedLink = 'http://chatapp.mobi/app/profile/' . $this->username;
     }
-
-
 }

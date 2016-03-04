@@ -69,7 +69,7 @@ class Backpage extends BaseCategory
                 if (in_array($href, $this->collected, true)) {
                     continue;
                 }
-                $object = new Object($href, $link->text(), $this->categoryId, $this->type);
+                $object = new Object($url, $href, $link->text(), $this->categoryId, $this->type);
                 try {
                     $object->setPrice();
                 } catch (ObjectException $e) {
@@ -85,6 +85,8 @@ class Backpage extends BaseCategory
         }
 
         if (!$this->isEnoughCollect()) {
+            $curl = GlabsController::$curl;
+            $curl::$referer = $url;
             $url = str_replace(self::$pageParam . self::$page, '', $url);
             self::$page += self::$page ? 1 : 2;
             return $this->collectObjects($this->getPagedUrl($url));
