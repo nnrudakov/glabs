@@ -27,6 +27,13 @@ class BaseObject
     protected static $dom;
 
     /**
+     * Category URL.
+     *
+     * @var string
+     */
+    protected $categoryUrl;
+
+    /**
      * URL.
      *
      * @var string
@@ -100,17 +107,19 @@ class BaseObject
     protected $uploadedLink;
 
     /**
-     * Category constructor.
+     * Object constructor.
      *
-     * @param string  $url        Link.
-     * @param string  $title      Title.
-     * @param integer $categoryId Category ID.
-     * @param string  $type       Type.
+     * @param string  $categoryUrl Category link.
+     * @param string  $url         Link.
+     * @param string  $title       Title.
+     * @param integer $categoryId  Category ID.
+     * @param string  $type        Type.
      *
      * @throws ObjectException
      */
-    public function __construct($url, $title, $categoryId, $type)
+    public function __construct($categoryUrl, $url, $title, $categoryId, $type)
     {
+        $this->categoryUrl     = $categoryUrl;
         $this->url             = $url;
         $this->title           = $title;
         $this->category        = $categoryId;
@@ -172,6 +181,8 @@ class BaseObject
     protected function loadDom()
     {
         try {
+            $curl = GlabsController::$curl;
+            $curl::$referer = $this->categoryUrl;
             self::$dom->loadFromUrl($this->url, [], GlabsController::$curl);
         } catch (CurlException $e) {
             if (false !== strpos($e->getMessage(), 'timed out')) {
@@ -199,6 +210,16 @@ class BaseObject
     public function send($isTest = false)
     {
         return (new TransportZoheny($this))->send($isTest);
+    }
+
+    /**
+     * Return category URL.
+     *
+     * @return integer
+     */
+    public function getCategoryUrl()
+    {
+        return $this->categoryUrl;
     }
 
     /**

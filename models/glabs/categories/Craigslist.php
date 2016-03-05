@@ -73,7 +73,7 @@ class Craigslist extends BaseCategory
                 }
                 $title = $link->text() ?: strip_tags($link->innerHtml());
                 try {
-                    $object = $this->getObjectModel($href, $title, $this->categoryId, $this->type);
+                    $object = $this->getObjectModel($url, $href, $title, $this->categoryId, $this->type);
                     $object->setPrice($span);
                 } catch (ObjectException $e) {
                     continue;
@@ -88,6 +88,8 @@ class Craigslist extends BaseCategory
         }
 
         if (!$this->isEnoughCollect()) {
+            $curl = GlabsController::$curl;
+            $curl::$referer = $url;
             $url = str_replace([self::$pageParam . self::$page, '#list'], '', $url);
             self::$page += 100;
             return $this->collectObjects($this->getPagedUrl($url));
@@ -99,11 +101,11 @@ class Craigslist extends BaseCategory
     /**
      * @inheritdoc
      */
-    protected function getObjectModel($url, $title, $categoryId, $categoryType)
+    protected function getObjectModel($categoryUrl, $url, $title, $categoryId, $categoryType)
     {
         return $this->isUsersTitle()
-            ? new ChatObject($url, $title, $categoryId, $categoryType)
-            : new AdsObject($url, $title, $categoryId, $categoryType);
+            ? new ChatObject($categoryUrl, $url, $title, $categoryId, $categoryType)
+            : new AdsObject($categoryUrl, $url, $title, $categoryId, $categoryType);
     }
 
     /**

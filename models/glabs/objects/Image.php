@@ -39,6 +39,20 @@ class Image extends Object
      */
     public $data;
 
+    /**
+     * Object URL.
+     *
+     * @var string
+     */
+    public $object_url;
+
+    /**
+     * @inheritdoc
+     *
+     * @throws CurlException
+     * @throws InvalidParamException
+     * @throws ImageException
+     */
     public function init()
     {
         $this->setData();
@@ -103,6 +117,7 @@ class Image extends Object
     {
         /* @var ProxyCurl | TorCurl $curl */
         $curl = GlabsController::$curl;
+        $curl::$referer = $this->object_url;
         try {
             $this->data = $curl->get($this->url);
         } catch (CurlException $e) {

@@ -103,7 +103,7 @@ class Craigslist extends BaseObject
                 }
 
                 try {
-                    $image = new Image(['url' => $link->getAttribute('href')]);
+                    $image = new Image(['url' => $link->getAttribute('href'), 'object_url' => $this->url]);
                 } catch (ImageException $e) {
                     continue;
                 }

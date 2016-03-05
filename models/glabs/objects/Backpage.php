@@ -93,7 +93,7 @@ class Backpage extends BaseObject
             }
 
             try {
-                $image = new Image(['url' => $url]);
+                $image = new Image(['url' => $url, 'object_url' => $this->url]);
             } catch (ImageException $e) {
                 continue;
             }

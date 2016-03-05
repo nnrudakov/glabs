@@ -22,6 +22,13 @@ class TorCurl implements CurlInterface
     public $connectedURL;
 
     /**
+     * Referer.
+     *
+     * @var string
+     */
+    public static $referer;
+
+    /**
      * Localhost is a hostname that means this computer or this host.
      *
      * @var string
@@ -83,13 +90,14 @@ class TorCurl implements CurlInterface
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+        curl_setopt($ch, CURLOPT_REFERER, self::$referer ?: 'https://www.google.com/');
 
         sleep(mt_rand(3, 5));
         $content = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $this->connectedURL = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 
-        if (404 === $code){
+        if (404 === $code) {
             throw new CurlException('Content not found.');
         }
 

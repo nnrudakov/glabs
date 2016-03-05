@@ -19,6 +19,13 @@ class ProxyCurl implements CurlInterface
     public static $proxy = '';
 
     /**
+     * Referer.
+     *
+     * @var string
+     */
+    public static $referer;
+
+    /**
      * Connected URL.
      *
      * @var string
@@ -48,6 +55,7 @@ class ProxyCurl implements CurlInterface
         curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 40);
+        curl_setopt($ch, CURLOPT_REFERER, self::$referer ?: 'https://www.google.com/');
 
         sleep(mt_rand(10, 20));
         $content = curl_exec($ch);

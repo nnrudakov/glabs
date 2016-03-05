@@ -50,7 +50,7 @@ class Backpage extends BaseObject
         /* @var \PHPHtmlParser\Dom\AbstractNode $imageTag */
         if ($imageTag = $this->getImageTags()) {
             try {
-                $this->thumbnail = new Image(['url' => $imageTag->getAttribute('src')]);
+                $this->thumbnail = new Image(['url' => $imageTag->getAttribute('src'), 'object_url' => $this->url]);
             } catch (ImageException $e) {
                 return false;
             }
