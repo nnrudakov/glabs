@@ -234,6 +234,36 @@ class GlabsController extends Controller
         return true;
     }
 
+    /**
+     * Mass mail.
+     *
+     * @param string  $category Category.
+     * @param integer $count    Count objects to parse.
+     * @param string  $curl     cURL type. Possible values:
+     *                          <ul>
+     *                            <li><code>proxy</code> (default)</li>
+     *                            <li><code>tor</code></li>
+     *                          </ul>
+     * @param string  $proxy    Proxy IP and port.
+     *
+     * @throws InvalidParamException
+     * @throws ObjectException
+     * @throws CurlException
+     */
+    public function actionMassMail($category, $count = 0, $curl = 'proxy', $proxy = '')
+    {
+        self::$curl = 'proxy' === $curl ? new ProxyCurl() : new TorCurl();
+
+        if ($proxy) {
+            ProxyCurl::$proxy = $proxy;
+        }
+
+        $site_model = false !== strpos($url, 'craigslist')
+            ? new Craigslist(['Users'], $count, $url)
+            : new Backpage(['Users'], $count, $url);
+        $site_model->parse();
+    }
+
     private function collectSites()
     {
         $old_data = json_decode(file_get_contents(\Yii::getAlias('@runtime/data/chatapp.json')), true);
@@ -404,5 +434,23 @@ class GlabsController extends Controller
         $data = json_decode(file_get_contents(\Yii::getAlias('@runtime/data/chatapp.json')), true);
         $data['total_count']++;
         file_put_contents(\Yii::getAlias('@runtime/data/chatapp.json'),  json_encode($data));
+    }
+
+    /**
+     * Save mass mail links and email.
+     *
+     * @param \app\models\glabs\objects\massmail\Craigslist $object Object.
+     *
+     * @return bool
+     *
+     * @throws InvalidParamException
+     */
+    public static function saveMassmailLinks($object)
+    {
+        $fp = fopen(Yii::getAlias('@runtime/massmail_' . (int) self::$startTime. '.csv'), 'a');
+        fputcsv($fp, [$object->getUrl(), $object->getEmail()]);
+        fclose($fp);
+
+        return true;
     }
 }
