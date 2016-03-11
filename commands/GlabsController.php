@@ -256,17 +256,8 @@ class GlabsController extends Controller
             ProxyCurl::$proxy = $proxy;
         }
 
-        $m = new \app\models\glabs\db\MassMail();
-        $m->object_id = 1;
-        $m->object_url = '//sdfasd';
-        $m->save();
-
-        if ($m->hasErrors()) {
-            print_r($m->getErrors());
-        }
-
-        /*$site_model = new Craigslist([$category], $count);
-        $site_model->parse();*/
+        $site_model = new Craigslist([$category], $count);
+        $site_model->parse();
     }
 
     private function collectSites()
