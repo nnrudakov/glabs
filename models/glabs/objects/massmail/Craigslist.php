@@ -56,7 +56,7 @@ class Craigslist extends BaseCraigslist
 
         try {
             $curl = GlabsController::$curl;
-            $curl::$referer = $this->categoryUrl;
+            $curl::$referer = $this->url;
             self::$dom->loadFromUrl($this->reply_url, [], GlabsController::$curl);
         } catch (CurlException $e) {
             if (false !== strpos($e->getMessage(), 'timed out')) {
