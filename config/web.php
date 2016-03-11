@@ -37,7 +37,11 @@ $config = [
                 ],
             ],
         ],
-        'db' => require(__DIR__ . '/db.php'),
+        //'db' => require(__DIR__ . '/db.php'),
+        'mongodb' => [
+            'class' => '\yii\mongodb\Connection',
+            'dsn' => 'mongodb://glabs:1234@localhost:27017/glabs',
+        ],
     ],
     'params' => $params,
 ];
