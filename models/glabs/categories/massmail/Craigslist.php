@@ -30,7 +30,7 @@ class Craigslist extends BaseCraigslist
     public function parse()
     {
         GlabsController::showMessage("\n" . 'Parsing category "' . $this->title . '"');
-        /** @var \app\models\glabs\objects\BaseObject $object */
+        /** @var \app\models\glabs\objects\massmail\Craigslist $object */
         foreach ($this->objects as $object) {
             if (in_array($object->getUrl(), $this->doneObjects, true)) {
                 continue;

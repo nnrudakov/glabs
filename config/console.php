@@ -25,7 +25,11 @@ return [
                 ],
             ],
         ],
-        'db' => $db,
+        //'db' => $db,
+        'mongodb' => [
+            'class' => '\yii\mongodb\Connection',
+            'dsn' => 'mongodb://glabs:1234@localhost:27017/glabs',
+        ],
     ],
     'params' => $params,
 ];
