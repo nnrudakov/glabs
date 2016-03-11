@@ -155,26 +155,13 @@ class Craigslist extends BaseCraigslist
         }
 
         if (!$massmail) {
-            $message = \Swift_Message::newInstance();
-            $email_text = file_get_contents(Yii::getAlias('@runtime/data/chatapp.json'));
-            $email_text = str_replace(
-                ['{$title}', '{$cover_img}', '{$appstore_img}', '{$googleplay_img}'],
-                [
-                    $this->title,
-                    $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/data/cover_img.png'))),
-                    $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/data/appstore_img.png'))),
-                    $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/data/googleplay_img.png')))
-                ],
-                $email_text
-            );
-
             $massmail             = new MassMail();
             $massmail->object_id  = $this->object_id;
             $massmail->object_url = $this->url;
             $massmail->reply_url  = $this->reply_url;
             $massmail->subject    = $this->title;
             $massmail->to         = $this->email;
-            $massmail->message    = $email_text;
+            $massmail->message    = file_get_contents(Yii::getAlias('@runtime/data/blank_email.html'));
             $massmail->created_at = time();
         }
 

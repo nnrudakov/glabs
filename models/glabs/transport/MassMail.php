@@ -2,8 +2,10 @@
 
 namespace app\models\glabs\transport;
 
+use Yii;
 use app\models\glabs\TransportException;
 use app\models\glabs\db\MassMail as MassMailModel;
+use yii\base\InvalidParamException;
 
 /**
  * Mass mail transport.
@@ -43,16 +45,30 @@ class MassMail
      * @return bool
      *
      * @throws TransportException
+     * @throws InvalidParamException
      */
     public function send($isTest = false)
     {
         /* @var \Swift_Message $message */
-        $message = \Swift_Message::newInstance()
+        $message = \Swift_Message::newInstance();
+        $body = $this->massmail->message;
+        $body = str_replace(
+            ['{$title}', '{$cover_img}', '{$appstore_img}', '{$googleplay_img}'],
+            [
+                $this->massmail->subject,
+                $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/data/cover_img.png'))),
+                $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/data/appstore_img.png'))),
+                $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/data/googleplay_img.png')))
+            ],
+            $body
+        );
+
+        $message
             ->setSubject($this->massmail->subject)
             ->setFrom([self::FROM => 'Zoheny.com'])
             ->setReturnPath(self::FROM)
             ->setTo([$this->massmail->to])
-            ->setBody($this->massmail->message, 'text/html', 'uft-8');
+            ->setBody($body, 'text/html', 'uft-8');
         $transport = \Swift_MailTransport::newInstance();
         $mailer = \Swift_Mailer::newInstance($transport);
 
