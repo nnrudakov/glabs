@@ -54,10 +54,11 @@ class Craigslist extends BaseCraigslist
             $this->reply_url = 'http://' . parse_url($this->url, PHP_URL_HOST) . '/reply/lax/' . $matches[1] . '/' . $this->object_id;
         }
 
+        $curl = GlabsController::$curl;
+        $curl::$referer = $this->url;
+
         try {
-            $curl = GlabsController::$curl;
-            $curl::$referer = $this->url;
-            self::$dom->loadFromUrl($this->reply_url, [], GlabsController::$curl);
+            self::$dom->loadFromUrl($this->reply_url, [], $curl);
         } catch (CurlException $e) {
             if (false !== strpos($e->getMessage(), 'timed out')) {
                 GlabsController::showMessage(' ...trying again', false);

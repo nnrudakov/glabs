@@ -52,6 +52,11 @@ class GlabsController extends Controller
     public static $sentObjects = 0;
 
     /**
+     * @var string
+     */
+    public static $currentAction;
+
+    /**
      * Begin execution time.
      *
      * @var integer
@@ -86,6 +91,7 @@ class GlabsController extends Controller
      */
     public function actionIndex($site, array $categories = [], $count = 0, $curl = 'proxy', $proxy = '', $quiet = false)
     {
+        self::$currentAction = 'index';
         if (!in_array($site, self::$sites, true)) {
             throw new InvalidParamException('Wrong site "' . $site . '".');
         }
@@ -128,6 +134,7 @@ class GlabsController extends Controller
      */
     public function actionObject($site, $url, $category, $curl = 'proxy', $proxy = '')
     {
+        self::$currentAction = 'object';
         if (!in_array($site, self::$sites, true)) {
             throw new InvalidParamException('Wrong site "' . $site . '".');
         }
@@ -185,6 +192,7 @@ class GlabsController extends Controller
      */
     public function actionChatapp($url, $count = 0, $curl = 'proxy', $proxy = '')
     {
+        self::$currentAction = 'chatapp';
         if (false === strpos($url, 'craigslist') && false === strpos($url, 'backpage')) {
             throw new InvalidParamException('Wrong site.');
         }
@@ -214,6 +222,7 @@ class GlabsController extends Controller
      */
     public function actionChatappAll()
     {
+        self::$currentAction = 'chatapp-all';
         //$this->collectSites();
         $data = json_decode(file_get_contents(Yii::getAlias('@runtime/data/chatapp.json')), true);
         $sites = $data['sites'];
@@ -250,6 +259,7 @@ class GlabsController extends Controller
      */
     public function actionMassMail($category, $count = 0, $curl = 'proxy', $proxy = '')
     {
+        self::$currentAction = 'mass-mail';
         self::$curl = 'proxy' === $curl ? new ProxyCurl() : new TorCurl();
 
         if ($proxy) {

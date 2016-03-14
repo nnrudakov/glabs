@@ -2,8 +2,10 @@
 
 namespace app\models\glabs\sites;
 
+use app\commands\GlabsController;
 use app\models\glabs\categories\Craigslist as Category;
 use app\models\glabs\categories\chatapp\Craigslist as ChatCategory;
+use app\models\glabs\categories\massmail\Craigslist as MassCategory;
 use PHPHtmlParser\Dom;
 
 /**
@@ -85,8 +87,11 @@ class Craigslist extends BaseSite
      */
     protected function setCategory($url, $title, $categoryId, $categoryType, $count)
     {
-        $this->categories[] = 'Users' === $title
-            ? new ChatCategory($url, $title, $categoryId, $categoryType, $count)
-            : new Category($url, $title, $categoryId, $categoryType, $count);
+        switch (GlabsController::$currentAction) {
+            case 'chatapp':   $category = new ChatCategory($url, $title, $categoryId, $categoryType, $count); break;
+            case 'mass-mail': $category = new MassCategory($url, $title, $categoryId, $categoryType, $count); break;
+            default:          $category = new Category($url, $title, $categoryId, $categoryType, $count); break;
+        }
+        $this->categories[] = $category;
     }
 }
