@@ -138,7 +138,6 @@ class BaseObject extends Base
         $this->setBirthday();
         $this->setAboutme();
         //$this->setImages();
-        //print_r($this->toArray());die;
         return true;
     }
 

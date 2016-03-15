@@ -6,9 +6,6 @@
 
 namespace app\commands;
 
-use app\models\glabs\faker\PhoneNumber;
-use Faker\Factory;
-use PHPHtmlParser\Dom;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\console\Controller;
@@ -18,6 +15,7 @@ use app\models\glabs\TorCurl;
 use app\models\glabs\TransportException;
 use app\models\glabs\sites\Craigslist;
 use app\models\glabs\sites\Backpage;
+use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
 
 /**
@@ -54,6 +52,11 @@ class GlabsController extends Controller
     public static $sentObjects = 0;
 
     /**
+     * @var string
+     */
+    public static $currentAction;
+
+    /**
      * Begin execution time.
      *
      * @var integer
@@ -88,6 +91,7 @@ class GlabsController extends Controller
      */
     public function actionIndex($site, array $categories = [], $count = 0, $curl = 'proxy', $proxy = '', $quiet = false)
     {
+        self::$currentAction = 'index';
         if (!in_array($site, self::$sites, true)) {
             throw new InvalidParamException('Wrong site "' . $site . '".');
         }
@@ -130,6 +134,7 @@ class GlabsController extends Controller
      */
     public function actionObject($site, $url, $category, $curl = 'proxy', $proxy = '')
     {
+        self::$currentAction = 'object';
         if (!in_array($site, self::$sites, true)) {
             throw new InvalidParamException('Wrong site "' . $site . '".');
         }
@@ -187,6 +192,7 @@ class GlabsController extends Controller
      */
     public function actionChatapp($url, $count = 0, $curl = 'proxy', $proxy = '')
     {
+        self::$currentAction = 'chatapp';
         if (false === strpos($url, 'craigslist') && false === strpos($url, 'backpage')) {
             throw new InvalidParamException('Wrong site.');
         }
@@ -216,29 +222,59 @@ class GlabsController extends Controller
      */
     public function actionChatappAll()
     {
+        self::$currentAction = 'chatapp-all';
         //$this->collectSites();
-        $data = json_decode(file_get_contents(\Yii::getAlias('@runtime/data/chatapp.json')), true);
+        $data = json_decode(file_get_contents(Yii::getAlias('@runtime/data/chatapp.json')), true);
         $sites = $data['sites'];
         $exclude = $data['exclude'];
         foreach ($sites as $i => $site) {
             $this->actionChatapp($site);
             unset($sites[$i]);
             $exclude[] = $site;
-            $data = json_decode(file_get_contents(\Yii::getAlias('@runtime/data/chatapp.json')), true);
+            $data = json_decode(file_get_contents(Yii::getAlias('@runtime/data/chatapp.json')), true);
             $data['sites'] = $sites;
             $data['exclude'] = $exclude;
-            file_put_contents(\Yii::getAlias('@runtime/data/chatapp.json'),  json_encode($data));
+            file_put_contents(Yii::getAlias('@runtime/data/chatapp.json'),  json_encode($data));
             sleep(mt_rand(3600, 5400));
         }
 
         return true;
     }
 
+    /**
+     * Mass mail.
+     *
+     * @param string  $category Category.
+     * @param integer $count    Count objects to parse.
+     * @param string  $curl     cURL type. Possible values:
+     *                          <ul>
+     *                            <li><code>proxy</code> (default)</li>
+     *                            <li><code>tor</code></li>
+     *                          </ul>
+     * @param string  $proxy    Proxy IP and port.
+     *
+     * @throws InvalidParamException
+     * @throws ObjectException
+     * @throws CurlException
+     */
+    public function actionMassMail($category, $count = 0, $curl = 'proxy', $proxy = '')
+    {
+        self::$currentAction = 'mass-mail';
+        self::$curl = 'proxy' === $curl ? new ProxyCurl() : new TorCurl();
+
+        if ($proxy) {
+            ProxyCurl::$proxy = $proxy;
+        }
+
+        $site_model = new Craigslist([$category], $count);
+        $site_model->parse();
+    }
+
     private function collectSites()
     {
-        $old_data = json_decode(file_get_contents(\Yii::getAlias('@runtime/data/chatapp.json')), true);
+        $old_data = json_decode(file_get_contents(Yii::getAlias('@runtime/data/chatapp.json')), true);
         $dom = new Dom();
-        $dom->loadFromFile(\Yii::getAlias('@runtime/sites.html'));
+        $dom->loadFromFile(Yii::getAlias('@runtime/sites.html'));
         $clinks = $blinks = [];
         $exclude = array_key_exists('exclude', $old_data)
             ? $old_data['exclude']
@@ -260,7 +296,7 @@ class GlabsController extends Controller
             $clinks[] = $href;
         }
         shuffle($clinks);
-        $dom->loadFromFile(\Yii::getAlias('@runtime/backpage.html'));
+        $dom->loadFromFile(Yii::getAlias('@runtime/backpage.html'));
         /* @var Dom\AbstractNode $link */
         foreach ($dom->find('a') as $link) {
             $href = $link->getAttribute('href');
@@ -277,7 +313,7 @@ class GlabsController extends Controller
             'sites' => array_merge($clinks, $blinks),
             'exclude' => $exclude
         ];
-        file_put_contents(\Yii::getAlias('@runtime/data/chatapp.json'),  json_encode($data));
+        file_put_contents(Yii::getAlias('@runtime/data/chatapp.json'),  json_encode($data));
     }
 
     /**
@@ -389,9 +425,9 @@ class GlabsController extends Controller
      */
     public static function saveZohenyStatus()
     {
-        $data = json_decode(file_get_contents(\Yii::getAlias('@runtime/data/zoheny.json')), true);
+        $data = json_decode(file_get_contents(Yii::getAlias('@runtime/data/zoheny.json')), true);
         $data['total_count']++;
-        file_put_contents(\Yii::getAlias('@runtime/data/zoheny.json'),  json_encode($data));
+        file_put_contents(Yii::getAlias('@runtime/data/zoheny.json'),  json_encode($data));
     }
 
     /**
@@ -401,8 +437,26 @@ class GlabsController extends Controller
      */
     public static function saveChatappStatus()
     {
-        $data = json_decode(file_get_contents(\Yii::getAlias('@runtime/data/chatapp.json')), true);
+        $data = json_decode(file_get_contents(Yii::getAlias('@runtime/data/chatapp.json')), true);
         $data['total_count']++;
-        file_put_contents(\Yii::getAlias('@runtime/data/chatapp.json'),  json_encode($data));
+        file_put_contents(Yii::getAlias('@runtime/data/chatapp.json'),  json_encode($data));
+    }
+
+    /**
+     * Save mass mail links and email.
+     *
+     * @param \app\models\glabs\objects\massmail\Craigslist $object Object.
+     *
+     * @return bool
+     *
+     * @throws InvalidParamException
+     */
+    public static function saveMassmailLinks($object)
+    {
+        $fp = fopen(Yii::getAlias('@runtime/massmail_' . (int) self::$startTime. '.csv'), 'a');
+        fputcsv($fp, [$object->getUrl(), $object->getEmail()]);
+        fclose($fp);
+
+        return true;
     }
 }

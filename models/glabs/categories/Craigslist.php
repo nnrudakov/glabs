@@ -6,6 +6,7 @@ use app\commands\GlabsController;
 use app\models\glabs\objects\ObjectException;
 use app\models\glabs\objects\Craigslist as AdsObject;
 use app\models\glabs\objects\chatapp\Craigslist as ChatObject;
+use app\models\glabs\objects\massmail\Craigslist as MassObject;
 use app\models\glabs\sites\BaseSite;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
@@ -103,9 +104,16 @@ class Craigslist extends BaseCategory
      */
     protected function getObjectModel($categoryUrl, $url, $title, $categoryId, $categoryType)
     {
-        return $this->isUsersTitle()
-            ? new ChatObject($categoryUrl, $url, $title, $categoryId, $categoryType)
-            : new AdsObject($categoryUrl, $url, $title, $categoryId, $categoryType);
+        $class = new \ReflectionClass($this);
+        $ns = substr($class->getNamespaceName(), strrpos($class->getNamespaceName(), '\\') + 1);
+        switch ($ns) {
+            case 'chatapp':
+                return new ChatObject($categoryUrl, $url, $title, $categoryId, $categoryType);
+            case 'massmail':
+                return new MassObject($categoryUrl, $url, $title, $categoryId, $categoryType);
+            default:
+                return new AdsObject($categoryUrl, $url, $title, $categoryId, $categoryType);
+        }
     }
 
     /**
