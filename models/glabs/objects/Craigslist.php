@@ -20,7 +20,7 @@ class Craigslist extends BaseObject
      */
     protected function setTitle()
     {
-        if (!$this->title || 'none' == $this->title) {
+        if (!$this->title || 'none' === $this->title) {
             /* @var \PHPHtmlParser\Dom\AbstractNode $title */
             if ($title = self::$dom->find('#titletextonly', 0)) {
                 $this->title = $title->text();

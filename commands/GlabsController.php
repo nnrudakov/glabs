@@ -6,6 +6,7 @@
 
 namespace app\commands;
 
+use PHPHtmlParser\Exceptions\EmptyCollectionException;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\console\Controller;
@@ -154,8 +155,8 @@ class GlabsController extends Controller
 
         $category = $categories[$category];
         $object = 'craigslist' === $site
-            ? new \app\models\glabs\objects\Craigslist($url, 'none', $category['category_id'], $category['type'])
-            : new \app\models\glabs\objects\Backpage($url, 'none', $category['category_id'], $category['type']);
+            ? new \app\models\glabs\objects\Craigslist($url, 'none', $category['category_id'], $category['type'], 1)
+            : new \app\models\glabs\objects\Backpage($url, 'none', $category['category_id'], $category['type'], 1);
         try {
             $object->parse();
             $object->setPrice();
@@ -268,6 +269,97 @@ class GlabsController extends Controller
 
         $site_model = new Craigslist([$category], $count);
         $site_model->parse();
+    }
+
+    /**
+     * Send mass mail.
+     *
+     * @param string  $curl     cURL type. Possible values:
+     *                          <ul>
+     *                            <li><code>proxy</code> (default)</li>
+     *                            <li><code>tor</code></li>
+     *                          </ul>
+     * @param string  $proxy    Proxy IP and port.
+     *
+     * @throws InvalidParamException
+     * @throws ObjectException
+     * @throws CurlException
+     * @throws EmptyCollectionException
+     *
+     * @return bool
+     */
+    public function actionSendMail($curl = 'proxy', $proxy = '')
+    {
+        self::$currentAction = 'sendmail';
+        self::$curl = 'proxy' === $curl ? new ProxyCurl() : new TorCurl();
+        if ($proxy) {
+            ProxyCurl::$proxy = $proxy;
+        }
+
+        $links = [];
+        $lines = file(Yii::getAlias('@runtime/email.csv'));
+        foreach ($lines as $line) {
+            list($link, $email) = explode(',', $line);
+            $links[trim($email)] = $link;
+        }
+
+        $emails = file(Yii::getAlias('@runtime/uemail.csv'));
+        $i = 1;
+        foreach ($emails as $email) {
+            $email = trim($email);
+            if (!isset($links[$email])) {
+                continue;
+            }
+
+            $link = $links[$email];
+            $email = 'nnrudakov@gmail.com';
+            // aguiang@gmail.com
+            // arnel@guiang.com
+            // arnel@glabs.la
+            self::showMessage($i . ') Parsing object "' . $link . '"');
+            if (false !== strpos($link, 'craigslist')) {
+                $object = new \app\models\glabs\objects\massmail\Craigslist(
+                    \app\models\glabs\sites\Craigslist::URL,
+                    $link,
+                    'none',
+                    1,
+                    ''
+                );
+
+                try {
+                    $object->parse();
+                } catch (ObjectException $e) {
+                    self::showMessage("\t" . 'Cannot parse object: ' . $e->getMessage());
+                    continue;
+                }
+            } else {
+                $content = file_get_contents($link);
+                if (!preg_match('/<h1>(.+)<\/h1>/', $content, $match)) {
+                    continue;
+                }
+                $object = new \app\models\glabs\objects\massmail\Craigslist(
+                    \app\models\glabs\sites\Backpage::URL,
+                    $link,
+                    $match[1],
+                    1,
+                    ''
+                );
+                $object->setEmail($email);
+            }
+
+            try {
+                self::showMessage("\t" . 'Sending object to ' . $email . '... ', false);
+                $object->send();
+                self::showMessage('Success.');
+            } catch (ObjectException $e) {
+                self::showMessage("\t" . 'Cannot parse object: ' . $e->getMessage());
+            } catch (TransportException $e) {
+                self::showMessage('Fail with message: "' . $e->getMessage() . '"');
+            }
+
+            $i++;
+            break;
+        }
     }
 
     private function collectSites()

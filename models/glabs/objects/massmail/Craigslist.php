@@ -86,6 +86,7 @@ class Craigslist extends BaseCraigslist
     {
         $this->loadDom();
 
+        $this->setTitle();
         $this->setEmail();
 
         return true;
@@ -114,13 +115,20 @@ class Craigslist extends BaseCraigslist
     /**
      * Set email.
      *
+     * @param string $email
+     *
      * @return true
      *
      * @throws ObjectException
      * @throws EmptyCollectionException
      */
-    protected function setEmail()
+    public function setEmail($email = '')
     {
+        if ($email) {
+            $this->email = $email;
+            return true;
+        }
+
         /* @var \PHPHtmlParser\Dom\AbstractNode $postingbody */
         $postingbody = self::$dom->find('.anonemail', 0);
         if (!$postingbody) {
@@ -157,12 +165,12 @@ class Craigslist extends BaseCraigslist
 
         if (!$massmail) {
             $massmail             = new MassMail();
-            $massmail->object_id  = $this->object_id;
+            $massmail->object_id  = $this->object_id ?: time();
             $massmail->object_url = $this->url;
             $massmail->reply_url  = $this->reply_url;
             $massmail->subject    = $this->title;
             $massmail->to         = $this->email;
-            $massmail->message    = file_get_contents(Yii::getAlias('@runtime/data/blank_email.html'));
+            $massmail->message    = file_get_contents(Yii::getAlias('@runtime/massmail/blank_email.html'));
             $massmail->created_at = time();
         }
 
@@ -170,9 +178,9 @@ class Craigslist extends BaseCraigslist
             throw new ObjectException('Model save errors: ' . $this->getErrors($massmail));
         }
 
-        $massmail->is_sent = (new TransportMassMail($massmail))->send($isTest);
+        $massmail->is_send = (new TransportMassMail($massmail))->send($isTest);
 
-        if ($massmail->is_sent) {
+        if ($massmail->is_send) {
             $massmail->sent_at = time();
         }
 

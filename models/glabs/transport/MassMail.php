@@ -20,7 +20,7 @@ class MassMail
     /**
      * @var string
      */
-    const FROM = 'info@zoheny.com';
+    const FROM = 'help@zoheny.com';
 
     /**
      * @var MassMailModel
@@ -49,16 +49,36 @@ class MassMail
      */
     public function send($isTest = false)
     {
+        $mailer = Yii::$app->mailer->compose('zoheny', [
+            'title' => $this->massmail->subject,
+            'img1' => Yii::getAlias('@runtime/massmail/img1.png'),
+            'img2' => Yii::getAlias('@runtime/massmail/img2.png'),
+            'img3' => Yii::getAlias('@runtime/massmail/img3.png'),
+            'img6' => Yii::getAlias('@runtime/massmail/img6.png'),
+            'img9' => Yii::getAlias('@runtime/massmail/img9.png')
+        ])
+            ->setSubject($this->massmail->subject)
+            ->setFrom([self::FROM => 'Zoheny.com'])
+            ->setReplyTo(self::FROM)
+            ->setTo([$this->massmail->to]);
+
+        if ($isTest) {
+            return false;
+        }
+
+        return $mailer->send();
         /* @var \Swift_Message $message */
-        $message = \Swift_Message::newInstance();
+        /*$message = \Swift_Message::newInstance();
         $body = $this->massmail->message;
         $body = str_replace(
-            ['{$title}', '{$cover_img}', '{$appstore_img}', '{$googleplay_img}'],
+            ['{$title}', '{$img1}', '{$img2}', '{$img3}', '{$img6}', '{$img9}'],
             [
                 $this->massmail->subject,
-                $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/data/cover_img.png'))),
-                $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/data/appstore_img.png'))),
-                $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/data/googleplay_img.png')))
+                $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/massmail/img1.png'))),
+                $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/massmail/img2.png'))),
+                $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/massmail/img3.png'))),
+                $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/massmail/img6.png'))),
+                $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/massmail/img9.png')))
             ],
             $body
         );
@@ -68,14 +88,18 @@ class MassMail
             ->setFrom([self::FROM => 'Zoheny.com'])
             ->setReturnPath(self::FROM)
             ->setTo([$this->massmail->to])
-            ->setBody($body, 'text/html', 'uft-8');
+            ->setBody($body, 'text/html', 'utf-8');
         $transport = \Swift_MailTransport::newInstance();
         $mailer = \Swift_Mailer::newInstance($transport);
+
+        if ($isTest) {
+            return false;
+        }
 
         if (!$mailer->send($message, $failures)) {
             throw new TransportException('Mail send errors: ' . implode(', ', $failures));
         }
 
-        return true;
+        return true;*/
     }
 }

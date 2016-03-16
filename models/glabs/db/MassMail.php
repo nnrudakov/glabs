@@ -14,7 +14,7 @@ use yii\mongodb\ActiveRecord;
  * @property string   $subject    Email subject.
  * @property string   $to         Email.
  * @property string   $message    Email text which sent to user.
- * @property bool     $is_sent    Email is sent.
+ * @property bool     $is_send    Email is sent.
  * @property integer  $created_at Created date.
  * @property integer  $sent_at    Sent date.
  *

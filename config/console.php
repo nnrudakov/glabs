@@ -30,6 +30,14 @@ return [
             'class' => '\yii\mongodb\Connection',
             'dsn' => 'mongodb://glabs:1234@localhost:27017/glabs',
         ],
+        'mailer' => [
+            'class' => 'yii\swiftmailer\Mailer',
+            'useFileTransport' => false,
+            'transport' => [
+                'class' => 'Swift_MailTransport'
+            ],
+            'enableSwiftMailerLogging' => true
+        ],
     ],
     'params' => $params,
 ];
