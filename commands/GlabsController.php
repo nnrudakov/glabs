@@ -348,7 +348,7 @@ class GlabsController extends Controller
             }
 
             try {
-                self::showMessage("\t" . 'Sending object to ' . $email . '... ', false);
+                self::showMessage("\t" . 'Sending email to ' . $email . '... ', false);
                 $object->send();
                 self::showMessage('Success.');
             } catch (ObjectException $e) {
