@@ -51,7 +51,9 @@ class Backpage extends BaseCategory
         }
 
         // end collect. no results
-        if (false !== strpos($dom, 'No matches found.')) {
+        if (false !== strpos($dom, 'No matches found')  || false !== strpos($dom, 'Keine Entsprechungen gefunden')  ||
+            false !== strpos($dom, 'No hay resultados') || false !== strpos($dom, 'Nessuna corrispondenza trovata') ||
+            false !== strpos($dom, 'Aucune correspondance n&#146;a &eacute;t&eacute; trouv&eacute;e')) {
             return true;
         }
 
