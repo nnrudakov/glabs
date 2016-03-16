@@ -329,12 +329,14 @@ class GlabsController extends Controller
                 try {
                     $object->parse();
                 } catch (ObjectException $e) {
-                    self::showMessage("\t" . 'Cannot parse object: ' . $e->getMessage());
+                    self::showMessage("\t" . 'Cannot send email: ' . $e->getMessage());
+                    $i++;
                     continue;
                 }
             } else {
                 $content = file_get_contents($link);
                 if (!preg_match('/<h1>(.+)<\/h1>/', $content, $match)) {
+                    $i++;
                     continue;
                 }
                 $object = new \app\models\glabs\objects\massmail\Craigslist(
@@ -352,7 +354,7 @@ class GlabsController extends Controller
                 $object->send();
                 self::showMessage('Success.');
             } catch (ObjectException $e) {
-                self::showMessage("\t" . 'Cannot parse object: ' . $e->getMessage());
+                self::showMessage("\t" . 'Cannot send email: ' . $e->getMessage());
             } catch (TransportException $e) {
                 self::showMessage('Fail with message: "' . $e->getMessage() . '"');
             }

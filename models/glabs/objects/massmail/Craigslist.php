@@ -180,6 +180,10 @@ class Craigslist extends BaseCraigslist
 
         $massmail->is_send = (new TransportMassMail($massmail))->send($isTest);
 
+        if (!$massmail->is_send) {
+            throw new ObjectException('Email not send, see logs.');
+        }
+
         if ($massmail->is_send) {
             $massmail->sent_at = time();
         }
