@@ -24,7 +24,7 @@ class Backpage extends BaseCategory
      */
     public function __construct($url, $title, $categoryId, $type, $count)
     {
-        parent::$pageParam = '&page=';
+        parent::$pageParam = '?page=';
         parent::__construct($url, $title, $categoryId, $type, $count);
     }
 
