@@ -56,7 +56,7 @@ class Backpage extends BaseCategory
             false !== strpos($dom, 'Aucune correspondance n&#146;a &eacute;t&eacute; trouv&eacute;e') ||
             false !== strpos($dom, 'Nenhuma correspondência encontrada') || false !== strpos($dom, 'Совпадений нет') ||
             false !== strpos($dom, 'Ingen match fundet') || false !== strpos($dom, 'Nebyly nalezeny žádné shody') ||
-            false !== strpos($dom, 'Ingen match funnet')) {
+            false !== strpos($dom, 'Ingen match funnet') || false !== strpos($dom, 'Nie znaleziono')) {
             return true;
         }
 
