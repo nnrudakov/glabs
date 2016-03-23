@@ -88,9 +88,9 @@ class Craigslist extends BaseSite
     protected function setCategory($url, $title, $categoryId, $categoryType, $count)
     {
         switch (GlabsController::$currentAction) {
-            case 'chatapp':   $category = new ChatCategory($url, $title, $categoryId, $categoryType, $count); break;
-            case 'mass-mail': $category = new MassCategory($url, $title, $categoryId, $categoryType, $count); break;
-            default:          $category = new Category($url, $title, $categoryId, $categoryType, $count); break;
+            case 'chatapp':       $category = new ChatCategory($url, $title, $categoryId, $categoryType, $count); break;
+            case 'collect-mails': $category = new MassCategory($url, $title, $categoryId, $categoryType, $count); break;
+            default:              $category = new Category($url, $title, $categoryId, $categoryType, $count); break;
         }
         $this->categories[] = $category;
     }
