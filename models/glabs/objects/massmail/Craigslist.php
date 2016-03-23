@@ -93,6 +93,14 @@ class Craigslist extends BaseCraigslist
     }
 
     /**
+     * @return integer
+     */
+    public function getObjectId()
+    {
+        return $this->object_id ?: time();
+    }
+
+    /**
      * Returns reply URL.
      *
      * @return string
@@ -165,7 +173,7 @@ class Craigslist extends BaseCraigslist
 
         if (!$massmail) {
             $massmail             = new MassMail();
-            $massmail->object_id  = $this->object_id ?: time();
+            $massmail->object_id  = $this->getObjectId();
             $massmail->object_url = $this->url;
             $massmail->reply_url  = $this->reply_url;
             $massmail->subject    = $this->title;

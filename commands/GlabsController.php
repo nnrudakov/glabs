@@ -239,7 +239,7 @@ class GlabsController extends Controller
     }
 
     /**
-     * Mass mail.
+     * Collect mass mail.
      *
      * @param string  $category Category.
      * @param integer $count    Count objects to parse.
@@ -254,7 +254,7 @@ class GlabsController extends Controller
      * @throws ObjectException
      * @throws CurlException
      */
-    public function actionMassMail($category, $count = 0, $curl = 'proxy', $proxy = '')
+    public function actionCollectMails($category, $count = 0, $curl = 'proxy', $proxy = '')
     {
         self::$curl = 'proxy' === $curl ? new ProxyCurl() : new TorCurl();
 
@@ -543,7 +543,13 @@ class GlabsController extends Controller
     public static function saveMassmailLinks($object)
     {
         $fp = fopen(Yii::getAlias('@runtime/massmail_' . (int) self::$startTime. '.csv'), 'a');
-        fputcsv($fp, [$object->getUrl(), $object->getEmail()]);
+        fputcsv($fp, [
+            $object->getObjectId(),
+            $object->getUrl(),
+            $object->getReplyUrl(),
+            $object->getTitle(),
+            $object->getEmail()
+        ]);
         fclose($fp);
 
         return true;

@@ -51,7 +51,7 @@ class Craigslist extends BaseCraigslist
 
             GlabsController::showMessage("\t\t" . 'Sending object... ', false);
             try {
-                $object->send();
+                //$object->send();
                 GlabsController::$sentObjects++;
                 GlabsController::showMessage('Success.');
             } catch (TransportException $e) {

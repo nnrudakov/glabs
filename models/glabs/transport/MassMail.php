@@ -2,10 +2,10 @@
 
 namespace app\models\glabs\transport;
 
-use Yii;
+use yii;
+use yii\base\InvalidParamException;
 use app\models\glabs\TransportException;
 use app\models\glabs\db\MassMail as MassMailModel;
-use yii\base\InvalidParamException;
 
 /**
  * Mass mail transport.
@@ -67,39 +67,5 @@ class MassMail
         }
 
         return $mailer->send();
-        /* @var \Swift_Message $message */
-        /*$message = \Swift_Message::newInstance();
-        $body = $this->massmail->message;
-        $body = str_replace(
-            ['{$title}', '{$img1}', '{$img2}', '{$img3}', '{$img6}', '{$img9}'],
-            [
-                $this->massmail->subject,
-                $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/massmail/img1.png'))),
-                $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/massmail/img2.png'))),
-                $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/massmail/img3.png'))),
-                $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/massmail/img6.png'))),
-                $message->embed(\Swift_Image::fromPath(Yii::getAlias('@runtime/massmail/img9.png')))
-            ],
-            $body
-        );
-
-        $message
-            ->setSubject($this->massmail->subject)
-            ->setFrom([self::FROM => 'Zoheny.com'])
-            ->setReturnPath(self::FROM)
-            ->setTo([$this->massmail->to])
-            ->setBody($body, 'text/html', 'utf-8');
-        $transport = \Swift_MailTransport::newInstance();
-        $mailer = \Swift_Mailer::newInstance($transport);
-
-        if ($isTest) {
-            return false;
-        }
-
-        if (!$mailer->send($message, $failures)) {
-            throw new TransportException('Mail send errors: ' . implode(', ', $failures));
-        }
-
-        return true;*/
     }
 }
