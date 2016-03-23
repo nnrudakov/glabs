@@ -137,6 +137,10 @@ class Craigslist extends BaseCraigslist
             return true;
         }
 
+        if (false !== strpos(self::$dom, 'g-recaptcha')) {
+            throw new ObjectException('Showed Google captcha in reply URL.');
+        }
+
         /* @var \PHPHtmlParser\Dom\AbstractNode $postingbody */
         $postingbody = self::$dom->find('.anonemail', 0);
         if (!$postingbody) {
