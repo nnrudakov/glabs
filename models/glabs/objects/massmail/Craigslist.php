@@ -171,7 +171,7 @@ class Craigslist extends BaseCraigslist
     {
         $massmail = MassMail::findByObjectId($this->object_id);
 
-        if ($massmail && $massmail->is_sent) {
+        if ($massmail && $massmail->is_send) {
             throw new ObjectException('Email has been already sent.');
         }
 
