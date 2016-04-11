@@ -21,8 +21,8 @@ class Backpage extends BaseObject
      */
     protected function setBirthday($years = 0)
     {
-        if (preg_match('/\s-\s(\d+)/', $this->title, $matches)) {
-            $years = $matches[1];
+        if (preg_match('/\s-\s(\d{1,2})$/', trim($this->title), $matches)) {
+            $years = (int) $matches[1];
         }
         parent::setBirthday($years);
     }
