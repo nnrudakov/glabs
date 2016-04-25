@@ -482,6 +482,9 @@ class GlabsController extends Controller
      */
     public static function saveProductsLinks($object)
     {
+        if (!$object->getUploadedLink()) {
+            return false;
+        }
         $fp = fopen(Yii::getAlias('@runtime/products_' . (int) self::$startTime. '.csv'), 'a');
         fputcsv($fp, [$object->getUrl(), $object->getUploadedLink()]);
         fclose($fp);
