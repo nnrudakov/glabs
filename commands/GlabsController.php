@@ -303,9 +303,9 @@ class GlabsController extends Controller
                 '',
                 $subject
             ));
-            self::showMessage($i . ') Sendind to ' . $email . ' mail "'. $subject . '"');
+            self::showMessage($i . ') Sendind to ' . $email . ' mail "'. $subject . '"', true, 'mail');
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                self::showMessage("\tEmail $email is invalid. Skip.");
+                self::showMessage("\tEmail $email is invalid. Skip.", true, 'mail');
                 continue;
             }
             preg_match('/-(\d+)/', $email, $matches);
@@ -313,19 +313,21 @@ class GlabsController extends Controller
             if ($matches && isset($matches[1])) {
                 $object_id = $matches[1];
             }
-
+            //$email = 'nnrudakov@gmail.com';
             $object = new SimpleObject(['object_id' => $object_id, 'title' => $subject, 'email' => $email]);
             try {
-                //$object->send();
-                self::showMessage("\t" . 'Success.');
+                $object->send();
+                self::showMessage("\t" . 'Success.', true, 'mail');
             } catch (ObjectException $e) {
-                self::showMessage("\t" . 'Cannot send email: ' . $e->getMessage());
+                self::showMessage("\t" . 'Cannot send email: ' . $e->getMessage(), true, 'mail');
             } catch (TransportException $e) {
-                self::showMessage("\t" . 'Fail with message: "' . $e->getMessage() . '"');
+                self::showMessage("\t" . 'Fail with message: "' . $e->getMessage() . '"', true, 'mail');
             }
+            $i++;
+
             //if ($i> 55 && $i < 101)
             //echo "$i) $email - $subject\n";
-            $i++;
+
             /*$email = trim($email);
             if (!isset($links[$email])) {
                 continue;
@@ -456,13 +458,17 @@ class GlabsController extends Controller
     /**
      * Show message in console.
      *
-     * @param string $message Message.
-     * @param bool   $lf      New line.
+     * @param string $message     Message.
+     * @param bool   $lf          New line.
+     * @param string $logCategory Save in file.
      */
-    public static function showMessage($message, $lf = true)
+    public static function showMessage($message, $lf = true, $logCategory = '')
     {
         if (!self::$quiet) {
             print $message . ($lf ? "\n" : '');
+        }
+        if ($logCategory) {
+            Yii::info($message, $logCategory);
         }
     }
 

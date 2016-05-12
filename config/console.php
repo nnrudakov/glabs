@@ -23,6 +23,15 @@ return [
                     'class' => 'yii\log\FileTarget',
                     'levels' => ['error', 'warning'],
                 ],
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['info'],
+                    'categories' => [
+                        'mail',
+                    ],
+                    'logFile' => '@runtime/logs/mail_log',
+                    'logVars' => [],
+                ]
             ],
         ],
         //'db' => $db,
