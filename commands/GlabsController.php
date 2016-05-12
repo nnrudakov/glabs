@@ -6,6 +6,7 @@
 
 namespace app\commands;
 
+use app\models\glabs\objects\massmail\SimpleObject;
 use PHPHtmlParser\Exceptions\EmptyCollectionException;
 use Yii;
 use yii\base\InvalidParamException;
@@ -280,6 +281,7 @@ class GlabsController extends Controller
      * @throws ObjectException
      * @throws CurlException
      * @throws EmptyCollectionException
+     * @throws TransportException
      *
      * @return bool
      */
@@ -290,17 +292,41 @@ class GlabsController extends Controller
             ProxyCurl::$proxy = $proxy;
         }
 
-        $links = [];
-        $lines = file(Yii::getAlias('@runtime/email.csv'));
-        foreach ($lines as $line) {
-            list($link, $email) = explode(',', $line);
-            $links[trim($email)] = $link;
-        }
-
-        $emails = file(Yii::getAlias('@runtime/uemail.csv'));
+        $emails = file(Yii::getAlias('@runtime/massmail/emails_all.csv'));
         $i = 1;
         foreach ($emails as $email) {
-            $email = trim($email);
+            list($email, $subject) = explode(';', $email, 2);
+            $email = str_replace(' ', '', strtolower(trim($email)));
+            $subject = str_replace(';', '', trim($subject));
+            $subject = trim(preg_replace(
+                ['/"?reply[\s,]?info[\s,]?for[\s,]?posting[\s,]?"?\d+[\s?-]?[-\s]?/i', '/^\?\s/', '/^\-\s/'],
+                '',
+                $subject
+            ));
+            self::showMessage($i . ') Sendind to ' . $email . ' mail "'. $subject . '"');
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                self::showMessage("\tEmail $email is invalid. Skip.");
+                continue;
+            }
+            preg_match('/-(\d+)/', $email, $matches);
+            $object_id = substr(md5($email.$subject), 0, 10);
+            if ($matches && isset($matches[1])) {
+                $object_id = $matches[1];
+            }
+
+            $object = new SimpleObject(['object_id' => $object_id, 'title' => $subject, 'email' => $email]);
+            try {
+                //$object->send();
+                self::showMessage("\t" . 'Success.');
+            } catch (ObjectException $e) {
+                self::showMessage("\t" . 'Cannot send email: ' . $e->getMessage());
+            } catch (TransportException $e) {
+                self::showMessage("\t" . 'Fail with message: "' . $e->getMessage() . '"');
+            }
+            //if ($i> 55 && $i < 101)
+            //echo "$i) $email - $subject\n";
+            $i++;
+            /*$email = trim($email);
             if (!isset($links[$email])) {
                 continue;
             }
@@ -354,7 +380,7 @@ class GlabsController extends Controller
             }
 
             $i++;
-            break;
+            break;*/
         }
     }
 
