@@ -16,6 +16,11 @@ use PHPHtmlParser\Exceptions\CurlException;
 class Craigslist extends BaseObject
 {
     /**
+     * @var bool
+     */
+    public $parseDescription = true;
+    
+    /**
      * @inheritdoc
      */
     protected function setTitle()
@@ -37,7 +42,7 @@ class Craigslist extends BaseObject
         $postingbody = self::$dom->find('#postingbody');
         /* @var \PHPHtmlParser\Dom\AbstractNode $contact */
         // "click" to show contact
-        if ($contact = $postingbody->find('.showcontact', 0)) {
+        if ($this->parseDescription && $contact = $postingbody->find('.showcontact', 0)) {
             try {
                 $description = GlabsController::$curl->get(
                     'http://' . parse_url($this->url, PHP_URL_HOST) . $contact->getAttribute('href')
@@ -50,7 +55,7 @@ class Craigslist extends BaseObject
                 throw new ObjectException('Could not get contacts (' . $e->getMessage() . ').');
             }
         } else {
-            $this->description = $postingbody->innerHtml();
+            $this->description = $postingbody->innerHtml() . ' ' . $this->data['description'];
         }
 
         return true;

@@ -8,7 +8,7 @@ namespace app\commands;
 
 use app\models\glabs\objects\massmail\SimpleObject;
 use PHPHtmlParser\Exceptions\EmptyCollectionException;
-use Yii;
+use yii;
 use yii\base\InvalidParamException;
 use yii\console\Controller;
 use app\models\glabs\objects\ObjectException;
@@ -172,6 +172,99 @@ class GlabsController extends Controller
         self::saveObjectsEmails($object);
 
         return true;
+    }
+
+    /**
+     * Upload litings from file to zoheny.
+     *
+     * @param string $site        Site to parse. Possible values:
+     *                            <ul>
+     *                            <li><code>craigslist</code> will parse http://losangeles.craigslist.org/ </li>
+     *                            <li><code>backpage</code> will parse http://la.backpage.com/ </li>
+     *                            </ul>
+     * @param string $category    Category.
+     * @param string $categoryUrl Category URL.
+     *
+     * @return bool
+     *
+     * @throws InvalidParamException
+     * @throws ObjectException
+     * @throws CurlException
+     * @throws TransportException
+     */
+    public function actionObjects($site, $category, $categoryUrl = '')
+    {
+        if (!in_array($site, self::$sites, true)) {
+            throw new InvalidParamException('Wrong site "' . $site . '".');
+        }
+
+        self::$curl = new ProxyCurl();
+
+        $categories = 'craigslist' === $site ? Craigslist::CATEGORIES : Backpage::CATEGORIES;
+        if (!array_key_exists($category, $categories)) {
+            throw new InvalidParamException('Wrong category "' . $category . '".');
+        }
+        $category = $categories[$category];
+
+        $urls = $wrong_urls = [];
+        $fh = fopen(Yii::getAlias('@runtime/toys_urls.csv'), 'r');
+        while (($line = fgets($fh)) !== false) {
+            $url = trim($line);
+            if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                $wrong_urls[] = $url;
+            }
+            preg_match('/(\d+)\.html/', $url, $matches);
+            $urls[$matches[1]] = ['url' => $url, 'email' => ''];
+        }
+        fclose($fh);
+
+        if ($wrong_urls) {
+            /** @noinspection ForgottenDebugOutputInspection */
+            print_r($wrong_urls);
+            return Controller::EXIT_CODE_ERROR;
+        }
+
+        $fh = fopen(Yii::getAlias('@runtime/zoheny_emails.csv'), 'r');
+        while (($line = fgets($fh)) !== false) {
+            preg_match('/-(\d+)@/', $line, $matches);
+            if (array_key_exists($matches[1], $urls)) {
+                $urls[$matches[1]]['email'] = trim($line);
+            }
+        }
+        fclose($fh);
+        //return Controller::EXIT_CODE_NORMAL;
+
+        $i = 0;
+        foreach ($urls as $id => $line) {
+            list($url, $email) = [trim($line['url']), trim($line['email'])];
+            if (!$email) {
+                continue;
+            }
+            $i++;
+            self::showMessage($i . ') Parsing object "' . $url . '"');
+
+            $object = 'craigslist' === $site
+                ? new \app\models\glabs\objects\Craigslist($categoryUrl, $url, 'none', $category['category_id'], $category['type'])
+                : new \app\models\glabs\objects\Backpage($categoryUrl, $url, 'none', $category['category_id'], $category['type']);
+            $object->parseDescription = false;
+            $object->data['description'] = $email;
+            try {
+                $object->parse();
+                $object->setPrice();
+                self::showMessage("\t" . 'Sending object... ', false);
+                $object->send();
+                self::showMessage('Success.');
+            } catch (ObjectException $e) {
+                self::showMessage("\t" . 'Cannot parse object: ' . $e->getMessage());
+                continue;
+            } catch (TransportException $e) {
+                self::showMessage('Fail with message: "' . $e->getMessage() . '"');
+                continue;
+            }
+            self::saveObjectsEmails($object);
+        }
+
+        return Controller::EXIT_CODE_NORMAL;
     }
 
     /**

@@ -20,6 +20,15 @@ use yii\base\InvalidParamException;
 class BaseObject
 {
     /**
+     * Additional data.
+     * 
+     * @var array
+     */
+    public $data = [
+        'description' => ''
+    ];
+    
+    /**
      * Dom.
      *
      * @var \PHPHtmlParser\Dom

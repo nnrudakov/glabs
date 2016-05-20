@@ -33,6 +33,24 @@ class ProxyCurl implements CurlInterface
     public $connectedURL;
 
     /**
+     * Search engines.
+     *
+     * @var array
+     */
+    protected static $searchEgines = [
+        'https://www.google.com/', 'https://www.google.co.uk/', 'http://www.daum.net/', 'http://www.eniro.se/',
+        'http://www.naver.com/', 'http://www.yahoo.com/', 'http://www.msn.com/', 'http://www.bing.com/',
+        'http://www.aol.com/', 'http://www.lycos.com/', 'http://www.ask.com/', 'http://www.altavista.com/',
+        'http://search.netscape.com/', 'http://www.cnn.com/SEARCH/', 'http://www.about.com/', 'http://www.mamma.com/',
+        'http://www.alltheweb.com/', 'http://www.voila.fr/', 'http://search.virgilio.it/', 'http://www.bing.com/',
+        'http://www.baidu.com/', 'http://www.alice.com/', 'http://www.yandex.com/', '	http://www.najdi.org.mk/',
+        'http://www.seznam.cz/', 'http://www.search.com/', 'http://www.wp.pl/', 'http://online.onetcenter.org/',
+        'http://www.szukacz.pl/', 'http://www.yam.com/', 'http://www.pchome.com/', 'http://www.kvasir.no/',
+        'http://sesam.no/', 'http://www.ozu.es/', 'http://www.terra.com/', 'http://www.mynet.com/',
+        'http://www.ekolay.net/', 'http://www.rambler.ru/'
+    ];
+
+    /**
      * A proxy curl implementation to get the content of the url.
      *
      * @param string $url
@@ -55,12 +73,15 @@ class ProxyCurl implements CurlInterface
         curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 40);
-        curl_setopt($ch, CURLOPT_REFERER, self::$referer ?: 'https://www.google.com/');
+        curl_setopt($ch, CURLOPT_REFERER, $this->getReferrer());
+        /*curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);*/
 
         sleep(mt_rand(10, 20));
         $content = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $this->connectedURL = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+
         if (404 === $code){
             throw new CurlException('Content not found.');
         }
@@ -113,5 +134,17 @@ class ProxyCurl implements CurlInterface
         // randomly generate UserAgent
         return $browser[mt_rand(0, 7)] . '/' . mt_rand(1, 8) . '.' . mt_rand(0, 9) . ' (' .
             $os[mt_rand(0, 11)] . ' ' . mt_rand(1, 7) . '.' . mt_rand(0, 9) . '; en-US;)';
+    }
+
+    /**
+     * @return string
+     */
+    private function getReferrer()
+    {
+        if (self::$referer) {
+            return self::$referer;
+        }
+
+        return self::$searchEgines[mt_rand(0, count(self::$searchEgines) - 1)];
     }
 }
