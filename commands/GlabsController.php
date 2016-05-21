@@ -487,6 +487,21 @@ class GlabsController extends Controller
         }
     }
 
+    public function actionJoinEmails()
+    {
+        $emails = file(Yii::getAlias('@runtime/emails/all_emails_durty.txt'));
+        $emails = array_filter($emails);
+        $emails = array_unique($emails);
+        $fp = fopen(Yii::getAlias('@runtime/emails/all_emails.txt'), 'a');
+        foreach ($emails as $email) {
+            $email = trim($email);
+            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                fwrite($fp, $email . "\n");
+            }
+        }
+        fclose($fp);
+    }
+
     private function collectSites()
     {
         $old_data = json_decode(file_get_contents(Yii::getAlias('@runtime/data/chatapp.json')), true);
