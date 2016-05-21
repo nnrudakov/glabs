@@ -6,8 +6,6 @@
 
 namespace app\commands;
 
-use app\models\glabs\objects\massmail\SimpleObject;
-use PHPHtmlParser\Exceptions\EmptyCollectionException;
 use yii;
 use yii\base\InvalidParamException;
 use yii\console\Controller;
@@ -17,8 +15,10 @@ use app\models\glabs\TorCurl;
 use app\models\glabs\TransportException;
 use app\models\glabs\sites\Craigslist;
 use app\models\glabs\sites\Backpage;
+use app\models\glabs\objects\massmail\SimpleObject;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
+use PHPHtmlParser\Exceptions\EmptyCollectionException;
 
 /**
  * Glabs catalog parser.
@@ -191,6 +191,7 @@ class GlabsController extends Controller
      * @throws ObjectException
      * @throws CurlException
      * @throws TransportException
+     * @throws EmptyCollectionException
      */
     public function actionObjects($site, $category, $categoryUrl = '')
     {
@@ -207,7 +208,7 @@ class GlabsController extends Controller
         $category = $categories[$category];
 
         $urls = $wrong_urls = [];
-        $fh = fopen(Yii::getAlias('@runtime/toys_urls.csv'), 'r');
+        $fh = fopen(Yii::getAlias('@runtime/zoheny_urls.csv'), 'r');
         while (($line = fgets($fh)) !== false) {
             $url = trim($line);
             if (!filter_var($url, FILTER_VALIDATE_URL)) {
@@ -235,6 +236,7 @@ class GlabsController extends Controller
         //return Controller::EXIT_CODE_NORMAL;
 
         $i = 0;
+        $success_count = 0;
         foreach ($urls as $id => $line) {
             list($url, $email) = [trim($line['url']), trim($line['email'])];
             if (!$email) {
@@ -254,15 +256,21 @@ class GlabsController extends Controller
                 self::showMessage("\t" . 'Sending object... ', false);
                 $object->send();
                 self::showMessage('Success.');
+                $success_count++;
             } catch (ObjectException $e) {
                 self::showMessage("\t" . 'Cannot parse object: ' . $e->getMessage());
                 continue;
             } catch (TransportException $e) {
                 self::showMessage('Fail with message: "' . $e->getMessage() . '"');
                 continue;
+            } catch (EmptyCollectionException $e) {
+                self::showMessage('Fail with message: "' . $e->getMessage() . '"');
+                continue;
             }
             self::saveObjectsEmails($object);
         }
+
+        self::showMessage('Success count: ' . $success_count . '.');
 
         return Controller::EXIT_CODE_NORMAL;
     }
