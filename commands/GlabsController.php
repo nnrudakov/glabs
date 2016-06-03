@@ -210,11 +210,18 @@ class GlabsController extends Controller
         $urls = $wrong_urls = [];
         $fh = fopen(Yii::getAlias('@runtime/zoheny_urls.csv'), 'r');
         while (($line = fgets($fh)) !== false) {
-            $url = trim($line);
+            $url = str_replace(['/', '.', ':'], ['slash', 'dot', 'colon'], $line);
+            $url = preg_replace('/\W/', '', $url);
+            $url = str_replace(['slash', 'dot', 'colon'], ['/', '.', ':'], $url);
             if (!filter_var($url, FILTER_VALIDATE_URL)) {
                 $wrong_urls[] = $url;
             }
             preg_match('/(\d+)\.html/', $url, $matches);
+            /** @noinspection UnSafeIsSetOverArrayInspection */
+            if (!isset($matches[1])) {
+                echo $line;
+                return Controller::EXIT_CODE_ERROR;
+            }
             $urls[$matches[1]] = ['url' => $url, 'email' => ''];
         }
         fclose($fh);
@@ -228,6 +235,11 @@ class GlabsController extends Controller
         $fh = fopen(Yii::getAlias('@runtime/zoheny_emails.csv'), 'r');
         while (($line = fgets($fh)) !== false) {
             preg_match('/-(\d+)@/', $line, $matches);
+            /** @noinspection UnSafeIsSetOverArrayInspection */
+            if (!isset($matches[1])) {
+                echo $line;
+                return Controller::EXIT_CODE_ERROR;
+            }
             if (array_key_exists($matches[1], $urls)) {
                 $urls[$matches[1]]['email'] = trim($line);
             }
@@ -411,6 +423,7 @@ class GlabsController extends Controller
             }
             preg_match('/-(\d+)/', $email, $matches);
             $object_id = substr(md5($email.$subject), 0, 10);
+            /** @noinspection UnSafeIsSetOverArrayInspection */
             if ($matches && isset($matches[1])) {
                 $object_id = $matches[1];
             }
