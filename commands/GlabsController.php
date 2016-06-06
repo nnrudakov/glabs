@@ -430,7 +430,7 @@ class GlabsController extends Controller
             //$email = 'nnrudakov@gmail.com';
             $object = new SimpleObject(['object_id' => $object_id, 'title' => $subject, 'email' => $email]);
             try {
-                //$object->send();
+                $object->send();
                 self::showMessage("\t" . 'Success.', true, 'mail');
             } catch (ObjectException $e) {
                 self::showMessage("\t" . 'Cannot send email: ' . $e->getMessage(), true, 'mail');
