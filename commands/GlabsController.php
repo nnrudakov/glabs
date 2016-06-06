@@ -405,7 +405,7 @@ class GlabsController extends Controller
             ProxyCurl::$proxy = $proxy;
         }
 
-        $emails = file(Yii::getAlias('@runtime/massmail/emails_all.csv'));
+        $emails = file(Yii::getAlias('@runtime/massmail/emails.csv'));
         $i = 1;
         foreach ($emails as $email) {
             list($email, $subject) = explode(';', $email, 2);
@@ -430,7 +430,7 @@ class GlabsController extends Controller
             //$email = 'nnrudakov@gmail.com';
             $object = new SimpleObject(['object_id' => $object_id, 'title' => $subject, 'email' => $email]);
             try {
-                $object->send();
+                //$object->send();
                 self::showMessage("\t" . 'Success.', true, 'mail');
             } catch (ObjectException $e) {
                 self::showMessage("\t" . 'Cannot send email: ' . $e->getMessage(), true, 'mail');
@@ -438,65 +438,6 @@ class GlabsController extends Controller
                 self::showMessage("\t" . 'Fail with message: "' . $e->getMessage() . '"', true, 'mail');
             }
             $i++;
-
-            //if ($i> 55 && $i < 101)
-            //echo "$i) $email - $subject\n";
-
-            /*$email = trim($email);
-            if (!isset($links[$email])) {
-                continue;
-            }
-
-            $link = $links[$email];
-            $email = 'nnrudakov@gmail.com';
-            // aguiang@gmail.com
-            // arnel@guiang.com
-            // arnel@glabs.la
-            self::showMessage($i . ') Parsing object "' . $link . '"');
-            if (false !== strpos($link, 'craigslist')) {
-                $object = new \app\models\glabs\objects\massmail\Craigslist(
-                    \app\models\glabs\sites\Craigslist::URL,
-                    $link,
-                    'none',
-                    1,
-                    ''
-                );
-
-                try {
-                    $object->parse();
-                } catch (ObjectException $e) {
-                    self::showMessage("\t" . 'Cannot send email: ' . $e->getMessage());
-                    $i++;
-                    continue;
-                }
-            } else {
-                $content = file_get_contents($link);
-                if (!preg_match('/<h1>(.+)<\/h1>/', $content, $match)) {
-                    $i++;
-                    continue;
-                }
-                $object = new \app\models\glabs\objects\massmail\Craigslist(
-                    \app\models\glabs\sites\Backpage::URL,
-                    $link,
-                    $match[1],
-                    1,
-                    ''
-                );
-                $object->setEmail($email);
-            }
-
-            try {
-                self::showMessage("\t" . 'Sending email to ' . $email . '... ', false);
-                $object->send();
-                self::showMessage('Success.');
-            } catch (ObjectException $e) {
-                self::showMessage("\t" . 'Cannot send email: ' . $e->getMessage());
-            } catch (TransportException $e) {
-                self::showMessage('Fail with message: "' . $e->getMessage() . '"');
-            }
-
-            $i++;
-            break;*/
         }
     }
 
