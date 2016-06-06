@@ -407,6 +407,7 @@ class GlabsController extends Controller
 
         $emails = file(Yii::getAlias('@runtime/massmail/emails.csv'));
         $i = 1;
+        $success_count = 0;
         foreach ($emails as $email) {
             list($email, $subject) = explode(';', $email, 2);
             $email = str_replace(' ', '', strtolower(trim($email)));
@@ -432,6 +433,7 @@ class GlabsController extends Controller
             try {
                 $object->send();
                 self::showMessage("\t" . 'Success.', true, 'mail');
+                $success_count++;
             } catch (ObjectException $e) {
                 self::showMessage("\t" . 'Cannot send email: ' . $e->getMessage(), true, 'mail');
             } catch (TransportException $e) {
@@ -439,6 +441,10 @@ class GlabsController extends Controller
             }
             $i++;
         }
+
+        self::showMessage('Success count: ' . $success_count . '.');
+
+        return Controller::EXIT_CODE_NORMAL;
     }
 
     public function actionJoinEmails()
