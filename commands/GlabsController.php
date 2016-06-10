@@ -273,10 +273,10 @@ class GlabsController extends Controller
                 self::showMessage("\t" . 'Cannot parse object: ' . $e->getMessage());
                 continue;
             } catch (TransportException $e) {
-                self::showMessage('Fail with message: "' . $e->getMessage() . '"');
+                self::showMessage("\t" . 'Fail with message: "' . $e->getMessage() . '"');
                 continue;
             } catch (EmptyCollectionException $e) {
-                self::showMessage('Fail with message: "' . $e->getMessage() . '"');
+                self::showMessage("\t" . 'Fail with message: "' . $e->getMessage() . '"');
                 continue;
             }
             self::saveObjectsEmails($object);
