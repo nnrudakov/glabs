@@ -71,11 +71,6 @@ class TransportZoheny
         }
 
         $params = $this->prepareParams();
-
-        Yii::info('========= ' .time(), 'transport');
-        Yii::info('URL: ' . self::$url, 'transport');
-        Yii::info('Params: ' . var_export($params, true), 'transport');
-
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
         curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent());
@@ -87,17 +82,20 @@ class TransportZoheny
             return true;
         }
 
-        $content = curl_exec($ch);
-        if ($content === false) {
+        $response = curl_exec($ch);
+        if ($response === false) {
             // there was a problem
             $error = curl_error($ch);
-            throw new TransportException('Error retrieving ' . $error);
+            curl_close($ch);
+            throw new TransportException('Error retrieving: ' . $error);
         }
 
-        $content = json_decode($content, true);
+        curl_close($ch);
+        $content = json_decode($response, true);
 
         if (!$content['success']) {
-            throw new TransportException('Error retrieving ' . $content['msg']);
+            throw new TransportException('Error retrieving: ' . $content['msg'] .
+                "\n\t\t" . 'Full response: ' . $response);
         }
 
         $this->object->setUploadedLink((int) $content['product_id']);

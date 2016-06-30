@@ -34,11 +34,11 @@ return [
                 ],
                 [
                     'class' => 'yii\log\FileTarget',
-                    'levels' => ['info'],
+                    'levels' => ['error', 'info'],
                     'categories' => [
                         'transport',
                     ],
-                    'logFile' => '@runtime/logs/transport_log',
+                    'logFile' => '@runtime/logs/transport.log',
                     'logVars' => [],
                 ]
             ],
