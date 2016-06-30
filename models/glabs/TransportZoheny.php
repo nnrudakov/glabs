@@ -64,7 +64,7 @@ class TransportZoheny
      */
     public function send($isTest = false)
     {
-        $ch = curl_init(self::$url);
+        $ch = curl_init(static::$url);
 
         if (!ini_get('open_basedir')) {
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
@@ -87,6 +87,7 @@ class TransportZoheny
             // there was a problem
             $error = curl_error($ch);
             curl_close($ch);
+            $this->log($params, $error);
             throw new TransportException('Error retrieving: ' . $error);
         }
 
@@ -94,8 +95,8 @@ class TransportZoheny
         $content = json_decode($response, true);
 
         if (!$content['success']) {
-            throw new TransportException('Error retrieving: ' . $content['msg'] .
-                "\n\t\t" . 'Full response: ' . $response);
+            $this->log($params, $content['msg'], $response);
+            throw new TransportException('Error retrieving: ' . $content['msg']);
         }
 
         $this->object->setUploadedLink((int) $content['product_id']);
@@ -161,5 +162,31 @@ class TransportZoheny
         // randomly generate UserAgent
         return $browser[mt_rand(0, 7)] . '/' . mt_rand(1, 8) . '.' . mt_rand(0, 9) . ' (' .
             $os[mt_rand(0, 11)] . ' ' . mt_rand(1, 7) . '.' . mt_rand(0, 9) . '; en-US;)';
+    }
+
+    /**
+     * Log request.
+     *
+     * @param array  $params
+     * @param string $error
+     * @param string $response
+     */
+    private function log(array $params, $error, $response = null)
+    {
+        /** @noinspection AlterInForeachInspection */
+        foreach ($params as $k => &$v) {
+            if (false !== strpos($k, 'thumbnail') || false !== strpos($k, 'subimage')) {
+                $v = substr($v, 0, 30) . '...';
+            }
+        }
+
+        Yii::error('==================== ' . time(), 'transport');
+        Yii::error('Object URL: ' . $this->object->getUrl(), 'transport');
+        Yii::error('API URL: ' . static::$url, 'transport');
+        Yii::error('Parameters: ' . var_export($params, true), 'transport');
+        if ($response) {
+            Yii::error('Full response: ' . $response, 'transport');
+        }
+        Yii::error('Error: ' . $error, 'transport');
     }
 }
