@@ -2,6 +2,7 @@
 
 namespace app\models\glabs;
 
+use yii;
 use app\models\glabs\objects\BaseObject;
 
 /**
@@ -69,8 +70,14 @@ class TransportZoheny
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         }
 
+        $params = $this->prepareParams();
+
+        Yii::info('========= ' .time(), 'transport');
+        Yii::info('URL: ' . self::$url, 'transport');
+        Yii::info('Params: ' . var_export($params, true), 'transport');
+
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->prepareParams());
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
         curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);

@@ -31,6 +31,15 @@ return [
                     ],
                     'logFile' => '@runtime/logs/mail_log',
                     'logVars' => [],
+                ],
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['info'],
+                    'categories' => [
+                        'transport',
+                    ],
+                    'logFile' => '@runtime/logs/transport_log',
+                    'logVars' => [],
                 ]
             ],
         ],
