@@ -2,13 +2,14 @@
 
 namespace app\models\glabs\objects;
 
+use yii;
+use yii\base\InvalidParamException;
 use app\commands\GlabsController;
 use app\models\glabs\TransportZoheny;
 use app\models\glabs\TransportException;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\CurlException;
 use PHPHtmlParser\Exceptions\EmptyCollectionException;
-use yii\base\InvalidParamException;
 
 /**
  * Base class of objects.
@@ -415,7 +416,7 @@ class BaseObject
      */
     public function removeFiles()
     {
-        $dir = \Yii::getAlias('@runtime/data/');
+        $dir = Yii::getAlias('@runtime/data/');
         if (!$this->thumbnail) {
             return false;
         }
