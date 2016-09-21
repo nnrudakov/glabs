@@ -335,7 +335,7 @@ class GlabsController extends Controller
     public function actionChatappAll()
     {
         //$this->collectSites();
-        $data = json_decode(file_get_contents(Yii::getAlias('@runtime/bst/chatapp.json')), true);
+        $data = json_decode(file_get_contents(Yii::getAlias('@runtime/data/chatapp.json')), true);
         $sites = $data['sites'];
         $exclude = $data['exclude'];
         foreach ($sites as $i => $site) {
@@ -346,7 +346,7 @@ class GlabsController extends Controller
             $data['sites'] = $sites;
             $data['exclude'] = $exclude;
             file_put_contents(Yii::getAlias('@runtime/bst/chatapp.json'),  json_encode($data));
-            sleep(mt_rand(3600, 5400));
+            break;//sleep(mt_rand(3600, 5400));
         }
 
         return true;

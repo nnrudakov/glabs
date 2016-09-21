@@ -106,7 +106,7 @@ class Backpage extends BaseCategory
     protected function checkTotalObjects($dom)
     {
         if (!$this->count) {
-            $this->count = $this->needCount = 2500;
+            $this->count = $this->needCount = 25000;
         }
 
         return true;
